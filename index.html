@@ -148,7 +148,7 @@ h1,h2,h3,.disp{font-family:var(--display);line-height:1.15;text-wrap:balance;mar
 .hint{min-height:1.5em;text-align:center;color:var(--gold2);font-size:1.1rem;margin:0}
 .actions{display:flex;justify-content:center}
 .fb{display:flex;gap:14px;align-items:flex-start;border-radius:22px;padding:16px;animation:up .25s ease-out}
-.fb.good{background:#1d5446;border:2px solid var(--mint)}
+.fb.good{background:#1f7a55;border:3px solid var(--mint)}
 .fb.bad{background:#51303d;border:2px solid var(--coral)}
 .fb .body{flex:1;display:flex;flex-direction:column;gap:6px}
 .fb h3{font-size:1.5rem}
@@ -674,7 +674,7 @@ function rProof(r,st){
       SFX.tap();optBox.innerHTML='<div class="lead">How should it be?</div>';
       shuffle(opts).forEach(o=>{const ob=document.createElement('button');ob.className='opt';ob.textContent=o;
         ob.onclick=()=>{if(o===fix){R.cur.done=true;b.textContent=fix;b.className='tok fixed';optBox.innerHTML='';st.classList.add('locked');
-            R.cur.err?addMistake('f:'+r.idx):clearMistake('f:'+r.idx);finish(!R.cur.err,R.cur.err?['💡 '+hint]:[])}
+            R.cur.err?addMistake('f:'+r.idx):clearMistake('f:'+r.idx);finish(!R.cur.err,R.cur.err?['💡 '+hint]:[],null,R.cur.err)}
           else{R.cur.err=true;ob.disabled=true;ob.style.opacity=.35;SFX.bad();$('#hint').textContent='💡 '+hint}};
         optBox.appendChild(ob)})};
     line.appendChild(b)});
@@ -694,20 +694,20 @@ function rPair(r,st){
       if(t.tag===want){
         if(step===1){adv=t.w;b.className='tok ok';b.innerHTML=esc(t.w.slice(0,-2))+'<u>ly</u>';SFX.tap();$('#hint').innerHTML=`Yes! The <b>whole word</b> "${esc(t.w)}" is the adverb, not only "ly".`;step=2;setP()}
         else{R.cur.done=true;b.className='tok fixed';st.classList.add('locked');R.cur.err?addMistake('q:'+r.idx):clearMistake('q:'+r.idx);
-          finish(!R.cur.err,[`<b class="d">${esc(adv)}</b> tells HOW it <b class="v">${esc(t.w)}</b>. The adverb and the verb go together.`])}
+          finish(!R.cur.err,[`<b class="d">${esc(adv)}</b> tells HOW it <b class="v">${esc(t.w)}</b>. The adverb and the verb go together.`],null,R.cur.err)}
       }else{R.cur.err=true;shake(b);SFX.bad();
         $('#hint').textContent=step===1?(/ly$/.test(t.w)?`"${t.w}" ends in -ly, but it is a ${TAGNAME[WORDTAG[t.w]]||'different word'}, not an adverb! Find the word that tells HOW.`:`"${t.w}" is not the adverb. Find the word that ends in -ly and tells HOW.`):`"${t.w}" is not the action. What did it do ${adv}?`}
     };
     line.appendChild(b)});
 }
-function finish(ok,lines,fact){
+function finish(ok,lines,fact,fixed){
   if(ok){R.good++;R.combo++;R.best=Math.max(R.best,R.combo);S.stars++;SFX.good();refreshChips(true)}else{R.errs++;R.combo=0;SFX.bad()}
   save();setProgress();
-  let msg=ok?pickOne(CHEERS):pickOne(OOPS);
+  let msg=ok?pickOne(CHEERS):fixed?'✓ You fixed it! Next time, try to get it on the first tap.':pickOne(OOPS);
   if(ok&&R.combo===3)msg='3 in a row! 🔥';if(ok&&R.combo===5){msg='5 in a row! 💥';confetti(50)}
   const last=R.i===R.rounds.length-1,fb=$('#fb');
-  fb.className='fb '+(ok?'good':'bad');fb.hidden=false;
-  fb.innerHTML=`${novaSVG(ok?'':'oops')}<div class="body"><h3>${msg}${ok?' <span style="color:var(--gold2)">+1 ⭐</span>':''}</h3>${lines.length?'<ul>'+lines.map(l=>'<li>'+l+'</li>').join('')+'</ul>':''}${fact?`<div class="sci">🔬 Science fact: ${esc(fact)}</div>`:''}</div><button class="big go" id="nextBtn">${last?'Finish 🏁':'Next ➜'}</button>`;
+  fb.className='fb '+(ok||fixed?'good':'bad');fb.hidden=false;
+  fb.innerHTML=`${novaSVG(ok||fixed?'':'oops')}<div class="body"><h3>${ok?'✓ ':''}${msg}${ok?' <span style="color:var(--gold2)">+1 ⭐</span>':''}</h3>${lines.length?'<ul>'+lines.map(l=>'<li>'+l+'</li>').join('')+'</ul>':''}${fact?`<div class="sci">🔬 Science fact: ${esc(fact)}</div>`:''}</div><button class="big go" id="nextBtn">${last?'Finish 🏁':'Next ➜'}</button>`;
   $('#hint').textContent='';
   $('#nextBtn').onclick=()=>{R.i++;R.i>=R.rounds.length?endMission():renderRound()};
   fb.scrollIntoView({behavior:S.calm?'auto':'smooth',block:'nearest'});
