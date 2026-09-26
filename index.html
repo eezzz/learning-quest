@@ -237,15 +237,19 @@ body.calm *,body.calm *::before,body.calm *::after{animation:none!important;tran
 /* ================= CONTENT =================
    Built from Stella's worksheets (Sept 2026): nouns, verbs, adjectives, -ly adverbs,
    end punctuation, proofreading. Words and sentences use nature and science topics. */
-const NOUNS=['tree','butterfly','flower','hair','grass','bus','volcano','fossil','planet','octopus','crystal','magnet','comet','seed','root','cloud','lava','shark','beetle','moon','glacier','dinosaur','Jupiter','Mars','rainbow','egg','feather','leaf','rock','ocean','tadpole','cactus','bee','frog','owl','soil','water','sand','Earth','lily','family','belly','Stella'];
-const ADJS=['green','slippery','bumpy','soft','furry','fluffy','tiny','huge','hot','frozen','shiny','slimy','rocky','fuzzy','spiky','gooey','bright','rough','smooth','heavy','sticky','salty','wet','prickly','colorful','icy','brave','cheerful','friendly'];
-const VERBS=['erupt','hatch','grow','melt','orbit','dig','swim','bloom','freeze','sting','crawl','glow','spin','hunt','fly','roar','jump','climb','kick','push'];
-const ADVS=['slowly','quickly','gently','quietly','loudly','safely','carefully','brightly','softly','suddenly','bravely','eagerly','happily','neatly','silently'];
-const LY_TRAPS=['fly','lily','family','belly','butterfly','friendly'];
-const TRICKY_N=['hair','grass','water','soil','lava','sand'];
-const CONCRETE=['tree','butterfly','flower','bus','fossil','crystal','octopus','beetle','feather','cactus','rock','comet'];
-const NO_CLOUD=['Stella','lily','family','belly','bus'];
-const PROPER=['Jupiter','Mars','Earth','Stella','Mia','Ava'];
+const NOUNS=['tree','butterfly','flower','hair','grass','bus','volcano','fossil','planet','octopus','crystal','magnet','comet','seed','root','cloud','lava','shark','beetle','moon','glacier','dinosaur','Jupiter','Mars','Saturn','Venus','Africa','Antarctica','rainbow','egg','feather','leaf','rock','ocean','tadpole','cactus','bee','frog','owl','soil','water','sand','Earth','lily','family','belly','jelly','Stella',
+ 'penguin','turtle','spider','whale','snail','jellyfish','mushroom','acorn','pinecone','meteor','telescope','astronaut','river','mountain','island','desert','iceberg','coral','starfish','lizard','dolphin','ant','worm','nest','shell','pebble','geyser','tornado','skeleton','snowflake','puddle','caterpillar','chameleon','koala','cheetah','giraffe','zebra','seahorse','kangaroo','squirrel','eagle','fox','bear','air','ice','honey','mud','snow','wind','fur','sunlight','microscope','magnifier'];
+const ADJS=['green','slippery','bumpy','soft','furry','fluffy','tiny','huge','hot','frozen','shiny','slimy','rocky','fuzzy','spiky','gooey','bright','rough','smooth','heavy','sticky','salty','wet','prickly','colorful','icy','brave','cheerful','friendly',
+ 'enormous','wiggly','stinky','scaly','feathery','dusty','muddy','sparkly','foggy','sunny','windy','stormy','curious','gentle','noisy','sleepy','hungry','fierce','ancient','hollow','crunchy','juicy','striped','spotted','curly','bubbly','squishy','silver','purple','dark','fast'];
+const VERBS=['erupt','hatch','grow','melt','orbit','dig','swim','bloom','freeze','sting','crawl','glow','spin','hunt','fly','roar','jump','climb','kick','push',
+ 'slither','hop','burrow','pounce','soar','gallop','wiggle','splash','sniff','chirp','buzz','nibble','scurry','sprout','hibernate','migrate','measure','explore','munch','peck','howl','shine','waddle','twinkle','observe'];
+const ADVS=['slowly','quickly','gently','quietly','loudly','safely','carefully','brightly','softly','suddenly','bravely','eagerly','happily','neatly','silently',
+ 'swiftly','calmly','proudly','kindly','politely','cheerfully','gracefully','noisily','sleepily','busily','patiently','wildly','smoothly','playfully','hungrily'];
+const LY_TRAPS=['fly','lily','family','belly','butterfly','friendly','jelly','wiggly','curly','bubbly','prickly'];
+const TRICKY_N=['hair','grass','water','soil','lava','sand','air','ice','honey','mud','snow','wind','fur','sunlight'];
+const CONCRETE=['tree','butterfly','flower','bus','fossil','crystal','octopus','beetle','feather','cactus','rock','comet','penguin','turtle','spider','mushroom','telescope','snail','shell','acorn','pinecone','starfish'];
+const NO_CLOUD=['Stella','lily','family','belly','bus','jelly','magnifier'];
+const PROPER=['Jupiter','Mars','Saturn','Venus','Africa','Antarctica','Earth','Stella','Mia','Ava'];
 const WORDTAG={};NOUNS.forEach(w=>WORDTAG[w]='n');ADJS.forEach(w=>WORDTAG[w]='a');VERBS.forEach(w=>WORDTAG[w]='v');ADVS.forEach(w=>WORDTAG[w]='d');
 const TAGNAME={n:'noun',v:'verb',a:'adjective',d:'adverb'};
 const TAGTEST={n:'the ___',a:'the ___ rock',v:'I can ___',d:'It moved ___'};
@@ -266,9 +270,42 @@ const SENTS=[
  "Stella/n found/v a sparkly/a crystal/n .",
  "The slimy/a frog/n caught/v a fly/n .",
  "Do sharks/n sleep/v ?",
- "The brave/a girl/n climbed/v a rocky/a mountain/n ."
+ "The brave/a girl/n climbed/v a rocky/a mountain/n .",
+ "The spotted/a cheetah/n raced/v across the dry/a grass/n .",
+ "A curious/a monkey/n peeled/v a yellow/a banana/n .",
+ "The enormous/a iceberg/n floated/v in the cold/a ocean/n .",
+ "Hungry/a bears/n catch/v fish/n in the river/n .",
+ "The little/a snail/n carried/v its heavy/a shell/n .",
+ "Astronauts/n float/v in the quiet/a spaceship/n .",
+ "A fierce/a storm/n shook/v the tall/a trees/n .",
+ "The muddy/a pig/n rolled/v in the wet/a dirt/n .",
+ "Ants/n carry/v tiny/a crumbs/n .",
+ "Fireflies/n light/v up the dark/a sky/n .",
+ "The playful/a dolphin/n jumped/v over the blue/a waves/n .",
+ "A tall/a giraffe/n ate/v green/a leaves/n .",
+ "The sleepy/a bear/n hibernates/v in a cozy/a cave/n .",
+ "Scientists/n study/v ancient/a bones/n .",
+ "The striped/a zebra/n drank/v cool/a water/n .",
+ "A sneaky/a fox/n hid/v behind the log/n .",
+ "Red/a lava/n bubbled/v inside the volcano/n .",
+ "The wise/a owl/n hooted/v at the moon/n .",
+ "Colorful/a fish/n swim/v near the coral/n .",
+ "The strong/a wind/n blew/v the dry/a leaves/n .",
+ "Stella/n looked/v through her new/a telescope/n .",
+ "The hungry/a caterpillar/n ate/v the juicy/a apple/n .",
+ "A shiny/a beetle/n crawled/v under the rock/n .",
+ "Penguins/n waddle/v across the slippery/a ice/n .",
+ "The loud/a thunder/n scared/v my dog/n .",
+ "Bright/a stars/n twinkle/v at night/n .",
+ "The squishy/a jellyfish/n drifted/v in the sea/n .",
+ "The kind/a vet/n helped/v the hurt/a turtle/n .",
+ "A scaly/a lizard/n rested/v on a warm/a rock/n .",
+ "The busy/a squirrel/n buried/v an acorn/n .",
+ "Tiny/a ants/n built/v a huge/a hill/n .",
+ "The kangaroo/n hopped/v over the red/a sand/n ."
 ];
-// Adverb + verb pairs. The first three come from her "Find the -ly Adverbs" worksheet.
+// Adverb + verb pairs. Index 0 and the "Jay/Lena/Evan..." lines come from her "Find the -ly Adverbs" worksheet.
+// Some sentences hide -ly words that are NOT adverbs (butterfly, fly, friendly, wiggly, jelly).
 const ADV_SENTS=[
  "Mia quietly/d read/v her library book .",
  "Ava gently/d placed/v the seed in the soil .",
@@ -281,7 +318,32 @@ const ADV_SENTS=[
  "Snow softly/d fell/v on the pine trees .",
  "The baby turtle safely/d reached/v the ocean .",
  "The volcano suddenly/d erupted/v !",
- "Fireflies brightly/d glowed/v in the dark ."
+ "Fireflies brightly/d glowed/v in the dark .",
+ "Jay carefully/d packed/v his lunch box .",
+ "Our class politely/d waited/v for the teacher .",
+ "Evan slowly/d zipped/v his jacket .",
+ "Nora kindly/d shared/v her swing with a friend .",
+ "The team proudly/d held/v its trophy .",
+ "Miles bravely/d climbed/v to the top of the slide .",
+ "The snake slowly/d slithered/v through the grass .",
+ "The eagle swiftly/d soared/v over the mountain .",
+ "The kangaroo quickly/d hopped/v away .",
+ "The bear sleepily/d yawned/v in its cave .",
+ "The dolphin playfully/d splashed/v the water .",
+ "The rabbit hungrily/d nibbled/v a carrot .",
+ "The wolf loudly/d howled/v at the moon .",
+ "The astronaut carefully/d fixed/v the rocket .",
+ "The butterfly gracefully/d landed/v on a flower .",
+ "The spider patiently/d waited/v in its web .",
+ "Stella proudly/d showed/v her rock collection .",
+ "The wind wildly/d shook/v the trees .",
+ "The squirrel busily/d buried/v an acorn .",
+ "The river smoothly/d flowed/v to the sea .",
+ "The chick eagerly/d pecked/v at its shell .",
+ "The wiggly worm slowly/d crawled/v into the mud .",
+ "The friendly dolphin happily/d swam/v beside the boat .",
+ "A fly noisily/d buzzed/v past my ear .",
+ "The cat calmly/d watched/v the wiggly jelly ."
 ];
 const PUNCT=[
  ["Do volcanoes erupt every day","?"],["A spider has eight legs","."],["Wow, look at that shooting star","!"],
@@ -289,7 +351,14 @@ const PUNCT=[
  ["How many legs does an insect have","?"],["Frogs lay their eggs in water","."],["Hooray, the chicks hatched","!"],
  ["Is Jupiter bigger than Earth","?"],["Bees make honey","."],["Ouch, the cactus poked me","!"],
  ["What do pandas eat","?"],["Plants need sunlight to grow","."],["Yay, I found a fossil","!"],
- ["Where do penguins live","?"],["It rained on Wednesday","."],["Do you like vegetables","?"]
+ ["Where do penguins live","?"],["It rained on Wednesday","."],["Do you like vegetables","?"],
+ ["Can a turtle hide inside its shell","?"],["How far away is the Sun","?"],["Why do leaves change color","?"],
+ ["Do fish sleep","?"],["What is inside a volcano","?"],["Which planet has rings","?"],
+ ["Have you ever seen a rainbow","?"],["How do birds build nests","?"],
+ ["Snakes shed their skin","."],["Caterpillars turn into butterflies","."],["The Sun is a star","."],
+ ["Ice melts when it gets warm","."],["Whales breathe air","."],["An octopus has eight arms","."],["Some dinosaurs ate plants","."],
+ ["Wow, that volcano is erupting","!"],["Help, a bee is on my arm","!"],["Look, a real rainbow","!"],
+ ["Hooray, my seed sprouted","!"],["Oh no, the ice cream melted","!"],["Watch out for the snake","!"]
 ];
 const PROOF=[
  ["|i| went camping with my family .","I",["I","i","Eye"],"The word I is always a capital letter."],
@@ -305,7 +374,25 @@ const PROOF=[
  ["The scientist |hade| a magnifying glass .","had",["had","hade","hed"],"Sound it out: h-a-d."],
  ["|stella| found a shiny rock .","Stella",["Stella","stella","Stela"],"Names start with a capital letter."],
  ["Owls |whent| hunting at night .","went",["went","whent","wennt"],"Sound it out: w-e-n-t."],
- ["Wow , a real dinosaur bone |_|","!",["!","?","."],"Wow! This shows a strong feeling."]
+ ["Wow , a real dinosaur bone |_|","!",["!","?","."],"Wow! This shows a strong feeling."],
+ ["|dinosaurs| lived long ago .","Dinosaurs",["Dinosaurs","dinosaurs","DINOSAURS"],"A sentence starts with a capital letter."],
+ ["Where do whales sleep |.|","?",["?",".","!"],"This sentence asks something."],
+ ["The |snaik| slid under a rock .","snake",["snake","snaik","snayk"],"Snake ends with a silent e: s-n-a-k-e."],
+ ["We |sawe| a shooting star .","saw",["saw","sawe","sor"],"Sound it out: s-a-w."],
+ ["My friend and |i| found a fossil .","I",["I","i","me"],"The word I is always a capital letter."],
+ ["The bird built a |nist| .","nest",["nest","nist","nesst"],"Sound it out: n-e-s-t."],
+ ["Frogs can jump very far |_|",".",[".","?",","],"It tells a fact. A fact ends with a period."],
+ ["Wow , look at that huge whale |_|","!",["!","?","."],"Wow! This shows a strong feeling."],
+ ["We visited the zoo on |monday| .","Monday",["Monday","monday","Munday"],"Days of the week start with a capital letter."],
+ ["Is the Moon made of rock |_|","?",["?",".","!"],"This sentence asks a question."],
+ ["The |fishs| swam in the pond .","fish",["fish","fishs","fishez"],"More than one fish is still fish!"],
+ ["The |Rabbit| hopped into its hole .","rabbit",["rabbit","Rabbit","RABBIT"],"Only the first word and names get capital letters."],
+ ["We went to the beach in |july| .","July",["July","july","Julie"],"Months start with a capital letter."],
+ ["Our class saw a |butterflie| .","butterfly",["butterfly","butterflie","butterfli"],"Butterfly ends with the word fly."],
+ ["Stella wants to be a |sientist| .","scientist",["scientist","sientist","syentist"],"Scientist has a quiet c: s-c-i-e-n-t-i-s-t."],
+ ["We |hade| fun at the science museum .","had",["had","hade","hadd"],"Sound it out: h-a-d."],
+ ["The |plannet| Saturn has rings .","planet",["planet","plannet","planit"],"Sound it out: p-l-a-n-e-t. Only one n."],
+ ["Where did the squirrel hide its acorn |_|","?",["?",".","!"],"This sentence asks something."]
 ];
 const FACTS={
  volcano:'About 1,350 volcanoes on Earth could still erupt.',octopus:'An octopus has three hearts and blue blood.',
@@ -317,14 +404,36 @@ const FACTS={
  tadpole:'A tadpole grows legs and turns into a frog.',owl:'An owl can turn its head about 270 degrees.',
  moon:'The Moon has no wind, so astronaut footprints can last a very long time.',butterfly:'Butterflies taste with their feet!',
  feather:'Today, only birds have feathers.',beetle:'There are more kinds of beetles than any other animal.',
- crystal:'Every snowflake is an ice crystal with six sides.',lava:'Lava can be hotter than 1,000 °C.',
- seed:'Some seeds can wait hundreds of years before they grow.',tree:'The tallest tree is taller than a 30-floor building.',
+ crystal:'Every snowflake is an ice crystal with six sides.',snowflake:'Every snowflake has six sides.',lava:'Lava can be hotter than 1,000 °C.',
+ seed:'Some seeds can wait hundreds of years before they grow.',tree:'The tallest tree is taller than a 30-floor building.',trees:'The tallest tree is taller than a 30-floor building.',
  hair:'Your hair grows about 1 cm every month.',grass:'Bamboo is a kind of grass. It can grow almost 1 meter in one day!',
- water:'Water covers about 71% of Earth.',Penguins:'Emperor penguin dads keep the egg warm on their feet.',
+ water:'Water covers about 71% of Earth.',Penguins:'Emperor penguin dads keep the egg warm on their feet.',penguin:'Penguins cannot fly, but they are super swimmers.',
  Bats:'Bats are the only mammals that can really fly.',frog:'Some frogs can freeze in winter and wake up in spring.',
  whale:'A blue whale\'s heart is as big as a small car.',caterpillar:'A caterpillar turns into a butterfly inside a chrysalis.',
  lily:'A lily is a flower. It ends in -ly, but it is a noun!',sand:'Some beach sand is made of tiny broken shells.',
- soil:'One spoon of soil holds more living things than there are people on Earth.',Earth:'Earth is the only planet we know that has life.'
+ soil:'One spoon of soil holds more living things than there are people on Earth.',Earth:'Earth is the only planet we know that has life.',
+ turtle:'Sea turtles lived at the same time as the dinosaurs.',spider:'Spider silk is stronger than steel of the same thickness.',
+ snail:'A snail has thousands of tiny teeth.',jellyfish:'Jellyfish have no brain and no bones.',mushroom:'A mushroom is a fungus, not a plant.',
+ dolphin:'Dolphins sleep with half of their brain at a time.',Ants:'Ants can carry things much heavier than their own bodies.',ants:'Ants can carry things much heavier than their own bodies.',ant:'Ants can carry things much heavier than their own bodies.',
+ cheetah:'The cheetah is the fastest animal on land.',giraffe:'A giraffe\'s tongue is about 50 cm long.',zebra:'Every zebra has its own stripe pattern.',
+ koala:'Koalas sleep up to 20 hours a day.',chameleon:'A chameleon can move each eye in a different direction.',
+ Saturn:'Saturn\'s rings are made of ice and rock.',Venus:'Venus is the hottest planet in our solar system.',
+ iceberg:'Most of an iceberg is hidden under the water.',honey:'Honey can stay good to eat for thousands of years.',
+ starfish:'A starfish can grow back a lost arm.',meteor:'A shooting star is really a tiny space rock burning up in the sky.',
+ coral:'Coral looks like a plant, but it is made of tiny animals.',fox:'A fox wraps its bushy tail around itself like a blanket.',
+ bear:'Some bears sleep all winter. This is called hibernation.',bears:'Some bears sleep all winter. This is called hibernation.',
+ eagle:'Eagles can see a rabbit from very far away.',worm:'Earthworms have no eyes, but they can feel light.',
+ dinosaur:'Birds are living relatives of the dinosaurs.',rainbow:'A rainbow appears when sunlight shines through raindrops.',
+ magnet:'Earth is like a giant magnet.',cloud:'One puffy cloud can weigh as much as 100 elephants.',
+ planet:'There are 8 planets in our solar system.',egg:'The ostrich egg is the biggest bird egg.',
+ ocean:'The deepest part of the ocean is deeper than Mount Everest is tall.',ice:'Ice floats because it is lighter than liquid water.',
+ air:'Air is all around you, even though you cannot see it.',telescope:'Galileo used a telescope to see Jupiter\'s moons more than 400 years ago.',
+ Scientists:'Scientists ask questions and do experiments to find answers.',scientist:'Scientists ask questions and do experiments to find answers.',
+ stars:'The Sun is the closest star to Earth.',kangaroo:'A baby kangaroo is called a joey.',squirrel:'Some acorns that squirrels forget grow into new oak trees.',
+ acorn:'A giant oak tree grows from one little acorn.',lizard:'Some lizards can drop their tail to escape, then grow a new one.',
+ geyser:'A geyser shoots hot water high into the air.',tornado:'A tornado is a spinning tube of wind.',
+ Antarctica:'Antarctica is the coldest place on Earth.',desert:'Antarctica counts as a desert because it gets so little rain or snow.',
+ thunder:'Thunder is the sound that lightning makes.',Fireflies:'Fireflies make their own light.',dolphins:'Dolphins sleep with half of their brain at a time.'
 };
 const MISSIONS=[
  {name:'Fossil Dig',icon:'🦴',short:'Nouns',learn:'Dig up the nouns: people, places, animals and things.',tip:'Noun test: can you say <b>"the ___"</b>? the fossil ✓ &nbsp;the shiny ✗',
@@ -349,7 +458,7 @@ const MISSIONS=[
   build:buildBoss,spec:['🪐','Saturn','Saturn is so light that it could float in a giant bathtub.'],bonus:'Teach a grown-up the 4 word tests: the ___, the ___ rock, I can ___, It moved ___.'}
 ];
 MISSIONS.forEach((m,i)=>m.id=i+1);
-const BREAKS=['Hop like a frog 10 times! 🐸','Stretch up tall like a giraffe. Count to 10. 🦒','Waddle like a penguin across the room! 🐧','Flap your wings like a bird 10 times! 🐦','Curl up like a pill bug, then pop open! 🐛','Stomp like a dinosaur 10 times! 🦕'];
+const BREAKS=['Hop like a frog 10 times! 🐸','Stretch up tall like a giraffe. Count to 10. 🦒','Waddle like a penguin across the room! 🐧','Flap your wings like a bird 10 times! 🐦','Curl up like a pill bug, then pop open! 🐛','Stomp like a dinosaur 10 times! 🦕','Slither like a snake to the door and back! 🐍','Spin slowly like a planet 3 times! 🪐','Hop like a kangaroo 10 times! 🦘','Swim like a fish with your arms for 10 seconds! 🐟','Sway like a tree in the wind. Count to 10. 🌳','Crawl like a crab sideways! 🦀','Take 5 slow breaths, like a sleeping bear. 🐻'];
 
 /* ================= HELPERS ================= */
 const $=s=>document.querySelector(s);
@@ -404,7 +513,7 @@ function confetti(n=80){
 function cloud(t){
   const k=2+rnd(3);let tg,dis;
   if(t==='n'){const tr=take(TRICKY_N,1);tg=tr.concat(take(NOUNS,k-1,tr.concat(NO_CLOUD)));dis=take(ADJS.concat(VERBS),6-k)}
-  else{tg=take(ADJS,k,['friendly']);const nn=take(CONCRETE,Math.min(2,6-k));dis=nn.concat(take(VERBS,6-k-nn.length))}
+  else{tg=take(ADJS,k);const nn=take(CONCRETE,Math.min(2,6-k));dis=nn.concat(take(VERBS,6-k-nn.length))}
   return{type:'select',layout:'cloud',target:t,tokens:shuffle(tg.concat(dis)).map(w=>({w,tag:WORDTAG[w]}))};
 }
 function sentIdx(t,n){return shuffle(SENTS.map((_,i)=>i).filter(i=>SENTS[i].includes('/'+t))).slice(0,n)}
@@ -413,8 +522,8 @@ function sortR(w,bins=['n','v','a','d']){return{type:'sort',w,tag:WORDTAG[w],bin
 function punctR(i){return{type:'punct',idx:i}}
 function proofR(i){return{type:'proof',idx:i}}
 function pairR(i){return{type:'pair',idx:i}}
-function buildTwin(){const tr=take(['tree','butterfly','flower','bus','hair','grass'],3);return shuffle(tr.concat(take(ADJS,2,['friendly']))).map(w=>sortR(w,['n','a'])).concat([sentR(sentIdx('a',1)[0],'a')])}
-function buildAdv(){const ids=shuffle(ADV_SENTS.map((_,i)=>i).filter(i=>i>0)).slice(0,3);return[pairR(0)].concat(ids.map(pairR),take(LY_TRAPS,2,['friendly']).map(w=>sortR(w,['d','n','v'])))}
+function buildTwin(){const tr=take(['tree','butterfly','flower','bus','hair','grass'],3);return shuffle(tr.concat(take(ADJS,2))).map(w=>sortR(w,['n','a'])).concat([sentR(sentIdx('a',1)[0],'a')])}
+function buildAdv(){const ids=shuffle(ADV_SENTS.map((_,i)=>i).filter(i=>i>0)).slice(0,3);return[pairR(0)].concat(ids.map(pairR),take(LY_TRAPS,2).map(w=>sortR(w)))}
 function sort4Words(){const tr=take(['tree','butterfly','flower','hair','grass'],1);return shuffle(tr.concat(take(ADJS,1),take(VERBS,1,['fly']),take(ADVS,2),take(LY_TRAPS,1,tr)))}
 function fromKey(k){const p=k.split(':');
   if(p[0]==='w')return WORDTAG[p[1]]?sortR(p[1]):null;
@@ -442,7 +551,7 @@ function explain(t,layout){
   return`<b>${w}</b> is a small helper word.`;
 }
 function factFor(words){for(const w of words){if(FACTS[w])return FACTS[w]}return null}
-const CHEERS=['Correct!','Great science brain!','You got it!','Nailed it!','Exactly right!','Super sorting!'];
+const CHEERS=['Correct!','Great science brain!','You got it!','Nailed it!','Exactly right!','Super sorting!','Scientist-level thinking!','That is a discovery!','Sharp eyes!','Perfect observation!','Brilliant!'];
 const OOPS=['Not this time. Here is why:','Good try. Here is the rule:','Tricky one. Let\'s look:'];
 const pickOne=a=>a[rnd(a.length)];
 
@@ -587,7 +696,7 @@ function rPair(r,st){
         else{R.cur.done=true;b.className='tok fixed';st.classList.add('locked');R.cur.err?addMistake('q:'+r.idx):clearMistake('q:'+r.idx);
           finish(!R.cur.err,[`<b class="d">${esc(adv)}</b> tells HOW it <b class="v">${esc(t.w)}</b>. The adverb and the verb go together.`])}
       }else{R.cur.err=true;shake(b);SFX.bad();
-        $('#hint').textContent=step===1?`"${t.w}" is not the adverb. Find the word that ends in -ly and tells HOW.`:`"${t.w}" is not the action. What did it do ${adv}?`}
+        $('#hint').textContent=step===1?(/ly$/.test(t.w)?`"${t.w}" ends in -ly, but it is a ${TAGNAME[WORDTAG[t.w]]||'different word'}, not an adverb! Find the word that tells HOW.`:`"${t.w}" is not the adverb. Find the word that ends in -ly and tells HOW.`):`"${t.w}" is not the action. What did it do ${adv}?`}
     };
     line.appendChild(b)});
 }
