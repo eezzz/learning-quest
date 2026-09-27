@@ -1,6 +1,6 @@
 {
-  "name": "Stella's Science Quest",
-  "short_name": "Science Quest",
+  "name": "Learning Quest",
+  "short_name": "Learning Quest",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#0d1f2d",
