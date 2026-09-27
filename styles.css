@@ -349,3 +349,27 @@ body .breath,body.calm .breath{transition:transform 4s ease-in-out!important}
 .cmp b.ex{font-size:1.8rem;background:var(--deep);border-radius:14px;padding:6px 14px;display:block}
 .bagbox{display:inline-block;border:3px dashed var(--gold);border-radius:14px;padding:0 8px;background:rgba(255,201,77,.12)}
 .tfbox.brk{font-size:2rem}
+
+/* ---------- daily plan: week strip, word cards ---------- */
+.week{display:flex;gap:8px;justify-content:flex-start;flex-wrap:wrap}
+.wday{width:54px;background:var(--panel);border:2px solid var(--line);border-radius:14px;padding:4px 0;display:flex;flex-direction:column;align-items:center;font-family:var(--display);font-weight:700}
+.wday small{color:var(--muted);font-size:.8rem}
+.wday span{min-height:1.4em;font-size:1.1rem;color:var(--mint)}
+.wday.full{border-color:var(--gold)}
+.wday.tod{box-shadow:0 0 0 3px rgba(255,227,154,.35)}
+.wcards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.wcard{position:relative;background:var(--deep);border:2px solid var(--line);border-radius:18px;padding:14px 14px 16px;display:flex;flex-direction:column;gap:4px}
+.wcard .we{font-size:2.4rem;line-height:1}
+.wcard .ww{font-family:var(--display);font-weight:800;font-size:1.6rem;color:var(--gold2)}
+.wcard .wm{font-size:1.1rem}
+.wcard .wx{color:var(--muted);font-size:1rem}
+.wcard .wx b{color:var(--ink)}
+.wcard .say{position:absolute;top:10px;right:10px;width:44px;height:44px}
+.wx.big{font-size:3rem;text-align:center}
+.wx.big u{color:var(--gold);text-decoration-thickness:4px}
+.wsent{font-size:1.5rem;line-height:1.7;text-align:center;background:var(--deep);border-radius:16px;padding:10px 16px}
+.wlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.wlist>div{background:var(--panel);border:2px solid var(--line);border-radius:14px;padding:10px 12px;display:grid;grid-template-columns:auto 1fr;column-gap:10px}
+.wlist span{grid-row:span 2;font-size:1.8rem}
+.wlist b{font-family:var(--display);font-size:1.15rem;color:var(--gold2)}
+.wlist small{color:var(--muted)}

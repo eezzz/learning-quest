@@ -138,10 +138,13 @@ const BREAKS=['Hop like a frog 10 times! 🐸','Stretch up tall like a giraffe. 
 /* ================= SAVED PROGRESS ================= */
 const KEY='stella-science-quest-v2';
 function fresh(){return{v:2,stars:0,best:{},done:{},bonus:{},days:[],sound:true,calm:false,log:[],today:null,adapt:{},
-  profile:{name:'Stella',age:7,grade:2,math:2,interests:Object.keys(INTERESTS)},
+  profile:{name:'Stella',age:8,grade:3,math:3,interests:Object.keys(INTERESTS)},vocab:{learned:[]},dayCount:0,fullDays:[],
   // Seeded from her worksheets: nouns circled as adjectives, "hair" missed, and circling only "ly".
   mistakes:{'w:tree':1,'w:butterfly':1,'w:flower':1,'w:bus':1,'w:hair':1,'q:0':1}}}
-function migrate(s){ // version 1 of this app stored Word Lab missions as numbers 1..10
+function migrate(s){
+  // The first profile default was age 7 / Grade 2. She is 8 and in Grade 3.
+  const P=s.profile;if(P&&P.age===7&&P.grade===2&&P.math===2&&!s.profileSet){P.age=8;P.grade=3;P.math=3;s.adapt={}}
+  // version 1 of this app stored Word Lab missions as numbers 1..10
   ['done','best','bonus'].forEach(k=>{const o=s[k]||{};Object.keys(o).forEach(id=>{if(/^\d+$/.test(id)){o['w'+id]=o[id];delete o[id]}})});
   (s.log||[]).forEach(l=>{if(typeof l.m==='number')l.m='w'+l.m});return s}
 let S=(()=>{try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.v===2)return migrate(Object.assign(fresh(),s))}catch(e){}return fresh()})();
@@ -158,12 +161,20 @@ function nextIn(w){return WORLDS[w].missions.find(m=>!S.done[m.id])}
 function doneCount(w){return WORLDS[w].missions.filter(m=>S.done[m.id]).length}
 // Today's plan is fixed once per day, so the order never changes under her.
 function planFor(w){const ms=WORLDS[w].missions;return(nextIn(w)||ms.slice().sort((a,b)=>(S.best[a.id]||0)-(S.best[b.id]||0))[0]).id}
-function today(){const d=dayStr();if(!S.today||S.today.d!==d){S.today={d,plan:['w','m','s'].map(planFor),done:[],rewarded:false};save()}return S.today}
+function today(){
+  const d=dayStr();
+  if(!S.today||S.today.d!==d||!S.today.topics){
+    S.dayCount=(S.dayCount||0)+1;
+    S.today={d,n:S.dayCount,plan:['dw','dm','ds'],done:[],rewarded:false,topics:{m:planFor('m'),s:planFor('s')},words:nextWords()};save();registerDaily();
+  }
+  if(!MISS.dw)registerDaily();
+  return S.today;
+}
 // The Number Lab path follows the profile's math level.
 function applyProfile(){
   const ms=mathMissionsFor(S.profile.math);ms.forEach((m,i)=>m.n=i+1);WORLDS.m.missions=ms;
   WORLDS.m.desc=`${GRADE_NAMES[S.profile.math]} path · Singapore Math + RSM`;
-  const t=S.today;if(t&&t.plan&&!t.done.includes(t.plan[1])&&!ms.some(m=>m.id===t.plan[1]))t.plan[1]=planFor('m');
+  const t=S.today;if(t&&t.topics&&!t.done.includes('dm')&&!ms.some(m=>m.id===t.topics.m)){t.topics.m=planFor('m');registerDaily()}
   document.title=`${kidName()}'s Science Quest`;
 }
 function nextPlanStep(){const t=today();return t.plan.find(id=>!t.done.includes(id))}
@@ -206,6 +217,8 @@ function refreshChips(bump){$('.logo span').innerHTML=`${esc(kidName())}'s <b>Sc
 function greeting(){const h=new Date().getHours();return h<12?'Good morning':h<18?'Good afternoon':'Good evening'}
 function renderHome(){
   const t=today(),nxt=nextPlanStep(),rk=rankInfo(),allDone=!nxt;
+  const week=times(7,i=>{const d=new Date();d.setDate(d.getDate()-6+i);const ds=dayStr(d),full=(S.fullDays||[]).includes(ds),part=S.days.includes(ds);
+    return`<div class="wday ${full?'full':part?'part':''} ${i===6?'tod':''}"><small>${d.toLocaleDateString('en-US',{weekday:'short'})}</small><span>${full?'⭐':part?'•':''}</span></div>`}).join('');
   const steps=t.plan.map((id,i)=>{const m=MISS[id],W=WORLDS[m.world],done=t.done.includes(id),now=id===nxt;
     return`<button class="step ${done?'done':''} ${now?'now':''}" data-go="${id}" style="--acc:${W.color}">
       <span class="stepn">${done?'✓':i+1}</span><span class="stepw">${W.icon} ${W.name}</span>
@@ -214,7 +227,8 @@ function renderHome(){
   const tiles=Object.values(WORLDS).map(W=>{const d=doneCount(W.key),n=W.missions.length;
     return`<button class="wtile" data-world="${W.key}" style="--acc:${W.color}"><span class="wi">${W.icon}</span><span class="wn">${W.name}</span><span class="wd">${W.desc}</span><span class="bar"><i style="width:${d/n*100}%"></i></span><span class="wc">${d} of ${n} places explored</span></button>`}).join('');
   $('#v-home').innerHTML=`
-   <div class="hello">${novaSVG()}<div><h1>${greeting()}, ${esc(kidName())}!</h1><p class="fact">Here is today's plan. Three short missions, in this order.</p></div></div>
+   <div class="hello">${novaSVG()}<div><h1>${greeting()}, ${esc(kidName())}!</h1><p class="fact">Day ${t.n}. Every day: words, math and people. Three short parts, in this order.</p></div></div>
+   <div class="week" aria-label="This week">${week}</div>
    <section class="plan" aria-label="Today's plan"><div class="planrow">${steps}<span class="arrow" aria-hidden="true">→</span>
      <div class="step gift ${t.rewarded?'done':''}"><span class="stepn">🎁</span><span class="stepw">Surprise</span><span class="stepm">${t.rewarded?'Opened!':'+10 ⭐ and a mystery fact'}</span><span class="steps2">${t.rewarded?esc(t.fact||''):'Finish all 3 to open it'}</span></div></div>
      ${allDone?'<p class="fact" style="margin-top:10px">Today\'s plan is done. Great work! You can still explore any lab below.</p>':''}</section>
@@ -279,14 +293,14 @@ function openCalm(){
 
 /* ================= PLAYING ================= */
 let R=null;
-function startMission(id){const m=MISS[id],lv=m.world==='m'?lvFor(m):undefined;R={m,lv,rounds:m.build(lv),i:0,errs:0,good:0,combo:0,best:0};curWorld=m.world;$('#rk').textContent=m.icon;
+function startMission(id){const m=MISS[id],lv=m.world==='m'?lvFor(m.link?MISS[m.link]:m):undefined;R={m,lv,rounds:m.build(lv),i:0,errs:0,good:0,combo:0,best:0};curWorld=m.world;$('#rk').textContent=m.icon;
   document.documentElement.style.setProperty('--acc',WORLDS[m.world].color);show('play');renderRound()}
 function setProgress(){const p=R.i/R.rounds.length*100,left=R.rounds.length-R.i;$('#fill').style.width=p+'%';$('#rk').style.left=Math.max(3,Math.min(97,p))+'%';
   $('#count').innerHTML=`${R.i+1} / ${R.rounds.length}<small>${left===1?'Last one!':R.combo>=3?`🔥 ×${R.combo}`:''}</small>`}
 function renderRound(){
   const r=R.rounds[R.i];R.cur={r,err:false,done:false};setProgress();clearInterval(breathTimer);
   const st=$('#stage');st.innerHTML='';st.className='stage';$('#hint').textContent='';$('#actions').innerHTML='';$('#fb').hidden=true;$('#fb').innerHTML='';
-  ({select:rSelect,sort:rSort,punct:rPunct,proof:rProof,pair:rPair,choice:rChoice,breathe:rBreathe,balance:rBalance,story:rStory})[r.type](r,st);
+  ({select:rSelect,sort:rSort,punct:rPunct,proof:rProof,pair:rPair,choice:rChoice,breathe:rBreathe,learn:rLearn,balance:rBalance,story:rStory})[r.type](r,st);
 }
 function setPrompt(html,say){$('#prompt').innerHTML=html;$('#sayBtn').onclick=()=>speak(say||html)}
 function shake(b){b.classList.remove('shake');void b.offsetWidth;b.classList.add('shake')}
@@ -419,18 +433,21 @@ function finish(ok,lines,fact,fixed){
 }
 const MYSTERY=()=>{const v=Object.values(FACTS);return v[rnd(v.length)]};
 function endMission(){
-  const m=R.m,id=m.id,total=R.rounds.length,stars=R.errs<=1?3:R.errs<=3?2:1,first=!S.done[id],t=today();
-  const bonus=first?5:0;S.stars+=bonus;
-  S.best[id]=Math.max(S.best[id]||0,stars);if(first)S.done[id]=dayStr();
+  const m=R.m,daily=!!m.daily,id=daily?m.link:m.id,total=R.rounds.length,stars=R.errs<=1?3:R.errs<=3?2:1,t=today();
+  const first=!!id&&!S.done[id]&&(!daily||stars>=2),bonus=first?5:0;S.stars+=bonus;
+  if(id){S.best[id]=Math.max(S.best[id]||0,stars);if(first)S.done[id]=dayStr()}
   if(!S.days.includes(dayStr()))S.days.push(dayStr());
-  if(t.plan.includes(id)&&!t.done.includes(id))t.done.push(id);
+  if(t.plan.includes(m.id)&&!t.done.includes(m.id))t.done.push(m.id);
+  let dailyNote='';
+  if(m.id==='dw'){S.vocab.learned=[...new Set(S.vocab.learned.concat(t.words))];dailyNote=`<p class="fact">📖 Your word collection now has <b>${S.vocab.learned.length}</b> words.</p>`}
+  else if(daily&&stars<2)dailyNote=`<p class="fact">We will practice ${m.name} again next time. That is how brains grow!</p>`;
   let gift='';
-  if(t.done.length===t.plan.length&&!t.rewarded){t.rewarded=true;t.fact=MYSTERY();S.stars+=10;gift=`<div class="spec gift"><span class="e">🎁</span><div><div class="eyebrow">Today's plan complete! +10 ⭐</div><div class="disp" style="font-size:1.2rem">Mystery fact</div><div>${esc(t.fact)}</div></div></div>`}
+  if(t.done.length===t.plan.length&&!t.rewarded){t.rewarded=true;S.fullDays=[...new Set((S.fullDays||[]).concat(dayStr()))];t.fact=MYSTERY();S.stars+=10;gift=`<div class="spec gift"><span class="e">🎁</span><div><div class="eyebrow">Today's plan complete! +10 ⭐</div><div class="disp" style="font-size:1.2rem">Mystery fact</div><div>${esc(t.fact)}</div></div></div>`}
   let lvNote='';
-  if(m.world==='m'){const cur=S.adapt[id]||0,base=S.profile.math|0;
+  if(m.world==='m'&&id){const cur=S.adapt[id]||0,base=S.profile.math|0;
     if(R.errs===0&&cur<1&&base+cur<4){S.adapt[id]=cur+1;lvNote=`<p class="fact">⬆️ Level up! Next time, ${m.name} gets a little harder.</p>`}
     else if(stars===1&&cur>-1&&base+cur>0){S.adapt[id]=cur-1;lvNote=`<p class="fact">Next time, ${m.name} uses smaller numbers so you can practice the steps.</p>`}}
-  S.log.push({d:dayStr(),m:id,good:R.good,total,stars,lv:R.lv});if(S.log.length>300)S.log.shift();
+  S.log.push({d:dayStr(),m:id||m.id,daily,good:R.good,total,stars,lv:R.lv});if(S.log.length>300)S.log.shift();
   save();refreshChips(true);
   const starSvg=(on,k)=>`<svg viewBox="0 0 100 100" class="${on?'on':''}" style="animation-delay:${k*.25}s"><path d="${starPath(50,54,46,20)}" fill="${on?'#ffc94d':'#1b4254'}" stroke="${on?'#e0a21c':'#3a7389'}" stroke-width="4" stroke-linejoin="round"/></svg>`;
   const np=nextPlanStep(),npm=np&&MISS[np];
@@ -438,24 +455,25 @@ function endMission(){
   $('#v-result').innerHTML=`<div class="card result"><div class="eyebrow">${WORLDS[m.world].name} · ${m.name}</div><h2 style="font-size:2.2rem">${stars===3?'Perfect!':stars===2?'Great job, Stella!':'Mission complete!'}</h2>
    <div class="bigstars">${[1,2,3].map(k=>starSvg(k<=stars,k)).join('')}</div>
    <p style="margin:0;font-size:1.2rem">You got <b>${R.good} of ${total}</b> right on the first try · <b style="color:var(--gold2)">+${R.good+bonus} ⭐</b></p>
-   ${first?`<div class="spec"><span class="e">${m.spec[0]}</span><div><div class="eyebrow">New Field Guide card!</div><div class="disp" style="font-size:1.35rem">${m.spec[1]}</div><div>${m.spec[2]}</div></div></div>`:''}
-   ${gift}${lvNote}${planLine}
+   ${first&&m.spec?`<div class="spec"><span class="e">${m.spec[0]}</span><div><div class="eyebrow">New Field Guide card!</div><div class="disp" style="font-size:1.35rem">${m.spec[1]}</div><div>${m.spec[2]}</div></div></div>`:''}
+   ${gift}${lvNote}${dailyNote}${planLine}
    <div class="extra"><div class="eyebrow">Brain break (optional)</div><div style="font-size:1.15rem">${pick(BREAKS)}</div><div><button class="ghost" id="brkBtn">Start 20 seconds</button></div></div>
-   ${m.bonus&&!S.bonus[id]?`<div class="extra bonus" id="bonusBox"><div class="eyebrow">Bonus mission · with a grown-up</div><div>${m.bonus}</div><div><button class="ghost" id="bonusBtn">We did it! +3 ⭐</button></div></div>`:''}
+   ${m.bonus&&!S.bonus[id||m.id]?`<div class="extra bonus" id="bonusBox"><div class="eyebrow">Bonus mission · with a grown-up</div><div>${m.bonus}</div><div><button class="ghost" id="bonusBtn">We did it! +3 ⭐</button></div></div>`:''}
    <div class="btnrow" style="justify-content:center">${npm?`<button class="big" id="rsNext">Next: ${npm.icon} ${npm.name} ▶</button><button class="ghost" id="rsHome">Home</button>`:`<button class="big" id="rsHome">Home 🏠</button>`}<button class="ghost" id="rsAgain">Play again</button></div></div>`;
   show('result');SFX.win();confetti(stars===3?140:80);
   $('#rsHome').onclick=()=>show('home');$('#rsAgain').onclick=()=>startMission(id);
   if(npm)$('#rsNext').onclick=()=>startMission(np);
   $('#brkBtn').onclick=e=>{const b=e.currentTarget;let n=20;b.disabled=true;b.textContent='20...';const iv=setInterval(()=>{n--;b.textContent=n>0?n+'...':'Done! 🎉';if(n<=0){clearInterval(iv);SFX.win()}},1000)};
-  const bb=$('#bonusBtn');if(bb)bb.onclick=()=>{S.bonus[id]=dayStr();S.stars+=3;save();refreshChips(true);SFX.win();$('#bonusBox').innerHTML='<div class="disp" style="font-size:1.2rem">Bonus done! +3 ⭐</div>'};
+  const bb=$('#bonusBtn');if(bb)bb.onclick=()=>{S.bonus[id||m.id]=dayStr();S.stars+=3;save();refreshChips(true);SFX.win();$('#bonusBox').innerHTML='<div class="disp" style="font-size:1.2rem">Bonus done! +3 ⭐</div>'};
 }
 
 /* ================= FIELD GUIDE ================= */
 function renderCards(){
-  const all=Object.values(MISS),got=all.filter(m=>S.done[m.id]).length;
-  $('#v-stk').innerHTML=`<h1 style="font-size:2rem;margin-bottom:6px">Stella's Field Guide</h1><p class="fact" style="margin-bottom:16px">Finish a mission to add a card. ${got} of ${all.length} cards found.</p>`+
+  const all=Object.values(MISS).filter(m=>m.spec&&!m.daily),got=all.filter(m=>S.done[m.id]).length;
+  $('#v-stk').innerHTML=`<h1 style="font-size:2rem;margin-bottom:6px">${esc(kidName())}'s Field Guide</h1><p class="fact" style="margin-bottom:16px">Finish a mission to add a card. ${got} of ${all.length} cards found.</p>`+
   Object.values(WORLDS).map(W=>`<h2 class="gh" style="--acc:${W.color}">${W.icon} ${W.name}</h2><div class="cards">${W.missions.map(m=>{const g=S.done[m.id];
-    return`<div class="stk ${g?'':'lock'}"><div class="e">${m.spec[0]}</div><div class="nm">${g?m.spec[1]:'???'}</div><p>${g?m.spec[2]:`Found at: ${m.icon} ${m.name}`}</p>${g?`<p style="color:var(--gold)">${'★'.repeat(S.best[m.id]||0)}</p>`:''}</div>`}).join('')}</div>`).join('');
+    return`<div class="stk ${g?'':'lock'}"><div class="e">${m.spec[0]}</div><div class="nm">${g?m.spec[1]:'???'}</div><p>${g?m.spec[2]:`Found at: ${m.icon} ${m.name}`}</p>${g?`<p style="color:var(--gold)">${'★'.repeat(S.best[m.id]||0)}</p>`:''}</div>`}).join('')}</div>`).join('')+
+  `<h2 class="gh" style="--acc:var(--gold)">📖 Word Collection (${S.vocab.learned.length} words)</h2>${S.vocab.learned.length?`<div class="wlist">${S.vocab.learned.map(w=>{const v=VW(w);return v?`<div><span>${v[5]}</span><b>${v[0]}</b><small>${esc(v[1])}</small></div>`:''}).join('')}</div>`:'<p class="fact">Finish today\'s New Words to start your collection.</p>'}`;
 }
 
 /* ================= PARENT PAGE ================= */
@@ -467,7 +485,7 @@ function backupCode(){try{return btoa(unescape(encodeURIComponent(JSON.stringify
 function mistakeLabel(k){const p=k.split(':'),MT={skip:'skip counting',pv:'place value',cmp:'comparing',add:'adding',sub:'subtracting',time:'clock',len:'measuring',eo:'odd and even',bond:'number bonds',ten:'making ten',cbar:'comparison bars',brk:'brackets and expressions',fact:'times tables',frac:'fractions',pat:'patterns',logic:'logic puzzles',tf:'is it balanced (=)',miss:'balance the scale',bal:'mystery bag equations',bar:'bar models',grp:'equal groups (× ÷)',story:'word problems'};
   if(p[0]==='w')return p[1];if(p[0]==='s')return`Find the ${TAGNAME[p[2]]}: "${plain(SENTS[+p[1]])}"`;if(p[0]==='p')return`Punctuation: ${PUNCT[+p[1]][0]}`;
   if(p[0]==='f')return`Proofreading: ${plain(PROOF[+p[1]][0])}`;if(p[0]==='q')return`Adverb: ${plain(ADV_SENTS[+p[1]])}`;if(p[0]==='mt')return`Math: ${MT[p[1]]||p[1]}`;
-  if(p[0]==='so'&&SOCIAL[+p[1]])return`Social: ${SOCIAL[+p[1]].s}`;return k}
+  if(p[0]==='so'&&SOCIAL[+p[1]])return`Social: ${SOCIAL[+p[1]].s}`;if(p[0]==='v')return`Word: ${p[1]}`;if(p[0]==='af'&&AFFIXES[+p[1]])return`Prefix/suffix: ${AFFIXES[+p[1]][0]}`;return k}
 function profileHTML(){
   const P=S.profile,opt=(n,v)=>`<option value="${v}" ${String(P[n])===String(v)?'selected':''}>`;
   const gradeOpts=n=>GRADE_NAMES.map((g,i)=>`${opt(n,i)}${g}</option>`).join('');
@@ -500,7 +518,7 @@ function wireProfile(){
     if(!name){$('#pfMsg').textContent='Please enter a name.';return}
     if(!ints.length){$('#pfMsg').textContent='Please pick at least one interest.';return}
     const changed=+$('#pfMath').value!==S.profile.math;
-    S.profile={name,age:+$('#pfAge').value,grade:+$('#pfGrade').value,math:+$('#pfMath').value,interests:ints};
+    S.profileSet=true;S.profile={name,age:+$('#pfAge').value,grade:+$('#pfGrade').value,math:+$('#pfMath').value,interests:ints};
     if(changed)S.adapt={};
     applyProfile();save();refreshChips();renderParent();
     $('#pfMsg').textContent=`Saved. The Number Lab now follows the ${GRADE_NAMES[S.profile.math]} path.`;
@@ -549,7 +567,11 @@ function renderParent(){
    <li><b>Word problems in four fixed steps:</b> circle the numbers → pick what is happening (put together, take away, equal groups, share equally, compare) from pictures → pick the number sentence → solve. Keyword tricks are avoided on purpose: "in total" in the goody-bag problem actually means divide.</li>
    <li><b>Always check.</b> Put the answer back in: do both sides match? This makes "=" concrete and lets her check her own work.</li></ul></section>
   <section><h2>Learning plan</h2>
-   <p>3 levels a day (one from each lab), about 15 to 20 minutes total, in the order shown on the home page. Each lab unlocks in order. Once a lab is finished, the daily plan picks the level with the fewest stars for review. Today's plan: ${t.plan.map(id=>MISS[id].name).join(' → ')}.</p>
+   <p><b>Every day has three short parts, always in the same order</b> (about 15–20 minutes total). Mixing subjects every day keeps it fresh, and the fixed order keeps it predictable.</p>
+   <ol><li><b>📖 Words:</b> meet 4 new Grade 3 vocabulary words on picture cards, answer 4 quick questions on them (context clues, meaning, synonym or antonym), then 1 prefix/suffix or review word and 1 grammar review from the Word Lab.</li>
+   <li><b>🔢 Math:</b> 4 questions on the day's topic (the next level on her math path) + 2 spiral-review questions from earlier topics, mistakes first.</li>
+   <li><b>🤝 People:</b> 4 situations on the day's topic + 1 review situation.</li></ol>
+   <p>A topic counts as learned when she gets 2 or more stars; otherwise it comes back the next day. The labs stay open for extra free practice. Today (day ${t.n}): ${t.words.join(', ')} · ${MISS[t.topics.m]?.name} · ${MISS[t.topics.s]?.name}. Words learned so far: ${S.vocab.learned.length} of ${VOCAB.length}.</p>
    <h3>📚 Word Lab (10 levels)</h3>${planTable(WORLDS.w)}
    <h3>🔢 Number Lab: ${GRADE_NAMES[S.profile.math]} path (${WORLDS.m.missions.length} levels)</h3>${planTable(WORLDS.m)}
    <h3>🤝 People Lab (8 levels)</h3>${planTable(WORLDS.s)}
