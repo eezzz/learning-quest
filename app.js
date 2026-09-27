@@ -83,6 +83,10 @@ function genSkip(){
 }
 function blocksHTML(t,o){return`<div class="blocks">${times(t,()=>`<div class="ten">${'<i></i>'.repeat(10)}</div>`).join('')}<div class="ones">${times(o,()=>'<div class="one"></div>').join('')}</div></div>`}
 function genPV(){
+  if(rnd(3)===0){let n,ds;do{n=between(102,987);ds=String(n).split('').map(Number)}while(new Set(ds).size<3);
+    const pos=rnd(3),vals=[ds[0]*100,ds[1]*10,ds[2]],ans=vals[pos],shown=vals.map((v,i)=>i===pos?'<span class="blank">?</span>':v).join(' + ');
+    return mkChoice('mt:pv',`Fill in the blank: ${n} = ${vals.map((v,i)=>i===pos?'__':v).join(' + ')}`,`<div class="bignum">${ds.map((x,i)=>i===pos?`<u>${x}</u>`:x).join('')}</div><div class="eq sm">${n} = ${shown}</div>`,ans,[ds[pos]===ans?ds[pos]*10:ds[pos],ds[pos]*(pos===0?10:100),ans+10],
+      {hint:`The missing part is the <b>${['hundreds','tens','ones'][pos]}</b>. The digit ${ds[pos]} in that place means ${ans}.`,explain:`${n} = ${vals.join(' + ')}.`});}
   if(rnd(2)){
     const t=between(1,9),o=between(0,9),n=t*10+o;
     return mkChoice('mt:pv','Each rod has 10 pebbles. Each cube is 1 pebble. How many pebbles?',blocksHTML(t,o),n,[o*10+t,t+o,n+10,n-1],
@@ -154,11 +158,11 @@ function genEO(){
     {hint:'Make pairs: count by 2s. If one is left with no partner, the number is <b>odd</b>.',explain:`${n} is ${even?'even: everyone has a partner':'odd: one is left over'}. Even numbers end in 0, 2, 4, 6 or 8.`,fixed:true});
   return r;
 }
-const GEN={skip:genSkip,pv:genPV,cmp:genCmp,add:genAdd,sub:genSub,time:genTime,len:genLen,eo:genEO};
+const GEN={skip:genSkip,pv:genPV,cmp:genCmp,add:genAdd,sub:genSub,time:genTime,len:genLen,eo:genEO,tf:()=>genTF(),miss:()=>genMissing(),bal:()=>genBalance(1),bar:()=>genBarM(),grp:()=>genGroups(),story:()=>genStoryRound()};
 function buildMathMix(){
   const miss=Object.entries(S.mistakes).filter(e=>e[0].startsWith('mt:')).sort((a,b)=>b[1]-a[1]).slice(0,3).map(e=>GEN[e[0].slice(3)]).filter(Boolean);
-  const rest=shuffle([genAdd,genSub,genTime,genLen,genPV,genCmp,genSkip]).slice(0,5-miss.length);
-  return shuffle([genEO,genEO].concat(miss,rest).map(g=>g()));
+  const rest=shuffle([genAdd,genSub,genTime,genLen,genPV,genCmp,genSkip,GEN.tf,GEN.miss,GEN.bal,GEN.bar,GEN.grp,GEN.story,GEN.story]).slice(0,6-miss.length);
+  return shuffle([genEO].concat(miss,rest).map(g=>g()));
 }
 
 /* ================= PEOPLE LAB builders ================= */
@@ -201,21 +205,31 @@ const WORD_MISSIONS=[
   build:buildWordFinal,spec:['🪐','Saturn','Saturn is so light that it could float in a giant bathtub.'],bonus:'Teach a grown-up the 4 word tests: the ___, the ___ rock, I can ___, It moved ___.'}
 ];
 const MATH_MISSIONS=[
- {name:'Sea Star Count',icon:'⭐',short:'Skip Count',learn:'Count by 2s, 5s and 10s.',tip:'Skip counting is fast counting. Count by 5s: <b>5, 10, 15, 20</b>.',
+ {id:'m9',name:'Balance Check',icon:'⚖️',short:'Balance?',learn:'The = sign means both sides weigh the same.',tip:'Read <b>=</b> as <b>"is the same as"</b>. Work out each side. Same number? It balances.',
+  build:()=>[genTF(),genTF(),genTF(),genMissing(),genTF(),genMissing()],spec:['⚖️','Balance scale','People have used balance scales to compare weights for more than 4,000 years.'],bonus:'Use a real scale, or hang two cups from a coat hanger. Put 3 coins in one cup. How many in the other to balance?'},
+ {id:'m10',name:'Mystery Bag Lab',icon:'🎒',short:'Find x',learn:'Solve equations with a balance scale.',tip:'<b>1.</b> Add up each side. <b>2.</b> Take the same off both sides. <b>3.</b> Open the bag and check.',
+  build:()=>[genBalance(0),genBalance(1),genBalance(1),genBalance(2),genBalance(2)],spec:['🥚','Ostrich egg','One ostrich egg weighs about as much as 24 chicken eggs.'],bonus:'Hide some blocks in a paper bag and put it on one side of a scale. Can a grown-up work out how many are inside?'},
+ {id:'m11',name:'Bar Model Builder',icon:'🧱',short:'Bar Models',learn:'Use a bar to find the missing part.',tip:'The long bar is the <b>whole</b>. The small boxes are the <b>parts</b>. Missing part = whole − the parts you know.',
+  build:()=>[genBarM(93,[55,28])].concat(times(5,()=>genBarM())),spec:['🦕','Argentinosaurus','This dinosaur was heavier than 10 elephants.'],bonus:null},
+ {id:'m1',name:'Sea Star Count',icon:'⭐',short:'Skip Count',learn:'Count by 2s, 5s and 10s.',tip:'Skip counting is fast counting. Count by 5s: <b>5, 10, 15, 20</b>.',
   build:()=>times(6,genSkip),spec:['🌟','Sea star','Most sea stars have 5 arms. Some kinds have up to 40!'],bonus:'Count your fingers and toes by 5s with a grown-up: 5, 10, 15, 20!'},
- {name:'Pebble Beach',icon:'🪨',short:'Place Value',learn:'Hundreds, tens and ones.',tip:'A rod is <b>10</b>. A cube is <b>1</b>. 3 rods and 4 cubes = <b>34</b>.',
+ {id:'m12',name:'Giraffe Boots',icon:'🦒',short:'Equal Groups',learn:'Multiply and divide with equal groups.',tip:'<b>3 × 4</b> means 3 groups of 4: 4 + 4 + 4. Your book may write it as <b>3 · 4</b>.',
+  build:()=>times(6,genGroups),spec:['🦒','Giraffe','Each giraffe leg is taller than most grown-ups.'],bonus:'Make 3 groups of 4 with toys. Count by 4s. Then share 12 toys between 3 people.'},
+ {id:'m13',name:'Story Detective',icon:'🔎',short:'Word Problems',learn:'Turn a story into a number sentence.',tip:'<b>1.</b> Circle the numbers. <b>2.</b> What is happening? <b>3.</b> Pick the number sentence. <b>4.</b> Solve.',
+  build:()=>take(STORIES.map((_,i)=>i),5).map(genStoryRound),spec:['🦉','Barn owl','A barn owl can find a mouse in the dark just by listening.'],bonus:'Make up a story problem about animals for a grown-up to solve. Then switch!'},
+ {id:'m2',name:'Pebble Beach',icon:'🪨',short:'Place Value',learn:'Hundreds, tens and ones.',tip:'A rod is <b>10</b>. A cube is <b>1</b>. 3 rods and 4 cubes = <b>34</b>.',
   build:()=>times(6,genPV),spec:['💎','Quartz','Quartz crystals grow with 6 sides.'],bonus:'Make groups of 10 with small things (beans or blocks). How many tens? How many ones?'},
- {name:'Animal Olympics',icon:'🏅',short:'Compare',learn:'Which number is bigger? Use < > =.',tip:'Look at the <b>tens</b> first. The open side of &lt; or &gt; faces the <b>bigger</b> number.',
+ {id:'m3',name:'Animal Olympics',icon:'🏅',short:'Compare',learn:'Which number is bigger? Use < > =.',tip:'Look at the <b>tens</b> first. The open side of &lt; or &gt; faces the <b>bigger</b> number.',
   build:()=>times(6,genCmp),spec:['🐆','Cheetah','A cheetah can run about 100 km per hour.'],bonus:null},
- {name:'Ant Hill',icon:'🐜',short:'Add',learn:'Add numbers up to 100.',tip:'Add the <b>tens</b>. Add the <b>ones</b>. Put them together.',
+ {id:'m4',name:'Ant Hill',icon:'🐜',short:'Add',learn:'Add numbers up to 100.',tip:'Add the <b>tens</b>. Add the <b>ones</b>. Put them together.',
   build:()=>times(6,genAdd),spec:['🌻','Sunflower','Sunflower seeds grow in spiral patterns.'],bonus:null},
- {name:'Tide Pool Take-Away',icon:'🌊',short:'Subtract',learn:'Take away numbers up to 100.',tip:'Take away the <b>tens</b> first. Then take away the <b>ones</b>.',
+ {id:'m5',name:'Tide Pool Take-Away',icon:'🌊',short:'Subtract',learn:'Take away numbers up to 100.',tip:'Take away the <b>tens</b> first. Then take away the <b>ones</b>.',
   build:()=>times(6,genSub),spec:['🌙','The Moon','The Moon pulls on the oceans. That makes the tides.'],bonus:'Put 20 small things in a bowl. Take some away. How many are left?'},
- {name:'Night Watch',icon:'🕰️',short:'Clock',learn:'Tell time to 5 minutes.',tip:'Short hand = <b>hour</b>. Long orange hand = <b>minutes</b>. Count by 5s from 12.',
+ {id:'m6',name:'Night Watch',icon:'🕰️',short:'Clock',learn:'Tell time to 5 minutes.',tip:'Short hand = <b>hour</b>. Long orange hand = <b>minutes</b>. Count by 5s from 12.',
   build:()=>times(6,genTime),spec:['🌍','Earth','Earth spins around once every 24 hours. That is one day.'],bonus:'Look at a real clock 3 times today. Tell a grown-up the time.'},
- {name:'Measuring Lab',icon:'📏',short:'Measure',learn:'Measure with a ruler in centimeters.',tip:'Start at <b>0</b>. If it does not start at 0, count the spaces.',
+ {id:'m7',name:'Measuring Lab',icon:'📏',short:'Measure',learn:'Measure with a ruler in centimeters.',tip:'Start at <b>0</b>. If it does not start at 0, count the spaces.',
   build:()=>times(6,genLen),spec:['🐍','Python','The longest snake ever measured was about 10 meters long.'],bonus:'Measure 3 things with a real ruler: a pencil, a leaf, your hand.'},
- {name:'Math Mix',icon:'🧮',short:'Math Mix',learn:'A mix of everything, plus odd and even.',tip:'Even numbers make pairs. Odd numbers have 1 left over.',
+ {id:'m8',name:'Math Mix',icon:'🧮',short:'Math Mix',learn:'A mix of everything, plus odd and even.',tip:'Even numbers make pairs. Odd numbers have 1 left over.',
   build:buildMathMix,spec:['🍯','Honeycomb','Bees build honeycomb from 6-sided shapes called hexagons.'],bonus:null}
 ];
 const SOCIAL_MISSIONS=[
@@ -242,7 +256,7 @@ const WORLDS={
  s:{key:'s',name:'People Lab',icon:'🤝',color:'#f59ae0',desc:'Feelings, calm tools, conversations, friends',missions:SOCIAL_MISSIONS}
 };
 const MISS={};
-Object.values(WORLDS).forEach(W=>W.missions.forEach((m,i)=>{m.id=W.key+(i+1);m.n=i+1;m.world=W.key;MISS[m.id]=m}));
+Object.values(WORLDS).forEach(W=>W.missions.forEach((m,i)=>{m.id=m.id||W.key+(i+1);m.n=i+1;m.world=W.key;MISS[m.id]=m}));
 const BREAKS=['Hop like a frog 10 times! 🐸','Stretch up tall like a giraffe. Count to 10. 🦒','Waddle like a penguin across the room! 🐧','Flap your wings like a bird 10 times! 🐦','Curl up like a pill bug, then pop open! 🐛','Stomp like a dinosaur 10 times! 🦕','Slither like a snake to the door and back! 🐍','Spin slowly like a planet 3 times! 🪐','Hop like a kangaroo 10 times! 🦘','Swim like a fish with your arms for 10 seconds! 🐟','Sway like a tree in the wind. Count to 10. 🌳','Crawl like a crab sideways! 🦀','Take 5 slow breaths, like a sleeping bear. 🐻'];
 
 /* ================= SAVED PROGRESS ================= */
@@ -261,7 +275,8 @@ function clearMistake(k){if(k&&S.mistakes[k]){S.mistakes[k]--;if(S.mistakes[k]<=
 function streak(){const set=new Set(S.days);let n=0;const d=new Date();if(!set.has(dayStr(d)))d.setDate(d.getDate()-1);while(set.has(dayStr(d))){n++;d.setDate(d.getDate()-1)}return n}
 const RANKS=[[0,'Junior Explorer'],[40,'Field Scientist'],[120,'Lab Scientist'],[250,'Expedition Leader'],[400,'Professor Stella']];
 function rankInfo(){let i=0;RANKS.forEach((r,k)=>{if(S.stars>=r[0])i=k});const cur=RANKS[i],nx=RANKS[i+1];return{name:cur[1],next:nx,pct:nx?(S.stars-cur[0])/(nx[0]-cur[0])*100:100}}
-function unlocked(m){return m.n===1||!!S.done[m.world+(m.n-1)]}
+function prevOf(m){return WORLDS[m.world].missions[m.n-2]}
+function unlocked(m){return m.n===1||!!S.done[prevOf(m).id]||!!S.done[m.id]}
 function nextIn(w){return WORLDS[w].missions.find(m=>!S.done[m.id])}
 function doneCount(w){return WORLDS[w].missions.filter(m=>S.done[m.id]).length}
 // Today's plan is fixed once per day, so the order never changes under her.
@@ -330,7 +345,7 @@ function renderHome(){
 }
 const PTS=[[270,70],[175,48],[92,92],[78,178],[160,225],[255,272],[290,352],[235,432],[145,452],[68,400]];
 function renderWorld(w){
-  const W=WORLDS[w],nx=nextIn(w),ms=W.missions,pts=PTS.slice(0,ms.length),h=ms.length>8?505:480;
+  const W=WORLDS[w],nx=nextIn(w),ms=W.missions,pts=ms.map((_,i)=>{const row=Math.floor(i/3),col=i%3;return[(row%2?[290,180,70]:[70,180,290])[col],55+row*105]}),h=55+Math.ceil(ms.length/3)*105;
   let svg=`<svg class="trail" viewBox="0 0 360 ${h}" role="group" aria-label="${W.name} map" style="--acc:${W.color}">`;
   for(let i=0;i<ms.length-1;i++){const[a,b]=[pts[i],pts[i+1]];svg+=`<line class="ln ${S.done[ms[i].id]?'lit':''}" x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}"/>`}
   ms.forEach((m,i)=>{const[x,y]=pts[i];const st=S.done[m.id]?'done':(unlocked(m)?'next':'locked');
@@ -351,7 +366,7 @@ function openSheet(id){
   ov.innerHTML=`<div class="sheet" role="dialog" aria-modal="true" aria-label="${m.name}"><div class="eyebrow">${WORLDS[m.world].name} · ${m.short}</div><h2>${m.icon} ${m.name}</h2>
     ${b?`<div class="mini-stars" aria-label="${b} stars">${'★'.repeat(b)}${'☆'.repeat(3-b)}</div>`:''}
     <p>${m.learn}</p><div class="tip">💡 ${m.tip}</div>
-    ${lock?`<p>🔒 Finish "${MISS[m.world+(m.n-1)].name}" first. Then this place opens.</p>`:''}
+    ${lock?`<p>🔒 Finish "${prevOf(m).name}" first. Then this place opens.</p>`:''}
     <div class="btnrow"><button class="big" id="shGo" ${lock?'disabled':''}>${S.done[id]?'Play again ▶':'Start ▶'}</button><button class="ghost" id="shX">Close</button></div></div>`;
   ov.hidden=false;
   $('#shX').onclick=closeSheet;ov.onclick=e=>{if(e.target===ov)closeSheet()};
@@ -387,7 +402,7 @@ function setProgress(){const p=R.i/R.rounds.length*100,left=R.rounds.length-R.i;
 function renderRound(){
   const r=R.rounds[R.i];R.cur={r,err:false,done:false};setProgress();clearInterval(breathTimer);
   const st=$('#stage');st.innerHTML='';st.className='stage';$('#hint').textContent='';$('#actions').innerHTML='';$('#fb').hidden=true;$('#fb').innerHTML='';
-  ({select:rSelect,sort:rSort,punct:rPunct,proof:rProof,pair:rPair,choice:rChoice,breathe:rBreathe})[r.type](r,st);
+  ({select:rSelect,sort:rSort,punct:rPunct,proof:rProof,pair:rPair,choice:rChoice,breathe:rBreathe,balance:rBalance,story:rStory})[r.type](r,st);
 }
 function setPrompt(html,say){$('#prompt').innerHTML=html;$('#sayBtn').onclick=()=>speak(say||html)}
 function shake(b){b.classList.remove('shake');void b.offsetWidth;b.classList.add('shake')}
@@ -483,16 +498,16 @@ function rPair(r,st){
 // Number Lab and People Lab: pick an answer. First miss = hint and a second try. Second miss = show the answer and why.
 function rChoice(r,st){
   setPrompt(r.prompt,r.say||r.prompt);
-  if(r.visual)st.appendChild(el('div','visual',r.visual));
+  if(r.visual)st.appendChild(el('div','visual',r.visual));if(r.onShow)r.onShow(st);
   const box=el('div','choices'+(r.wide?' wide':'')),opts=r.fixed?r.opts:shuffle(r.opts);let tries=0;
   opts.forEach(o=>{const b=el('button','choice',o.t+(o.label?`<small>${o.label}</small>`:''));o.btn=b;
     b.onclick=()=>{
       if(R.cur.done||b.disabled)return;
-      if(o.ok){R.cur.done=true;b.classList.add('right');st.classList.add('locked');R.cur.err?addMistake(r.key):clearMistake(r.key);
+      if(o.ok){R.cur.done=true;b.classList.add('right');st.classList.add('locked');if(r.onDone)r.onDone(st);R.cur.err?addMistake(r.key):clearMistake(r.key);
         finish(!R.cur.err,[o.why||r.explain].filter(Boolean),r.fact,R.cur.err);return}
       R.cur.err=true;tries++;b.classList.add('wrong');b.disabled=true;shake(b);SFX.bad();
       const left=opts.filter(x=>!x.btn.disabled);
-      if(tries>=2||left.length<=1){R.cur.done=true;st.classList.add('locked');opts.find(x=>x.ok).btn.classList.add('right');addMistake(r.key);
+      if(tries>=2||left.length<=1){R.cur.done=true;st.classList.add('locked');if(r.onDone)r.onDone(st);opts.find(x=>x.ok).btn.classList.add('right');addMistake(r.key);
         finish(false,[o.why,`The answer is <b>${strip(opts.find(x=>x.ok).t)}</b>. ${r.explain||opts.find(x=>x.ok).why||''}`].filter(Boolean),r.fact);return}
       $('#hint').innerHTML='🤔 '+(o.why||'Not this one.')+(r.hint&&!o.why?' Tap 💡 Show me how for help.':' Try again!');
     };box.appendChild(b)});
@@ -558,11 +573,11 @@ function renderCards(){
 /* ================= PARENT PAGE ================= */
 const PLAN_EN={
  w:[['Nouns','Every round mixes in easy-to-miss nouns like hair, grass and water'],['Adjectives','Concrete nouns like tree and fossil appear as distractors, targeting her habit of circling nouns as adjectives'],['Noun or adjective?','Her weakest area, practiced on its own'],['Verbs in sentences','A strength, to build confidence'],['-ly adverbs and their verbs','Two steps: tap the whole adverb, then the verb. Includes -ly traps like fly, lily and butterfly'],['Sorting 4 word types','Nouns, verbs, adjectives and adverbs side by side'],['End punctuation','A strength, kept fresh'],['Proofreading','Same format as her Camping worksheet'],['Review','Mistakes from her worksheets and from the game'],['Final mix','Everything together']],
- m:[['Skip counting (2s, 5s, 10s)','Foundation for multiplication; uses pictured groups (sea stars have 5 arms)'],['Place value (hundreds, tens, ones)','Ten-rods and ones cubes first, then digits'],['Comparing < > =','One fixed rule: tens first, then ones'],['Adding within 100','Step by step: tens, then ones; wrong choices target forgetting to carry'],['Subtracting within 100','Step by step: tens, then ones; wrong choices target the "smaller from bigger" ones mistake'],['Telling time to 5 minutes','A real clock face with an orange minute hand'],['Measuring with a ruler','Includes objects that do not start at 0'],['Mixed review + odd/even','Question types she missed come first']],
+ m:[['What "=" means','True/false equations and "7 + 5 = __ + 4": the = sign means "the same as", not "the answer comes next"'],['Equations with x','Interactive balance: add up each side, take the same off both sides, open the bag and check. Mirrors her "Write and solve an equation" page'],['Bar models','The whole bar and its parts; missing part = whole − known parts. Starts with 93 = 55 + x + 28 from her homework'],['Skip counting (2s, 5s, 10s)','Foundation for multiplication; uses pictured groups'],['Equal groups (× ÷)','Repeated addition, arrays and fair sharing, with pictures. Mentions the 3 · 4 notation from her book'],['Word problems','Four fixed steps: circle the numbers, pick what is happening (a picture), pick the number sentence, solve'],['Place value','Ten-rods and cubes, digit values, and expanded form (675 = 600 + 70 + 5)'],['Comparing < > =','One fixed rule: tens first, then ones'],['Adding within 100','Tens, then ones; wrong choices target forgetting to carry'],['Subtracting within 100','Tens, then ones; wrong choices target the "smaller from bigger" mistake'],['Telling time to 5 minutes','A real clock face with an orange minute hand'],['Measuring with a ruler','Includes objects that do not start at 0'],['Mixed review','All question types; ones she missed come first']],
  s:[['Reading feelings','Find clues in the face, body and situation, like a detective'],['Size of the problem','Small, medium or big, and a reaction that matches'],['Calm-down tools','Bubble breathing, plus noise, anger, worry and changed plans'],['Conversation turn-taking','Like ping-pong; check before sharing more about a favorite topic'],['Understanding other minds','False-belief (Sally-Anne style) questions, gifts for the other person\'s taste, kind replies'],['Idioms and literal meaning','"Raining cats and dogs" and more, including her "circle only the ly" worksheet'],['Playing together','Turns, joining in, "good game", Plan B, personal space'],['Asking for help','When and how to ask an adult, plus review']]
 };
 function backupCode(){try{return btoa(unescape(encodeURIComponent(JSON.stringify(S))))}catch(e){return''}}
-function mistakeLabel(k){const p=k.split(':'),MT={skip:'skip counting',pv:'place value',cmp:'comparing',add:'adding',sub:'subtracting',time:'clock',len:'measuring',eo:'odd and even'};
+function mistakeLabel(k){const p=k.split(':'),MT={skip:'skip counting',pv:'place value',cmp:'comparing',add:'adding',sub:'subtracting',time:'clock',len:'measuring',eo:'odd and even',tf:'is it balanced (=)',miss:'balance the scale',bal:'mystery bag equations',bar:'bar models',grp:'equal groups (× ÷)',story:'word problems'};
   if(p[0]==='w')return p[1];if(p[0]==='s')return`Find the ${TAGNAME[p[2]]}: "${plain(SENTS[+p[1]])}"`;if(p[0]==='p')return`Punctuation: ${PUNCT[+p[1]][0]}`;
   if(p[0]==='f')return`Proofreading: ${plain(PROOF[+p[1]][0])}`;if(p[0]==='q')return`Adverb: ${plain(ADV_SENTS[+p[1]])}`;if(p[0]==='mt')return`Math: ${MT[p[1]]||p[1]}`;
   if(p[0]==='so'&&SOCIAL[+p[1]])return`Social: ${SOCIAL[+p[1]].s}`;return k}
@@ -593,11 +608,24 @@ function renderParent(){
     <tr><td>Adjective Review</td><td><span class="tag warn">4 extra</span> Also circled tree, butterfly, flower and bus as adjectives</td></tr>
     <tr><td>Find the -ly Adverbs</td><td><span class="tag warn">Circled only "ly"</span> Found every -ly word but circled just the ending; several verb underlines were under the adverb instead of the verb</td></tr>
    </table></div>
-   <p style="margin-top:8px">No math homework has been uploaded yet, so the Number Lab follows US 2nd-grade math standards (skip counting, adding and subtracting within 100, place value, comparing, time, measuring, odd and even). Upload her math homework to tune it to her actual level and mistakes.</p></section>
+   <h3>Math homework</h3>
+   <div class="tbl"><table><tr><th>Worksheet</th><th>Result</th></tr>
+    <tr><td>Write and solve an equation (balance scales)</td><td><span class="tag good">4/4 correct</span> In (c) she wrote an extra "=" at the end of a line (13 + 7 = 3 + x + 4 =), a sign she reads "=" as "now work it out" rather than "both sides are the same". Problem (d) (85 + 8 = 55 + x + 28) took many erasures; she found x by trying 83 + 13 and 83 + 10 instead of subtracting</td></tr>
+    <tr><td>Connect expressions with the same value</td><td><span class="tag warn">Unclear</span> Subtracting a bracket, e.g. 83 − (21 − 9) = 83 − 21 + 9, is an abstract rule. The lines in the photo are hard to read, and one line in a different pen looks like a correction</td></tr>
+    <tr><td>Expanded form (675 = 600 + 70 + 5)</td><td><span class="tag good">Correct</span></td></tr>
+    <tr><td>Equal groups (4 + 4 + 4 = 3 · 4)</td><td><span class="tag good">Correct</span></td></tr>
+    <tr><td>Word problems (flowers, gifts, goody bags)</td><td><span class="tag good">All correct</span> The key numbers were circled and "same" was underlined, which looks like adult help. Turning words into math is the hard step, not the arithmetic</td></tr>
+   </table></div>
+   <h3>How the Number Lab makes abstract math visual</h3>
+   <ul><li><b>"=" as a balance.</b> Say "is the same as" instead of "equals". One "=" per line, never at the end of a line. True/false questions ("7 = 7", "3 + 4 = 7 + 2") fix the "the answer comes next" idea.</li>
+   <li><b>Concrete first.</b> A real scale (or a coat hanger with two cups), blocks, and a paper bag as the "mystery bag": take the same off both sides and it stays balanced.</li>
+   <li><b>Bar models.</b> The whole bar and its parts turn "93 = 55 + x + 28" into a picture: missing part = whole − known parts. Her count-up strategy (83 → 93 is 10) is a real method too.</li>
+   <li><b>Word problems in four fixed steps:</b> circle the numbers → pick what is happening (put together, take away, equal groups, share equally, compare) from pictures → pick the number sentence → solve. Keyword tricks are avoided on purpose: "in total" in the goody-bag problem actually means divide.</li>
+   <li><b>Always check.</b> Put the answer back in: do both sides match? This makes "=" concrete and lets her check her own work.</li></ul></section>
   <section><h2>Learning plan</h2>
    <p>3 levels a day (one from each lab), about 15 to 20 minutes total, in the order shown on the home page. Each lab unlocks in order. Once a lab is finished, the daily plan picks the level with the fewest stars for review. Today's plan: ${t.plan.map(id=>MISS[id].name).join(' → ')}.</p>
    <h3>📚 Word Lab (10 levels)</h3>${planTable(WORLDS.w)}
-   <h3>🔢 Number Lab (8 levels)</h3>${planTable(WORLDS.m)}
+   <h3>🔢 Number Lab (13 levels)</h3>${planTable(WORLDS.m)}
    <h3>🤝 People Lab (8 levels)</h3>${planTable(WORLDS.s)}
    <h3>Tips for parents</h3>
    <ul><li>Talk about People Lab topics in daily life, for example: "Did you have a problem today? What size was it?" Practice in real situations is what makes these skills stick.</li>
@@ -605,7 +633,7 @@ function renderParent(){
    <li>Praise specific effort ("You used the 'the ___ rock' test!") rather than just "Great job."</li>
    <li>Send photos of new homework or quizzes to Claude to add them to the question banks.</li></ul></section>
   <section><h2>Progress</h2>
-   <p>Total stars: <b>${S.stars}</b> ⭐ · Day streak: <b>${streak()}</b> · Completed: Words <b>${doneCount('w')}/10</b>, Math <b>${doneCount('m')}/8</b>, People <b>${doneCount('s')}/8</b></p>
+   <p>Total stars: <b>${S.stars}</b> ⭐ · Day streak: <b>${streak()}</b> · Completed: Words <b>${doneCount('w')}/10</b>, Math <b>${doneCount('m')}/${WORLDS.m.missions.length}</b>, People <b>${doneCount('s')}/8</b></p>
    <h3>Mistakes to review (higher count = more practice needed)</h3><div class="mchips">${mk}</div>
    <h3>Recent activity</h3><ul>${recent}</ul>
    <h3>Saving and backup</h3>
