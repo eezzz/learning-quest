@@ -139,7 +139,7 @@ const BREAKS=['Hop like a frog 10 times! 🐸','Stretch up tall like a giraffe. 
 const KEY='stella-science-quest-v2',ROOTKEY='learning-quest-v3';
 const AVATARS=['🦊','🐼','🐙','🦄','🐢','🦉','🐬','🦖','🐝','🚀','🦋','🐧','⭐','🐱'];
 // Support settings follow the grade by default: Kindergarten gets full voice mode, K–1 get read-aloud and breaks.
-function defaultSupport(grade){return{voice:grade===0,autoRead:grade<=1,breaks:grade<=1,surprise:true,bigText:false,perPart:0}}
+function defaultSupport(grade){return{voice:grade===0,autoRead:grade<=1,breaks:grade<=1,surprise:true,bigText:false,perPart:0,extra:false}}
 function fresh(p){p=p||{};const grade=p.grade??2;
   return{v:2,stars:0,best:{},done:{},bonus:{},days:[],sound:true,calm:false,log:[],today:null,adapt:{},checkins:[],calmUses:[],
     vocab:{learned:[]},dayCount:0,fullDays:[],mistakes:{},

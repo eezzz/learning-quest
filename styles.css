@@ -437,3 +437,15 @@ body.bigtext{font-size:21px}
 .cfilter .pform{grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr)}
 @media (max-width:640px){.cfilter .pform{grid-template-columns:1fr}}
 .parent tr[hidden]{display:none}
+
+/* ---------- Discovery cards, gold cards, daily limit ---------- */
+.dcard{display:flex;gap:16px;align-items:center;text-align:left;background:linear-gradient(160deg,#20506a,#173a4a);border:3px solid var(--mint);border-radius:22px;padding:16px 20px;max-width:560px;animation:flipin .7s ease-out}
+.dcard.gold{border-color:var(--gold);background:linear-gradient(160deg,#5a4a1a,#2a3a2a);box-shadow:0 0 24px rgba(255,201,77,.45)}
+.dci{font-size:3.6rem;line-height:1}
+.dct{font-size:1.4rem}
+@keyframes flipin{0%{transform:rotateY(90deg) scale(.8);opacity:0}100%{transform:none;opacity:1}}
+.goldc{border-color:var(--gold)!important;box-shadow:0 0 14px rgba(255,201,77,.35)}
+.goldgoal{margin-top:-8px}
+.dgh{margin:12px 0 8px;font-size:1.15rem}
+.dgh small{color:var(--muted);font-weight:400}
+.tmr{margin:0}

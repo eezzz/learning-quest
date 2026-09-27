@@ -224,4 +224,3 @@ function masteryHTML(){
 // A daily snapshot of mastery lets the weekly report show change.
 function snapMastery(){ensureReview();const d=dayStr();if(!S.masterySnap[d]){S.masterySnap[d]=Object.assign({},S.mastery);const ks=Object.keys(S.masterySnap).sort();while(ks.length>21)delete S.masterySnap[ks.shift()];save()}}
 const _today=window.today;window.today=function(){const t=_today();snapMastery();return t};
-boot();
