@@ -143,7 +143,7 @@ function defaultSupport(grade){return{voice:grade===0,autoRead:grade<=1,breaks:g
 function fresh(p){p=p||{};const grade=p.grade??2;
   return{v:2,stars:0,best:{},done:{},bonus:{},days:[],sound:true,calm:false,log:[],today:null,adapt:{},checkins:[],calmUses:[],
     vocab:{learned:[]},dayCount:0,fullDays:[],mistakes:{},
-    profile:Object.assign({name:'Explorer',age:grade+5,grade,math:grade,lang:Math.min(grade,3),avatar:AVATARS[0],interests:Object.keys(INTERESTS)},p,{support:Object.assign(defaultSupport(grade),p.support||{})})}}
+    profile:Object.assign({name:'Explorer',age:grade+5,grade,math:grade,lang:grade,avatar:AVATARS[0],interests:Object.keys(INTERESTS)},p,{support:Object.assign(defaultSupport(grade),p.support||{})})}}
 function migrate(s){
   // The first profile default was age 7 / Grade 2. She is 8 and in Grade 3.
   const P=s.profile;if(P&&P.age===7&&P.grade===2&&P.math===2&&!s.profileSet){P.age=8;P.grade=3;P.math=3;s.adapt={}}
@@ -319,7 +319,7 @@ function setProgress(){const p=R.i/R.rounds.length*100,left=R.rounds.length-R.i;
 function renderRound(){
   const r=R.rounds[R.i];R.cur={r,err:false,done:false};setProgress();clearInterval(breathTimer);
   const st=$('#stage');st.innerHTML='';st.className='stage';$('#hint').textContent='';$('#actions').innerHTML='';$('#fb').hidden=true;$('#fb').innerHTML='';
-  ({select:rSelect,sort:rSort,punct:rPunct,proof:rProof,pair:rPair,choice:rChoice,breathe:rBreathe,learn:rLearn,rule:rRule,balance:rBalance,story:rStory})[r.type](r,st);
+  ({select:rSelect,sort:rSort,punct:rPunct,proof:rProof,pair:rPair,choice:rChoice,breathe:rBreathe,learn:rLearn,rule:rRule,order:rOrder,memory:rMemory,balance:rBalance,story:rStory})[r.type](r,st);
 }
 function setPrompt(html,say){$('#prompt').innerHTML=html;$('#sayBtn').onclick=()=>speak(say||html);if(autoRead())setTimeout(()=>speak(say||html),200)}
 function shake(b){b.classList.remove('shake');void b.offsetWidth;b.classList.add('shake')}
@@ -505,7 +505,7 @@ function backupCode(){try{return btoa(unescape(encodeURIComponent(JSON.stringify
 function mistakeLabel(k){const p=k.split(':'),MT={skip:'skip counting',pv:'place value',cmp:'comparing',add:'adding',sub:'subtracting',time:'clock',len:'measuring',eo:'odd and even',bond:'number bonds',ten:'making ten',cbar:'comparison bars',brk:'brackets and expressions',fact:'times tables',frac:'fractions',pat:'patterns',logic:'logic puzzles',tf:'is it balanced (=)',shape:'shapes',money:'money',graph:'graphs',round:'rounding',area:'area and perimeter',mdig:'multi-digit × and ÷',times:'"times as many"',angle:'angles',dec:'decimals',fop:'fraction operations',vol:'volume',coord:'coordinates',expr:'expressions',miss:'balance the scale',bal:'mystery bag equations',bar:'bar models',grp:'equal groups (× ÷)',story:'word problems'};
   if(p[0]==='w')return p[1];if(p[0]==='s')return`Find the ${TAGNAME[p[2]]}: "${plain(SENTS[+p[1]])}"`;if(p[0]==='p')return`Punctuation: ${PUNCT[+p[1]][0]}`;
   if(p[0]==='f')return`Proofreading: ${plain(PROOF[+p[1]][0])}`;if(p[0]==='q')return`Adverb: ${plain(ADV_SENTS[+p[1]])}`;if(p[0]==='mt')return`Math: ${MT[p[1]]||p[1]}`;
-  if(p[0]==='so'&&SOCIAL[+p[1]])return`Social: ${SOCIAL[+p[1]].s}`;if(p[0]==='v')return`Word: ${p[1]}`;if(p[0]==='lg'){const it=LANG_BY_ID[p[1]];const sk=it&&MISS['L-'+it.skill];return`Language: ${sk?sk.name:p[1]}`}if(p[0]==='af'&&AFFIXES[+p[1]])return`Prefix/suffix: ${AFFIXES[+p[1]][0]}`;return k}
+  if(p[0]==='so'&&SOCIAL[+p[1]])return`Social: ${SOCIAL[+p[1]].s}`;if(p[0]==='v')return`Word: ${p[1]}`;if(p[0]==='ef'){const it=EF_BY_ID[p[1]];const sk=it&&MISS['e-'+it.skill];return`Brain Skills: ${sk?sk.name:p[1]}`}if(p[0]==='lg'){const it=LANG_BY_ID[p[1]];const sk=it&&MISS['L-'+it.skill];return`Language: ${sk?sk.name:p[1]}`}if(p[0]==='af'&&AFFIXES[+p[1]])return`Prefix/suffix: ${AFFIXES[+p[1]][0]}`;return k}
 function profileHTML(){
   const P=S.profile,opt=(n,v)=>`<option value="${v}" ${String(P[n])===String(v)?'selected':''}>`;
   const gradeOpts=n=>GRADE_NAMES.map((g,i)=>`${opt(n,i)}${g}</option>`).join('');

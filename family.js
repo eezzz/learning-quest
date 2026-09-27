@@ -10,7 +10,7 @@ if(GRADE_NAMES.length<6)GRADE_NAMES.push('Grade 5');
 MATH_CURRICULUM.forEach(m=>{if(+m.id.slice(1)<=21){const b=m.build;m.build=lv=>b(Math.min(lv??0,4))}});
 
 // Language skills (K–3) from lang-data.js become Word Lab levels; the grammar levels serve Grades 2–3.
-const LSK=typeof LANG_SKILLS!=='undefined'?LANG_SKILLS:[],LITEMS=typeof LANG_ITEMS!=='undefined'?LANG_ITEMS:[];
+const LSK=(typeof LANG_SKILLS!=='undefined'?LANG_SKILLS:[]).concat(typeof LANG_SKILLS_45!=='undefined'?LANG_SKILLS_45:[]),LITEMS=(typeof LANG_ITEMS!=='undefined'?LANG_ITEMS:[]).concat(typeof LANG_ITEMS_45!=='undefined'?LANG_ITEMS_45:[]);
 const LANG_BY_ID={};LITEMS.forEach(it=>LANG_BY_ID[it.id]=it);
 const LANG_MISSIONS=LSK.map(k=>({id:'L-'+k.key,world:'w',skill:k.key,grade:k.grade,name:k.name,icon:k.icon,short:k.short||k.name,learn:k.learn,tip:k.tip,card:k.card,
   spec:k.spec||['📘',k.name,k.learn],bonus:null,what:k.name,why:k.learn,build:()=>langBuild(k.key,5)}));
@@ -33,14 +33,15 @@ function rRule(r,st){
   const go=el('button','big',STR.ready);$('#actions').appendChild(go);
   go.onclick=()=>{$('#actions').innerHTML='';st.classList.add('locked');finish(true,[STR.practice])};
 }
-function langPath(L){const g=Math.min(L,3),sk=LANG_MISSIONS.filter(m=>m.grade===g);return(g>=2||!sk.length)?sk.concat(WORD_MISSIONS):sk}
+// K–1: skills only; Grades 2–3: skills + the grammar levels; Grades 4–5: skills only.
+function langPath(L){let g=Math.min(L,5);while(g>0&&!LANG_MISSIONS.some(m=>m.grade===g))g--;const sk=LANG_MISSIONS.filter(m=>m.grade===g);return(!sk.length||g===2||g===3)?sk.concat(WORD_MISSIONS):sk}
 
 /* ================= PROFILE → PATHS ================= */
 function applyProfile(){
   if(!S)return;const P=S.profile;
   let ms=mathMissionsFor(P.math);if(!ms.length)ms=mathMissionsFor(4);ms.forEach((m,i)=>m.n=i+1);WORLDS.m.missions=ms;WORLDS.m.desc=`${GRADE_NAMES[P.math]} path · Singapore Math + RSM`;
-  const ws=langPath(P.lang);ws.forEach((m,i)=>m.n=i+1);WORLDS.w.missions=ws;WORLDS.w.desc=`${GRADE_NAMES[Math.min(P.lang,3)]} path · ${P.lang<=1?'phonics, words, reading':'words, grammar, reading'}`;
-  WORLDS.s.missions.forEach((m,i)=>m.n=i+1);
+  const ws=langPath(P.lang);ws.forEach((m,i)=>m.n=i+1);WORLDS.w.missions=ws;WORLDS.w.desc=`${GRADE_NAMES[P.lang]} path · ${P.lang<=1?'phonics, words, reading':P.lang>=4?'roots, figurative language, grammar, reading':'words, grammar, reading'}`;
+  WORLDS.s.missions=typeof socialPath==='function'?socialPath():SOCIAL_MISSIONS;WORLDS.s.missions.forEach((m,i)=>m.n=i+1);
   document.title=`${kidName()}'s ${STR.appName}`;
   document.body.classList.toggle('calm',!!S.calm);document.body.classList.toggle('bigtext',!!P.support.bigText);
   const t=S.today;
@@ -195,7 +196,7 @@ function openParent(tab,edit){
 
 /* ================= PARENT DASHBOARD v1 ================= */
 const LV_DESC=['numbers to 10, counting, bonds, shapes, patterns','numbers to 20, make ten, simple equations, time','numbers to 1000, x equations, brackets, money, × ÷ intro','times tables, fractions, area, rounding, elapsed time','multi-digit × ÷, decimals, fraction operations, angles','decimals, fraction × ÷, volume, coordinates, expressions'];
-const LANG_DESC=['letter sounds, rhyming, CVC words, sight words, listening','digraphs, silent e, nouns and verbs, short reading','vowel teams, prefixes, adjectives and adverbs, main idea','academic words, suffixes, homophones, idioms, inference'];
+const LANG_DESC=['letter sounds, rhyming, CVC words, sight words, listening','digraphs, silent e, nouns and verbs, short reading','vowel teams, prefixes, adjectives and adverbs, main idea','academic words, suffixes, homophones, idioms, inference','Latin roots, similes and metaphors, commas, theme, comparing texts','Greek roots, personification, verb tenses, summary, evidence'];
 const SUPPORT_FIELDS=[['voice','Full voice mode: everything is read aloud; tap once to hear a choice, twice to choose (best for Kindergarten)'],['autoRead','Read each question aloud automatically'],['breaks','Movement break after each part (starts automatically)'],['surprise','Surprise fact at the end of the day'],['bigText','Larger text']];
 function childForm(c){
   const P=c?c.profile:fresh({grade:2}).profile,sel=(v,x)=>String(v)===String(x)?'selected':'';
@@ -205,10 +206,10 @@ function childForm(c){
     <label>Age<select id="kfAge">${[4,5,6,7,8,9,10,11,12].map(a=>`<option ${sel(P.age,a)}>${a}</option>`).join('')}</select></label>
     <label>School grade<select id="kfGrade">${GRADE_NAMES.map((g,i)=>`<option value="${i}" ${sel(P.grade,i)}>${g}</option>`).join('')}</select></label>
     <label>Math level<select id="kfMath">${GRADE_NAMES.map((g,i)=>`<option value="${i}" ${sel(P.math,i)}>${g}</option>`).join('')}</select><small id="kfMathD">${LV_DESC[P.math]}</small></label>
-    <label>Language level<select id="kfLang">${GRADE_NAMES.slice(0,4).map((g,i)=>`<option value="${i}" ${sel(P.lang,i)}>${g}</option>`).join('')}</select><small id="kfLangD">${LANG_DESC[P.lang]}</small></label>
+    <label>Language level<select id="kfLang">${GRADE_NAMES.map((g,i)=>`<option value="${i}" ${sel(P.lang,i)}>${g}</option>`).join('')}</select><small id="kfLangD">${LANG_DESC[P.lang]}</small></label>
     <label>Questions per part<select id="kfPer"><option value="0" ${sel(P.support.perPart,0)}>Automatic by grade</option>${[4,5,6,7].map(n=>`<option ${sel(P.support.perPart,n)}>${n}</option>`).join('')}</select></label>
    </div>
-   <p class="fact">Levels can differ from the school grade. Language content currently goes up to Grade 3; Grades 4–5 language is planned for the next phase.</p>
+   <p class="fact">Levels can differ from the school grade.</p>
    <fieldset class="pint"><legend>Picture</legend>${AVATARS.map(a=>`<label class="ichip"><input type="radio" name="kfAv" value="${a}" ${P.avatar===a?'checked':''}><span>${a}</span></label>`).join('')}</fieldset>
    <fieldset class="pint"><legend>Interests (pick at least one)</legend>${Object.entries(INTERESTS).map(([k,[e,n]])=>`<label class="ichip"><input type="checkbox" name="kfInt" value="${k}" ${P.interests.includes(k)?'checked':''}><span>${e} ${n}</span></label>`).join('')}</fieldset>
    <fieldset class="pint col"><legend>Support settings</legend>${SUPPORT_FIELDS.map(([k,l])=>`<label class="chk"><input type="checkbox" id="kfS-${k}" ${P.support[k]?'checked':''}> ${l}</label>`).join('')}</fieldset>
@@ -222,7 +223,7 @@ function wireChildForm(id){
   $('#kfAge').onchange=()=>{if(!c){const g=Math.max(0,Math.min(5,+$('#kfAge').value-5));$('#kfGrade').value=g;$('#kfGrade').onchange()}};
   $('#kfGrade').onchange=()=>{const g=+$('#kfGrade').value;
     if(!touched.kfMath){$('#kfMath').value=g;$('#kfMathD').textContent=LV_DESC[g]}
-    if(!touched.kfLang){$('#kfLang').value=Math.min(g,3);$('#kfLangD').textContent=LANG_DESC[Math.min(g,3)]}
+    if(!touched.kfLang){$('#kfLang').value=g;$('#kfLangD').textContent=LANG_DESC[g]}
     if(!c){const d=defaultSupport(g);SUPPORT_FIELDS.forEach(([k])=>$('#kfS-'+k).checked=!!d[k])}};
   $('#kfCancel').onclick=()=>{parEdit=null;renderParent()};
   $('#kfSave').onclick=()=>{
@@ -239,7 +240,7 @@ function wireChildForm(id){
 }
 function mistakeGroups(){
   const g={Language:[],Math:[],'Social and emotional':[]};
-  Object.entries(S.mistakes).sort((a,b)=>b[1]-a[1]).forEach(([k,c])=>{const p=k.split(':')[0];const grp=p==='mt'?'Math':p==='so'?'Social and emotional':'Language';g[grp].push([k,c])});
+  Object.entries(S.mistakes).sort((a,b)=>b[1]-a[1]).forEach(([k,c])=>{const p=k.split(':')[0];const grp=p==='mt'?'Math':(p==='so'||p==='ef')?'Social and emotional':'Language';g[grp].push([k,c])});
   return g;
 }
 const GROUP_TIPS={Language:'Read the words together and say the rule out loud ("the ___ rock", "tap the whole word"). Point to the clue in the sentence.',Math:'Use real objects or a quick drawing: blocks, coins, a paper "mystery bag". Ask "Can you show me with a picture?" before any numbers.','Social and emotional':'Talk about a real moment from today: "What clues did you see? What else could you try?" Never quiz during a hard moment.'};
@@ -270,11 +271,12 @@ function renderParent(){
       <h3>Mistakes to review</h3><p class="fact">Grouped by area. Higher counts need more practice; each comes back in spiral review until it is right.</p>
       ${Object.entries(G).map(([g,list])=>`<div class="mgroup"><h4>${g} <small>(${list.length})</small></h4><div class="mchips">${list.map(([k,c])=>`<span>${esc(mistakeLabel(k))} ×${c}</span>`).join('')||'<span>Nothing to review</span>'}</div>${list.length?`<p class="fact">At home: ${GROUP_TIPS[g]}</p>`:''}</div>`).join('')}
       <h3>Recent activity</h3><ul>${recent}</ul></section>
-      <section><h2>Skill map</h2>${lab(WORLDS.w)}${lab(WORLDS.m)}${lab(WORLDS.s)}</section>${S.legacyStella?LEGACY_NOTES:''}`;
+      <section><h2>Skill map</h2>${masteryHTML()}${lab(WORLDS.w)}${lab(WORLDS.m)}${lab(WORLDS.s)}</section>${S.legacyStella?LEGACY_NOTES:''}`;
   }
+  else if(parTab==='week'){body=weekHTML()}
   else if(parTab==='curriculum'){
     const P=S.profile,mrows=MATH_CURRICULUM.slice().sort((a,b)=>a.order-b.order).map(m=>`<tr class="${m.grades.includes(P.math)?'on':''}"><td>${m.icon} ${m.name}</td><td>${m.what}</td><td>${m.src==='Both'?'Singapore + RSM':m.src}</td>${[0,1,2,3,4,5].map(g=>`<td class="c">${m.grades.includes(g)?'●':''}</td>`).join('')}</tr>`).join('');
-    const lrows=LANG_MISSIONS.map(m=>`<tr class="${m.grade===Math.min(P.lang,3)?'on':''}"><td>${m.icon} ${m.name}</td><td>${m.learn}</td><td class="c">${GRADE_NAMES[m.grade].replace('Grade ','')}</td></tr>`).join('')+WORD_MISSIONS.map(m=>`<tr class="${P.lang>=2?'on':''}"><td>${m.icon} ${m.name}</td><td>${m.learn}</td><td class="c">2–3</td></tr>`).join('');
+    const lrows=LANG_MISSIONS.map(m=>`<tr class="${m.grade===P.lang?'on':''}"><td>${m.icon} ${m.name}</td><td>${m.learn}</td><td class="c">${m.grade===0?'K':m.grade}</td></tr>`).join('')+WORD_MISSIONS.map(m=>`<tr class="${P.lang>=2?'on':''}"><td>${m.icon} ${m.name}</td><td>${m.learn}</td><td class="c">2–3</td></tr>`).join('');
     const srows=SOCIAL_MISSIONS.map((m,i)=>{const k2=SOCIAL.filter(x=>x.m===i+1&&(x.g||[2,5])[0]<=2&&(x.g||[2,5])[1]<=2).length,old=SOCIAL.filter(x=>x.m===i+1&&!x.g).length;return`<tr><td>${m.icon} ${m.name}</td><td>${m.learn}</td><td class="c">${k2}</td><td class="c">${old}</td></tr>`}).join('');
     body=`<section><h2>How this app teaches</h2><ul>
       <li><b>Same order every day.</b> Words → math → people, then a reward. The plan is set in the morning and never changes during the day.</li>
@@ -285,7 +287,7 @@ function renderParent(){
       <li><b>Social skills as short stories.</b> Every choice explains what others might think or feel; the child is never asked to act "normal" or make eye contact.</li>
       <li><b>Regulation first.</b> A feelings check-in starts each day; the Calm Corner is one tap away on every screen.</li></ul></section>
       <section><h2>Math: Singapore Math + RSM</h2><p>Highlighted rows are on ${esc(kidName())}'s current path (${GRADE_NAMES[P.math]}).</p><div class="tbl"><table class="curr"><tr><th>Level</th><th>Topic</th><th>Method</th>${['K','1','2','3','4','5'].map(g=>`<th class="c">${g}</th>`).join('')}</tr>${mrows}</table></div></section>
-      <section><h2>Language (K–3)</h2><p>Aligned to Common Core Foundational Skills, Language and Reading. Highlighted rows are on the current path (${GRADE_NAMES[Math.min(P.lang,3)]}).</p><div class="tbl"><table class="curr"><tr><th>Level</th><th>What it practices</th><th class="c">Grade</th></tr>${lrows||'<tr><td colspan="3">Language skills are loading.</td></tr>'}</table></div></section>
+      <section><h2>Language (K–5)</h2><p>Aligned to Common Core Foundational Skills, Language and Reading. Highlighted rows are on the current path (${GRADE_NAMES[P.lang]}).</p><div class="tbl"><table class="curr"><tr><th>Level</th><th>What it practices</th><th class="c">Grade</th></tr>${lrows||'<tr><td colspan="3">Language skills are loading.</td></tr>'}</table></div></section>
       <section><h2>Social and emotional (CASEL)</h2><p>Situations are chosen for the child's grade: a simpler K–2 set and a Grades 2–5 set.</p><div class="tbl"><table class="curr"><tr><th>Topic</th><th>What it practices</th><th class="c">K–2 situations</th><th class="c">Grades 2–5</th></tr>${srows}</table></div></section>`;
   }
   else{
@@ -308,6 +310,7 @@ function renderParent(){
           if(ROOT.active===id){ROOT.active=ROOT.order[0]||null;S=ROOT.active?ROOT.children[ROOT.active]:null;Object.keys(MISS).filter(k=>/^d[wms]$/.test(k)).forEach(k=>delete MISS[k]);applyProfile()}
           save();refreshChips();renderParent()}})}
   }
+  if(parTab==='week')wireWeek();
   if(parTab==='data'&&S){
     $('#bkCopy').onclick=()=>{const tx=$('#bkOut');tx.select();(navigator.clipboard?navigator.clipboard.writeText(tx.value):Promise.reject()).then(()=>{$('#bkCopy').textContent='Copied ✓'},()=>{try{document.execCommand('copy');$('#bkCopy').textContent='Copied ✓'}catch(e){}})};
     $('#bkLoad').onclick=()=>{try{const o=JSON.parse(decodeURIComponent(escape(atob($('#bkIn').value.trim()))));
@@ -333,7 +336,8 @@ const LEGACY_NOTES=`<section><h2>Worksheet notes (September 2026)</h2>
   <tr><td>Word problems</td><td><span class="tag good">All correct</span> Key numbers were circled with adult help; turning words into math is the hard step</td></tr>
  </table></div></section>`;
 
-/* ================= START ================= */
+/* ================= START (called by the last script) ================= */
+function boot(){
 (function sky(){const s=$('#sky');for(let i=0;i<60;i++){const d=document.createElement('i');const z=Math.random()*2.2+.8;d.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;width:${z}px;height:${z}px;animation-delay:${(Math.random()*3).toFixed(2)}s`;s.appendChild(d)}})();
 document.querySelectorAll('[data-nav]').forEach(b=>b.onclick=()=>{if(!S&&b.dataset.nav!=='par')return;b.dataset.nav==='par'?openParent():show(b.dataset.nav)});
 $('#whoBtn').onclick=()=>show('who');
@@ -345,3 +349,4 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#overlay').hidd
 if(window.speechSynthesis)try{speechSynthesis.getVoices()}catch(e){}
 if(S){applyProfile();save()}
 show(!S||ROOT.order.length>1?'who':'home');
+}
