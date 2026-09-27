@@ -555,71 +555,71 @@ function renderCards(){
     return`<div class="stk ${g?'':'lock'}"><div class="e">${m.spec[0]}</div><div class="nm">${g?m.spec[1]:'???'}</div><p>${g?m.spec[2]:`Found at: ${m.icon} ${m.name}`}</p>${g?`<p style="color:var(--gold)">${'★'.repeat(S.best[m.id]||0)}</p>`:''}</div>`}).join('')}</div>`).join('');
 }
 
-/* ================= PARENTS (中文) ================= */
-const PLAN_CN={
- w:[['名词','每题混入 hair、grass、water 这类容易漏掉的名词'],['形容词','混入 tree、fossil 等具体名词做干扰，针对她把名词当形容词圈的错误'],['名词和形容词二选一','她最薄弱的地方'],['在句子里找动词','强项，先建立信心'],['-ly 副词和它修饰的动词','分两步：先点整个副词，再点动词；加入 fly、lily、butterfly 等 -ly 陷阱词'],['四种词性分类','四种词性放在一起辨析'],['句末标点','强项，保持'],['校对改错','沿用 Camping 作业题型'],['错题复习','作业和游戏里的错题'],['综合挑战','全部内容混合']],
- m:[['跳数（2、5、10）','乘法的基础；用分组图片（海星 5 条腕）'],['数位（百、十、个）','十根棒、个位方块，先看图再抽象'],['比较大小 < > =','固定规则：先比十位，再比个位'],['两位数加法','分步：先加十位，再加个位；错误选项专门针对"忘记进位"'],['两位数减法','分步：先减十位，再减个位；错误选项针对"大数减小数"的常见错误'],['认识钟表（到 5 分钟）','画出真实钟面，分针用橙色区分'],['用尺子量长度','包括不从 0 开始的情况'],['综合 + 单双数','优先出她错过的题型']],
- s:[['识别情绪','从脸、身体、发生的事找线索，像侦探一样推理'],['问题的大小','小/中/大问题，反应大小要和问题相配'],['冷静工具','泡泡呼吸练习 + 应对感官过载、愤怒、担心、计划变化'],['对话轮流','像打乒乓球；分享兴趣时先问对方想不想继续听'],['理解别人的想法','错误信念（Sally-Anne 类题）、礼物要按对方喜好、善意的回应'],['习语和字面意思','raining cats and dogs 等；也包括她作业里"只圈 ly"的字面理解'],['一起玩','轮流、加入游戏、输了说 good game、Plan B、个人空间'],['求助','什么时候、怎样向大人求助；外加错题复习']]
+/* ================= PARENT PAGE ================= */
+const PLAN_EN={
+ w:[['Nouns','Every round mixes in easy-to-miss nouns like hair, grass and water'],['Adjectives','Concrete nouns like tree and fossil appear as distractors, targeting her habit of circling nouns as adjectives'],['Noun or adjective?','Her weakest area, practiced on its own'],['Verbs in sentences','A strength, to build confidence'],['-ly adverbs and their verbs','Two steps: tap the whole adverb, then the verb. Includes -ly traps like fly, lily and butterfly'],['Sorting 4 word types','Nouns, verbs, adjectives and adverbs side by side'],['End punctuation','A strength, kept fresh'],['Proofreading','Same format as her Camping worksheet'],['Review','Mistakes from her worksheets and from the game'],['Final mix','Everything together']],
+ m:[['Skip counting (2s, 5s, 10s)','Foundation for multiplication; uses pictured groups (sea stars have 5 arms)'],['Place value (hundreds, tens, ones)','Ten-rods and ones cubes first, then digits'],['Comparing < > =','One fixed rule: tens first, then ones'],['Adding within 100','Step by step: tens, then ones; wrong choices target forgetting to carry'],['Subtracting within 100','Step by step: tens, then ones; wrong choices target the "smaller from bigger" ones mistake'],['Telling time to 5 minutes','A real clock face with an orange minute hand'],['Measuring with a ruler','Includes objects that do not start at 0'],['Mixed review + odd/even','Question types she missed come first']],
+ s:[['Reading feelings','Find clues in the face, body and situation, like a detective'],['Size of the problem','Small, medium or big, and a reaction that matches'],['Calm-down tools','Bubble breathing, plus noise, anger, worry and changed plans'],['Conversation turn-taking','Like ping-pong; check before sharing more about a favorite topic'],['Understanding other minds','False-belief (Sally-Anne style) questions, gifts for the other person\'s taste, kind replies'],['Idioms and literal meaning','"Raining cats and dogs" and more, including her "circle only the ly" worksheet'],['Playing together','Turns, joining in, "good game", Plan B, personal space'],['Asking for help','When and how to ask an adult, plus review']]
 };
 function backupCode(){try{return btoa(unescape(encodeURIComponent(JSON.stringify(S))))}catch(e){return''}}
-function mistakeLabel(k){const p=k.split(':'),MT={skip:'跳数',pv:'数位',cmp:'比较大小',add:'加法',sub:'减法',time:'钟表',len:'测量',eo:'单双数'};
-  if(p[0]==='w')return p[1];if(p[0]==='s')return`句子「${plain(SENTS[+p[1]])}」找 ${TAGNAME[p[2]]}`;if(p[0]==='p')return`标点：${PUNCT[+p[1]][0]}`;
-  if(p[0]==='f')return`校对：${plain(PROOF[+p[1]][0])}`;if(p[0]==='q')return`副词：${plain(ADV_SENTS[+p[1]])}`;if(p[0]==='mt')return`数学：${MT[p[1]]||p[1]}`;
-  if(p[0]==='so'&&SOCIAL[+p[1]])return`社交：${SOCIAL[+p[1]].s}`;return k}
+function mistakeLabel(k){const p=k.split(':'),MT={skip:'skip counting',pv:'place value',cmp:'comparing',add:'adding',sub:'subtracting',time:'clock',len:'measuring',eo:'odd and even'};
+  if(p[0]==='w')return p[1];if(p[0]==='s')return`Find the ${TAGNAME[p[2]]}: "${plain(SENTS[+p[1]])}"`;if(p[0]==='p')return`Punctuation: ${PUNCT[+p[1]][0]}`;
+  if(p[0]==='f')return`Proofreading: ${plain(PROOF[+p[1]][0])}`;if(p[0]==='q')return`Adverb: ${plain(ADV_SENTS[+p[1]])}`;if(p[0]==='mt')return`Math: ${MT[p[1]]||p[1]}`;
+  if(p[0]==='so'&&SOCIAL[+p[1]])return`Social: ${SOCIAL[+p[1]].s}`;return k}
 function renderParent(){
-  const planTable=W=>`<div class="tbl"><table><tr><th>#</th><th>关卡</th><th>练什么</th><th>设计原因</th><th>进度</th></tr>${W.missions.map((m,i)=>`<tr><td>${i+1}</td><td>${m.icon} <b>${m.name}</b></td><td>${PLAN_CN[W.key][i][0]}</td><td>${PLAN_CN[W.key][i][1]}</td><td>${S.done[m.id]?`<span class="tag good">${'★'.repeat(S.best[m.id]||0)} ${S.done[m.id]}</span>`:'<span class="tag warn">未完成</span>'}</td></tr>`).join('')}</table></div>`;
-  const mk=Object.entries(S.mistakes).sort((a,b)=>b[1]-a[1]).map(([k,c])=>`<span>${esc(mistakeLabel(k))} ×${c}</span>`).join('')||'<span>暂无错题</span>';
-  const recent=S.log.slice(-10).reverse().map(l=>{const m=MISS[l.m];return m?`<li>${l.d}：${WORLDS[m.world].name} · ${m.name}，一次答对 ${l.good}/${l.total}，${'★'.repeat(l.stars)}</li>`:''}).join('')||'<li>还没有记录</li>';
+  const planTable=W=>`<div class="tbl"><table><tr><th>#</th><th>Level</th><th>What she practices</th><th>Why it is designed this way</th><th>Progress</th></tr>${W.missions.map((m,i)=>`<tr><td>${i+1}</td><td>${m.icon} <b>${m.name}</b></td><td>${PLAN_EN[W.key][i][0]}</td><td>${PLAN_EN[W.key][i][1]}</td><td>${S.done[m.id]?`<span class="tag good">${'★'.repeat(S.best[m.id]||0)} ${S.done[m.id]}</span>`:'<span class="tag warn">Not yet</span>'}</td></tr>`).join('')}</table></div>`;
+  const mk=Object.entries(S.mistakes).sort((a,b)=>b[1]-a[1]).map(([k,c])=>`<span>${esc(mistakeLabel(k))} ×${c}</span>`).join('')||'<span>No mistakes to review</span>';
+  const recent=S.log.slice(-10).reverse().map(l=>{const m=MISS[l.m];return m?`<li>${l.d}: ${WORLDS[m.world].name} · ${m.name}, ${l.good}/${l.total} right on the first try, ${'★'.repeat(l.stars)}</li>`:''}).join('')||'<li>No activity yet</li>';
   const t=today();
   $('#v-par').innerHTML=`<div class="parent">
-  <section><h2>设计思路</h2>
-   <p>整个程序针对注意力容易分散、喜欢规则和可预测性、对某个领域（这里是自然科学）有强烈兴趣的孩子来设计：</p>
+  <section><h2>How this app teaches</h2>
+   <p>The app is built for a child who is easily distracted, likes rules and predictability, and has a deep interest in one area (here, natural science):</p>
    <ul>
-    <li><b>可视化日程，顺序固定：</b>首页每天列出 3 个短任务（语言 → 数学 → 社交）和最后的奖励，当天不会变。开始前就知道要做什么、做多少，减少对未知的焦虑，也方便从一件事过渡到下一件。</li>
-    <li><b>短、快、即时反馈：</b>每关 5–7 题，约 5 分钟，每题马上反馈，进度条和"Last one!"提示快结束了。每关结束有 20 秒的动物模仿活动。</li>
-    <li><b>规则明确，例外也讲清：</b>每个知识点都有一句固定口诀（如 "the ___ rock"），并直接说明例外（fly、lily 以 -ly 结尾却不是副词）。指令写得很具体，避免她照字面理解出错。</li>
-    <li><b>先给提示，再给答案：</b>答错第一次只给提示、可以再试；第二次才显示答案，并解释"为什么"。数学题有"Show me how"分步提示，不扣分。改对的题显示绿色。</li>
-    <li><b>具体 → 图像 → 抽象：</b>数学先看图（十根棒、分组、钟面、尺子），再算数字。错误选项专门对应孩子常见的错法（忘记进位、分针按数字读）。</li>
-    <li><b>用特殊兴趣做桥梁：</b>题目内容和奖励都是自然科学。社交关卡把"研究人"当作科学观察（找线索），每关奖励是动物的社交行为卡片（大象安慰同伴、狼的"邀请玩耍"鞠躬）。</li>
-    <li><b>社交技能用情景故事教：</b>每道题是一个短的生活情景，每个选项都说明它会让别人有什么感受、背后的"隐藏规则"是什么。不要求她假装或改变自己，而是把别人的想法讲清楚，让她自己选择。</li>
-    <li><b>情绪调节工具：</b>随时可以点 🫧 进入 Calm Corner，做泡泡呼吸或 5-4-3-2-1。🌙 Calm 模式会关掉彩带和大部分动画，音效也会变轻。</li>
+    <li><b>A visual schedule in a fixed order.</b> Each day the home page lists 3 short missions (words → math → people) and a reward. The plan does not change during the day. She knows what is coming and how much, which lowers worry about the unknown and makes it easier to move from one task to the next.</li>
+    <li><b>Short, fast, immediate feedback.</b> Each level has 5 to 7 questions and takes about 5 minutes. Every answer gets feedback right away. A progress bar and a "Last one!" note show when the end is near. Each level ends with a 20-second animal movement break.</li>
+    <li><b>Clear rules, with the exceptions spelled out.</b> Each skill has one fixed test phrase (like "the ___ rock"), and exceptions are named directly (fly and lily end in -ly but are not adverbs). Instructions are worded precisely so a literal reading still leads to the right answer.</li>
+    <li><b>A hint before the answer.</b> The first wrong answer only gives a hint and another try. The answer and the reason appear after the second miss. Math questions have a step-by-step "Show me how" with no penalty. Answers that end up correct show green.</li>
+    <li><b>Concrete → picture → abstract.</b> Math starts with pictures (ten-rods, groups, a clock face, a ruler) before numbers. Wrong choices match real mistakes children make (forgetting to carry, reading the minute hand as its number).</li>
+    <li><b>Her special interest as a bridge.</b> Content and rewards are about natural science. The People Lab treats studying people like scientific observation (looking for clues), and its rewards are cards about animal social behavior (elephants comforting a friend, a wolf's "let's play" bow).</li>
+    <li><b>Social skills taught through short stories.</b> Each question is a short everyday situation. Every choice explains how it would make others feel and what the "hidden rule" is. She is not asked to pretend or change who she is; other people's thinking is made clear so she can choose.</li>
+    <li><b>Tools for regulating feelings.</b> Tap 🫧 anytime for the Calm Corner: bubble breathing or 5-4-3-2-1. 🌙 Calm mode turns off confetti and most animation and makes sounds softer.</li>
    </ul></section>
-  <section><h2>作业分析（2026 年 9 月）</h2>
-   <div class="tbl"><table><tr><th>作业</th><th>表现</th></tr>
-    <tr><td>Punctuation . ! ?</td><td><span class="tag good">13/13 全对</span></td></tr>
-    <tr><td>Circle the verbs</td><td><span class="tag good">5/5 全对</span></td></tr>
-    <tr><td>Camping 校对</td><td><span class="tag good">很好</span> 找出小写 i、两处 whent、hade、句末缺句号、Swimming 大写</td></tr>
-    <tr><td>Nouns Review</td><td><span class="tag warn">漏 1 个</span> 漏标 hair</td></tr>
-    <tr><td>Adjective Review</td><td><span class="tag warn">多圈 4 个</span> 把 tree、butterfly、flower、bus 也圈成形容词</td></tr>
-    <tr><td>Find the -ly Adverbs</td><td><span class="tag warn">只圈了 "ly"</span> 找到了所有 -ly 词，但只圈词尾；划线多处落在副词下，不在动词下</td></tr>
+  <section><h2>Worksheet analysis (September 2026)</h2>
+   <div class="tbl"><table><tr><th>Worksheet</th><th>Result</th></tr>
+    <tr><td>Punctuation . ! ?</td><td><span class="tag good">13/13 correct</span></td></tr>
+    <tr><td>Circle the verbs</td><td><span class="tag good">5/5 correct</span></td></tr>
+    <tr><td>Camping proofreading</td><td><span class="tag good">Very good</span> Found the lowercase i, both "whent", "hade", the missing period, and the capital in "Swimming"</td></tr>
+    <tr><td>Nouns Review</td><td><span class="tag warn">Missed 1</span> Did not mark "hair"</td></tr>
+    <tr><td>Adjective Review</td><td><span class="tag warn">4 extra</span> Also circled tree, butterfly, flower and bus as adjectives</td></tr>
+    <tr><td>Find the -ly Adverbs</td><td><span class="tag warn">Circled only "ly"</span> Found every -ly word but circled just the ending; several verb underlines were under the adverb instead of the verb</td></tr>
    </table></div>
-   <p style="margin-top:8px">数学没有上传作业，Number Lab 按美国二年级数学标准设计（跳数、百以内加减、数位、比较、钟表、测量、单双数）。上传她的数学作业后，可以按她实际的进度和错题调整。</p></section>
-  <section><h2>学习计划</h2>
-   <p>每天 3 关（每科 1 关），共约 15–20 分钟，按首页顺序进行。每个学科按顺序解锁；学完后，今日计划会自动安排星星最少的关卡复习。今天的计划：${t.plan.map(id=>MISS[id].name).join(' → ')}。</p>
-   <h3>📚 Word Lab（10 关）</h3>${planTable(WORLDS.w)}
-   <h3>🔢 Number Lab（8 关）</h3>${planTable(WORLDS.m)}
-   <h3>🤝 People Lab（8 关）</h3>${planTable(WORLDS.s)}
-   <h3>陪学建议</h3>
-   <ul><li>People Lab 的内容最好之后在生活里再聊一聊，比如"今天有没有遇到小问题？是哪种大小？"。游戏里的练习要迁移到真实场景才最有效。</li>
-   <li>结算页的 "Bonus mission" 需要家长配合，做完点按钮奖励 3 颗星。</li>
-   <li>尽量表扬具体的努力（"你用了 the ___ rock 的方法"），不只说"真棒"。</li>
-   <li>有新作业或 quiz，拍照发给 Claude，就能加进题库。</li></ul></section>
-  <section><h2>进度</h2>
-   <p>总星星：<b>${S.stars}</b> ⭐ · 连续学习：<b>${streak()}</b> 天 · 已完成：语言 <b>${doneCount('w')}/10</b>，数学 <b>${doneCount('m')}/8</b>，社交 <b>${doneCount('s')}/8</b></p>
-   <h3>错题本（次数越多越需要复习）</h3><div class="mchips">${mk}</div>
-   <h3>最近记录</h3><ul>${recent}</ul>
-   <h3>保存与备份</h3>
-   <p>进度会自动保存在这台 iPad 的 Safari 里。建议在 Safari 里点"分享 → 添加到主屏幕"，以后从主屏幕图标打开。换设备，或者想以防万一，可以复制下面的备份码存起来。</p>
+   <p style="margin-top:8px">No math homework has been uploaded yet, so the Number Lab follows US 2nd-grade math standards (skip counting, adding and subtracting within 100, place value, comparing, time, measuring, odd and even). Upload her math homework to tune it to her actual level and mistakes.</p></section>
+  <section><h2>Learning plan</h2>
+   <p>3 levels a day (one from each lab), about 15 to 20 minutes total, in the order shown on the home page. Each lab unlocks in order. Once a lab is finished, the daily plan picks the level with the fewest stars for review. Today's plan: ${t.plan.map(id=>MISS[id].name).join(' → ')}.</p>
+   <h3>📚 Word Lab (10 levels)</h3>${planTable(WORLDS.w)}
+   <h3>🔢 Number Lab (8 levels)</h3>${planTable(WORLDS.m)}
+   <h3>🤝 People Lab (8 levels)</h3>${planTable(WORLDS.s)}
+   <h3>Tips for parents</h3>
+   <ul><li>Talk about People Lab topics in daily life, for example: "Did you have a problem today? What size was it?" Practice in real situations is what makes these skills stick.</li>
+   <li>The "Bonus mission" on the results page needs a grown-up. Tap the button when it is done for 3 extra stars.</li>
+   <li>Praise specific effort ("You used the 'the ___ rock' test!") rather than just "Great job."</li>
+   <li>Send photos of new homework or quizzes to Claude to add them to the question banks.</li></ul></section>
+  <section><h2>Progress</h2>
+   <p>Total stars: <b>${S.stars}</b> ⭐ · Day streak: <b>${streak()}</b> · Completed: Words <b>${doneCount('w')}/10</b>, Math <b>${doneCount('m')}/8</b>, People <b>${doneCount('s')}/8</b></p>
+   <h3>Mistakes to review (higher count = more practice needed)</h3><div class="mchips">${mk}</div>
+   <h3>Recent activity</h3><ul>${recent}</ul>
+   <h3>Saving and backup</h3>
+   <p>Progress saves automatically in Safari on this iPad. In Safari, tap Share → Add to Home Screen, and open the app from the home screen icon from then on. To move to another device, or just to be safe, copy the backup code below and keep it somewhere.</p>
    <textarea id="bkOut" readonly>${backupCode()}</textarea>
-   <div class="btnrow" style="margin-top:8px"><button class="ghost" id="bkCopy">复制备份码</button></div>
-   <p style="margin-top:12px">恢复进度：把备份码粘贴到下面，然后点"恢复"。</p>
-   <textarea id="bkIn" placeholder="粘贴备份码"></textarea>
-   <div class="btnrow" style="margin-top:8px"><button class="ghost" id="bkLoad">恢复</button><span id="bkMsg"></span></div>
-   <h3>重置</h3>
-   <div class="btnrow" id="resetRow"><button class="ghost" id="resetBtn">清除所有进度</button></div></section></div>`;
-  $('#bkCopy').onclick=()=>{const tx=$('#bkOut');tx.select();(navigator.clipboard?navigator.clipboard.writeText(tx.value):Promise.reject()).then(()=>{$('#bkCopy').textContent='已复制 ✓'},()=>{try{document.execCommand('copy');$('#bkCopy').textContent='已复制 ✓'}catch(e){}})};
-  $('#bkLoad').onclick=()=>{try{const o=JSON.parse(decodeURIComponent(escape(atob($('#bkIn').value.trim()))));if(!o||o.v!==2)throw 0;S=migrate(Object.assign(fresh(),o));save();refreshChips();renderParent();$('#bkMsg').textContent='已恢复 ✓'}catch(e){$('#bkMsg').textContent='备份码不对，请重新复制完整的备份码。'}};
-  $('#resetBtn').onclick=()=>{$('#resetRow').innerHTML='<span>确定清除所有星星和进度？</span><button class="ghost" id="rsYes" style="border-color:var(--coral)">确定清除</button><button class="ghost" id="rsNo">取消</button>';
+   <div class="btnrow" style="margin-top:8px"><button class="ghost" id="bkCopy">Copy backup code</button></div>
+   <p style="margin-top:12px">To restore progress, paste a backup code below and tap Restore.</p>
+   <textarea id="bkIn" placeholder="Paste backup code"></textarea>
+   <div class="btnrow" style="margin-top:8px"><button class="ghost" id="bkLoad">Restore</button><span id="bkMsg"></span></div>
+   <h3>Reset</h3>
+   <div class="btnrow" id="resetRow"><button class="ghost" id="resetBtn">Erase all progress</button></div></section></div>`;
+  $('#bkCopy').onclick=()=>{const tx=$('#bkOut');tx.select();(navigator.clipboard?navigator.clipboard.writeText(tx.value):Promise.reject()).then(()=>{$('#bkCopy').textContent='Copied ✓'},()=>{try{document.execCommand('copy');$('#bkCopy').textContent='Copied ✓'}catch(e){}})};
+  $('#bkLoad').onclick=()=>{try{const o=JSON.parse(decodeURIComponent(escape(atob($('#bkIn').value.trim()))));if(!o||o.v!==2)throw 0;S=migrate(Object.assign(fresh(),o));save();refreshChips();renderParent();$('#bkMsg').textContent='Restored ✓'}catch(e){$('#bkMsg').textContent='That backup code did not work. Copy the whole code and try again.'}};
+  $('#resetBtn').onclick=()=>{$('#resetRow').innerHTML='<span>Erase all stars and progress?</span><button class="ghost" id="rsYes" style="border-color:var(--coral)">Erase</button><button class="ghost" id="rsNo">Cancel</button>';
     $('#rsYes').onclick=()=>{S=fresh();save();refreshChips();renderParent()};$('#rsNo').onclick=renderParent};
 }
 
