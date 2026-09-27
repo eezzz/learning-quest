@@ -275,10 +275,17 @@ function renderParent(){
   }
   else if(parTab==='week'){body=weekHTML()}
   else if(parTab==='curriculum'){
-    const P=S.profile,mrows=MATH_CURRICULUM.slice().sort((a,b)=>a.order-b.order).map(m=>`<tr class="${m.grades.includes(P.math)?'on':''}"><td>${m.icon} ${m.name}</td><td>${m.what}</td><td>${m.src==='Both'?'Singapore + RSM':m.src}</td>${[0,1,2,3,4,5].map(g=>`<td class="c">${m.grades.includes(g)?'●':''}</td>`).join('')}</tr>`).join('');
-    const lrows=LANG_MISSIONS.map(m=>`<tr class="${m.grade===P.lang?'on':''}"><td>${m.icon} ${m.name}</td><td>${m.learn}</td><td class="c">${m.grade===0?'K':m.grade}</td></tr>`).join('')+WORD_MISSIONS.map(m=>`<tr class="${P.lang>=2?'on':''}"><td>${m.icon} ${m.name}</td><td>${m.learn}</td><td class="c">2–3</td></tr>`).join('');
-    const srows=SOCIAL_MISSIONS.map((m,i)=>{const k2=SOCIAL.filter(x=>x.m===i+1&&(x.g||[2,5])[0]<=2&&(x.g||[2,5])[1]<=2).length,old=SOCIAL.filter(x=>x.m===i+1&&!x.g).length;return`<tr><td>${m.icon} ${m.name}</td><td>${m.learn}</td><td class="c">${k2}</td><td class="c">${old}</td></tr>`}).join('');
-    body=`<section><h2>How this app teaches</h2><ul>
+    const P=S.profile,mrows=MATH_CURRICULUM.slice().sort((a,b)=>a.order-b.order).map(m=>`<tr class="${m.grades.includes(P.math)?'on':''}" ${rowData('math',m.grades,m.grades.includes(P.math),m.name+' '+m.what+' '+m.src)}><td>${m.icon} ${m.name}</td><td>${m.what}</td><td>${m.src==='Both'?'Singapore + RSM':m.src}</td>${[0,1,2,3,4,5].map(g=>`<td class="c">${m.grades.includes(g)?'●':''}</td>`).join('')}</tr>`).join('');
+    const lrows=LANG_MISSIONS.map(m=>`<tr class="${m.grade===P.lang?'on':''}" ${rowData('lang',[m.grade],m.grade===P.lang,m.name+' '+m.learn)}><td>${m.icon} ${m.name}</td><td>${m.learn}</td><td class="c">${m.grade===0?'K':m.grade}</td></tr>`).join('')+WORD_MISSIONS.map(m=>`<tr class="${P.lang===2||P.lang===3?'on':''}" ${rowData('lang',[2,3],P.lang===2||P.lang===3,m.name+' '+m.learn+' grammar')}><td>${m.icon} ${m.name}</td><td>${m.learn}</td><td class="c">2–3</td></tr>`).join('');
+    const srows=SOCIAL_MISSIONS.map((m,i)=>{const k2=SOCIAL.filter(x=>x.m===i+1&&(x.g||[2,5])[0]<=2&&(x.g||[2,5])[1]<=2).length,old=SOCIAL.filter(x=>x.m===i+1&&!x.g).length;return`<tr ${rowData('social',[0,1,2,3,4,5],true,m.name+' '+m.learn)}><td>${m.icon} ${m.name}</td><td>${m.learn}</td><td class="c">${k2}</td><td class="c">${old}</td></tr>`}).join('')
+      +(typeof EF_MISSIONS!=='undefined'?EF_MISSIONS:[]).map(m=>{const k2=EFI.filter(x=>x.skill===m.ef&&(x.g||[0,5])[0]<=2).length,old=EFI.filter(x=>x.skill===m.ef&&(x.g||[0,5])[1]>=3).length;return`<tr ${rowData('ef',[0,1,2,3,4,5],true,m.name+' '+m.learn+' brain skills executive function')}><td>${m.icon} ${m.name} <small class="tag good">Brain Skills</small></td><td>${m.learn}</td><td class="c">${k2}</td><td class="c">${old}</td></tr>`}).join('');
+    body=`<section class="cfilter" aria-label="Filter the curriculum"><h2>Find a topic</h2>
+      <div class="pform"><label>Search<input id="cfQ" type="search" placeholder="for example fractions, rhyme, feelings" autocomplete="off"></label>
+       <label>Subject<select id="cfSubj"><option value="">All subjects</option><option value="math">Math</option><option value="lang">Language</option><option value="social">Social and emotional</option><option value="ef">Brain Skills</option></select></label>
+       <label>Grade<select id="cfGrade"><option value="">All grades</option>${GRADE_NAMES.map((g,i)=>`<option value="${i}">${g}</option>`).join('')}</select></label></div>
+      <label class="chk" style="margin-top:10px"><input type="checkbox" id="cfOn"> Only ${esc(kidName())}'s current path</label>
+      <p class="fact" id="cfCount" aria-live="polite"></p></section>
+      <section class="cfhide"><h2>How this app teaches</h2><ul>
       <li><b>Same order every day.</b> Words → math → people, then a reward. The plan is set in the morning and never changes during the day.</li>
       <li><b>Short parts with instant feedback.</b> ${partSize()} questions per part for ${esc(kidName())}; each answer gets a result and a reason at once.</li>
       <li><b>A hint before the answer.</b> The first wrong answer gets a hint and another try; the answer and reason come after the second. "Show me how" never costs anything.</li>
@@ -286,9 +293,9 @@ function renderParent(){
       <li><b>Interests as the theme.</b> Objects, stories and reward cards use the interests in the profile.</li>
       <li><b>Social skills as short stories.</b> Every choice explains what others might think or feel; the child is never asked to act "normal" or make eye contact.</li>
       <li><b>Regulation first.</b> A feelings check-in starts each day; the Calm Corner is one tap away on every screen.</li></ul></section>
-      <section><h2>Math: Singapore Math + RSM</h2><p>Highlighted rows are on ${esc(kidName())}'s current path (${GRADE_NAMES[P.math]}).</p><div class="tbl"><table class="curr"><tr><th>Level</th><th>Topic</th><th>Method</th>${['K','1','2','3','4','5'].map(g=>`<th class="c">${g}</th>`).join('')}</tr>${mrows}</table></div></section>
-      <section><h2>Language (K–5)</h2><p>Aligned to Common Core Foundational Skills, Language and Reading. Highlighted rows are on the current path (${GRADE_NAMES[P.lang]}).</p><div class="tbl"><table class="curr"><tr><th>Level</th><th>What it practices</th><th class="c">Grade</th></tr>${lrows||'<tr><td colspan="3">Language skills are loading.</td></tr>'}</table></div></section>
-      <section><h2>Social and emotional (CASEL)</h2><p>Situations are chosen for the child's grade: a simpler K–2 set and a Grades 2–5 set.</p><div class="tbl"><table class="curr"><tr><th>Topic</th><th>What it practices</th><th class="c">K–2 situations</th><th class="c">Grades 2–5</th></tr>${srows}</table></div></section>`;
+      <section class="csec"><h2>Math: Singapore Math + RSM</h2><p>Highlighted rows are on ${esc(kidName())}'s current path (${GRADE_NAMES[P.math]}).</p><div class="tbl"><table class="curr"><tr><th>Level</th><th>Topic</th><th>Method</th>${['K','1','2','3','4','5'].map(g=>`<th class="c">${g}</th>`).join('')}</tr>${mrows}</table></div></section>
+      <section class="csec"><h2>Language (K–5)</h2><p>Aligned to Common Core Foundational Skills, Language and Reading. Highlighted rows are on the current path (${GRADE_NAMES[P.lang]}).</p><div class="tbl"><table class="curr"><tr><th>Level</th><th>What it practices</th><th class="c">Grade</th></tr>${lrows||'<tr><td colspan="3">Language skills are loading.</td></tr>'}</table></div></section>
+      <section class="csec"><h2>Social and emotional (CASEL) and Brain Skills</h2><p>Situations are chosen for the child's grade: a simpler K–2 set and a Grades 2–5 set. Brain Skills items are split into K–2 and Grades 3–5.</p><div class="tbl"><table class="curr"><tr><th>Topic</th><th>What it practices</th><th class="c">K–2 situations</th><th class="c">Grades 2–5</th></tr>${srows}</table></div></section>`;
   }
   else{
     body=`<section><h2>Saving and backup</h2><p>Progress for every child saves automatically on this device. On an iPad, tap Share → Add to Home Screen and open the app from the icon. To move to another device, copy the backup code and keep it somewhere safe.</p>
@@ -311,6 +318,7 @@ function renderParent(){
           save();refreshChips();renderParent()}})}
   }
   if(parTab==='week')wireWeek();
+  if(parTab==='curriculum'&&S)wireCurrFilter();
   if(parTab==='data'&&S){
     $('#bkCopy').onclick=()=>{const tx=$('#bkOut');tx.select();(navigator.clipboard?navigator.clipboard.writeText(tx.value):Promise.reject()).then(()=>{$('#bkCopy').textContent='Copied ✓'},()=>{try{document.execCommand('copy');$('#bkCopy').textContent='Copied ✓'}catch(e){}})};
     $('#bkLoad').onclick=()=>{try{const o=JSON.parse(decodeURIComponent(escape(atob($('#bkIn').value.trim()))));
@@ -324,6 +332,24 @@ function renderParent(){
   }
 }
 function familyBackup(){try{return btoa(unescape(encodeURIComponent(JSON.stringify(ROOT))))}catch(e){return''}}
+function rowData(subj,grades,on,text){return`data-subj="${subj}" data-grades=" ${grades.join(' ')} " data-on="${on?1:0}" data-text="${esc(strip(text).toLowerCase())}"`}
+// Curriculum filter: search, subject, grade and "only the current path". Choices are remembered for this visit.
+let CF={q:'',subj:'',grade:'',on:false};
+function wireCurrFilter(){
+  const q=$('#cfQ'),subj=$('#cfSubj'),grade=$('#cfGrade'),on=$('#cfOn');q.value=CF.q;subj.value=CF.subj;grade.value=CF.grade;on.checked=CF.on;
+  const apply=()=>{
+    CF={q:q.value.trim().toLowerCase(),subj:subj.value,grade:grade.value,on:on.checked};
+    const filtering=CF.q||CF.subj||CF.grade||CF.on;let shown=0,total=0;
+    document.querySelectorAll('#v-par .csec').forEach(sec=>{let vis=0;
+      sec.querySelectorAll('tr[data-subj]').forEach(tr=>{total++;
+        const ok=(!CF.subj||tr.dataset.subj===CF.subj)&&(!CF.grade||tr.dataset.grades.includes(' '+CF.grade+' '))&&(!CF.on||tr.dataset.on==='1')&&(!CF.q||CF.q.split(/\s+/).every(w=>tr.dataset.text.includes(w.length>4?w.replace(/(ing|es|s|e)$/,''):w)));
+        tr.hidden=!ok;if(ok){vis++;shown++}});
+      sec.hidden=!vis});
+    document.querySelectorAll('#v-par .cfhide').forEach(x=>x.hidden=!!filtering);
+    $('#cfCount').textContent=filtering?(shown?`Showing ${shown} of ${total} topics.`:'No topics match. Try a shorter word or clear a filter.'):`${total} topics in all.`;
+  };
+  [q,subj,grade,on].forEach(x=>x.addEventListener('input',apply));[subj,grade,on].forEach(x=>x.addEventListener('change',apply));apply();
+}
 const LEGACY_NOTES=`<section><h2>Worksheet notes (September 2026)</h2>
  <div class="tbl"><table><tr><th>Worksheet</th><th>Result</th></tr>
   <tr><td>Punctuation . ! ?</td><td><span class="tag good">13/13 correct</span></td></tr>

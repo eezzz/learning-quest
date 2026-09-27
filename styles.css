@@ -432,3 +432,8 @@ body.bigtext{font-size:21px}
 .wk>div{background:var(--deep);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column}
 .wk small{color:var(--muted)}
 .wk b{font-size:1.4rem}
+
+/* curriculum filter */
+.cfilter .pform{grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr)}
+@media (max-width:640px){.cfilter .pform{grid-template-columns:1fr}}
+.parent tr[hidden]{display:none}

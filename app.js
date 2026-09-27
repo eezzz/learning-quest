@@ -150,6 +150,8 @@ function migrate(s){
   // version 1 of this app stored Word Lab missions as numbers 1..10
   ['done','best','bonus'].forEach(k=>{const o=s[k]||{};Object.keys(o).forEach(id=>{if(/^\d+$/.test(id)){o['w'+id]=o[id];delete o[id]}})});
   (s.log||[]).forEach(l=>{if(typeof l.m==='number')l.m='w'+l.m});
+  const OLD7=['animals','space','ocean','dinos','rocks','bugs','weather'];
+  if(P&&P.interests){if(OLD7.every(k=>P.interests.includes(k))&&P.interests.length===7)P.interests=Object.keys(INTERESTS);else if(P.interests.includes('bugs')&&!P.interests.includes('plants'))P.interests.push('plants')}
   if(P){if(P.lang==null)P.lang=Math.min(P.grade,3);if(!P.avatar)P.avatar='⭐';P.support=Object.assign(defaultSupport(P.grade),P.support||{})}
   s.checkins=s.checkins||[];s.calmUses=s.calmUses||[];
   return s}
