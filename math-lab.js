@@ -70,82 +70,6 @@ function drawScale(svg,L,R,xv,o={}){
 }
 const sideStr=a=>a.map(v=>v==='x'?'<b class="xv">x</b>':v==='?'?'<span class="blank sm">?</span>':v).join(' + ');
 
-/* ---------------- generators ---------------- */
-// Is it balanced? Tackles the idea that "=" means "the answer comes next".
-function genTF(){
-  const v=rnd(5);let L,R,note='';
-  if(v===0){const a=between(3,30),b=between(2,20),c=a+b,f=rnd(2)?c:c+pick([1,2,-1,10]);L=[a,b];R=[f]}
-  else if(v===1){const a=between(3,30),b=between(2,20),c=a+b,f=rnd(2)?c:c+pick([1,-1,2]);L=[f];R=[a,b];note='The answer can be on the left side, too.'}
-  else if(v===2){const a=between(3,15),b=between(2,15),s=a+b,c=between(1,s-1),d=rnd(2)?s-c:s-c+pick([1,-1,2]);L=[a,b];R=[c,Math.max(1,d)]}
-  else if(v===3){const a=between(2,9),b=between(2,9),d=between(2,9);L=[a,b];R=[a+b,d];note='The = sign does not mean "the answer comes next". It means both sides are the same.'}
-  else{const a=between(4,40);L=[a];R=[a];note='A number is always the same as itself.'}
-  const lv=sumOf(L),rv=sumOf(R),ok=lv===rv;
-  const r=mkChoice('mt:tf','Is this true? Do both sides weigh the same?',`<div class="tfbox">${L.join(' + ')} <b>=</b> ${R.join(' + ')}</div>${scaleSVG()}`,
-    ok?'✓ True: it balances':'✗ False: it tips',[ok?'✗ False: it tips':'✓ True: it balances'],
-    {fixed:true,explain:`Left side: ${L.join(' + ')}${L.length>1?' = '+lv:''}. Right side: ${R.join(' + ')}${R.length>1?' = '+rv:''}. ${ok?'The same, so it balances.':'Not the same, so it tips.'} ${note}`,
-     hint:'1. Work out the left side.<br>2. Work out the right side.<br>3. Are they the same number? Then it balances.'});
-  r.opts=[{t:'✓ True: it balances',ok:ok},{t:'✗ False: it tips',ok:!ok}];
-  r.onShow=st=>drawScale(st.querySelector('.scale'),L,R,0,{level:true});
-  r.onDone=st=>drawScale(st.querySelector('.scale'),L,R,0);
-  return r;
-}
-// Fill the blank so the scale balances: 7 + 5 = __ + 4
-function genMissing(){
-  const a=between(3,20),b=between(2,15),c=between(1,a+b-1),ans=a+b-c,blankLeft=rnd(4)===0;
-  const L=blankLeft?['?',c]:[a,b],R=blankLeft?[a,b]:(rnd(2)?['?',c]:[c,'?']);
-  const r=mkChoice('mt:miss','What number makes the scale balance?',`<div class="tfbox">${sideStr(L)} <b>=</b> ${sideStr(R)}</div>${scaleSVG()}`,ans,
-    [[a+b,`${a+b} is the total of ${a} + ${b}. But the other side already has ${c}, so the blank must be smaller.`],[a+b+c,'Adding every number makes that side too heavy.'],ans+1],
-    {hint:`1. The full side weighs ${a} + ${b} = ${a+b}.<br>2. The other side already has ${c}.<br>3. What goes with ${c} to make ${a+b}? Count up from ${c}.`,explain:`${a} + ${b} = ${a+b}, and ${ans} + ${c} = ${a+b}. Both sides weigh ${a+b}.`});
-  r.onShow=st=>drawScale(st.querySelector('.scale'),L,R,0,{level:true});
-  r.onDone=st=>drawScale(st.querySelector('.scale'),L,R,0,{fillv:ans,fill:ans});
-  return r;
-}
-// Interactive mystery-bag scale, like her "Write and solve an equation" page.
-// level 0: 2 + x = 11 style, 1: 3 + x + 5 = 19 / 13 + 7 = 3 + x + 4, 2: 85 + 8 = 55 + x + 28.
-function genBalance(level=rnd(3)){
-  for(;;){
-    const big=level===2,xv=big?between(5,40):between(2,15);
-    const xk=level===0?[between(2,9)]:level===1?times(between(1,2),()=>between(2,9)):[between(10,60),between(5,30)];
-    const T=xv+sumOf(xk);if(T>99)continue;
-    const on=level===0?1:level===1?between(1,2):between(1,2);
-    let os=[T];if(on===2){const a=between(Math.max(2,Math.round(T*.5)),T-2);os=[a,T-a]}
-    const xs=xk.length===2?[xk[0],'x',xk[1]]:(rnd(2)?[xk[0],'x']:['x',xk[0]]);
-    const xLeft=rnd(3)===0;
-    return{type:'balance',key:'mt:bal',L:xLeft?xs:os,R:xLeft?os:xs,xv};
-  }
-}
-const BAR_T=[
- (W,a,b)=>`Stella has ${W} rocks. ${a} are gray${b?` and ${b} are white`:''}. The rest are sparkly. How many sparkly rocks does she have?`,
- (W,a,b)=>`There are ${W} birds at the feeder. ${a} are robins${b?` and ${b} are sparrows`:''}. The rest are blue jays. How many blue jays are there?`,
- (W,a,b)=>`A scientist counted ${W} fish. ${a} were orange${b?` and ${b} were striped`:''}. The rest were silver. How many fish were silver?`,
- (W,a,b)=>`The bar is ${W} long. The parts you know are ${a}${b?` and ${b}`:''}. What is x?`
-];
-function genBarM(W,known){
-  if(!W){known=rnd(2)?[between(10,50)]:[between(10,45),between(5,30)];W=sumOf(known)+between(5,40);if(W>99)return genBarM()}
-  const x=W-sumOf(known),k2=known.length===2,parts=k2?[{v:known[0]},{v:x,label:'x',cls:'px'},{v:known[1]}]:[{v:known[0]},{v:x,label:'x',cls:'px'}];
-  const txt=pick(BAR_T)(W,known[0],known[1]);
-  return mkChoice('mt:bar',txt,barHTML(W,parts),x,[[W,`${W} is the whole bar. x is only one part of it.`],k2?[sumOf(known),`${sumOf(known)} is the parts you know added together. x is what is left.`]:null,[W+sumOf(known),'x is a part, so it must be smaller than the whole.'],x+10].filter(Boolean),
-    {hint:k2?`1. Add the parts you know: ${known[0]} + ${known[1]} = ${sumOf(known)}.<br>2. Whole minus that: ${W} − ${sumOf(known)} = x.<br>Or count up from ${sumOf(known)} to ${W}.`:`Whole minus the part you know: ${W} − ${known[0]} = x.<br>Or count up from ${known[0]} to ${W}.`,
-     explain:`${W} = ${k2?`${known[0]} + x + ${known[1]}`:`${known[0]} + x`}. ${k2?`${known[0]} + ${known[1]} = ${sumOf(known)}. `:''}${W} − ${sumOf(known)} = ${x}, so x = ${x}.`});
-}
-const GROUP_T=[['🦒','giraffes','wears','boots',4],['🕷️','spiders','has','legs',8],['🐦','birds','has','wings',2],['⭐','sea stars','has','arms',5],['🐞','ladybugs','has','legs',6],['🐙','octopuses','has','arms',8]];
-function genGroups(){
-  const v=rnd(4);
-  if(v===0){const[e,name,verb,part,each]=pick(GROUP_T),n=between(2,5),ans=n*each,add=times(n,()=>each).join(' + ');
-    return mkChoice('mt:grp',`${n} ${name}. Each one ${verb} ${each} ${part}. How many ${part}?`,`${groupsHTML(n,each,e)}<div class="eq sm">${add} = ${n} × ${each} = <span class="blank">?</span></div>`,ans,[n+each,ans+each,ans-each,ans+1],
-      {hint:`Count by ${each}s: ${times(n,i=>each*(i+1)).join(', ')}.<br>${n} × ${each} means ${n} groups of ${each}. (Your book may write it as ${n} · ${each}.)`,explain:`${add} = ${ans}. So ${n} × ${each} = ${ans} ${part}.`});}
-  if(v===1){const r=between(2,5),c=between(2,6),ans=r*c;
-    const grid=`<div class="arr" style="grid-template-columns:repeat(${c},auto)">${'<span>🌰</span>'.repeat(ans)}</div>`;
-    return mkChoice('mt:grp',`How many acorns? There are ${r} rows. Each row has ${c}.`,`${grid}<div class="eq sm">${r} × ${c} = <span class="blank">?</span></div>`,ans,[r+c,ans+c,ans-1,ans+r],
-      {hint:`Count by ${c}s, one row at a time: ${times(r,i=>c*(i+1)).join(', ')}.`,explain:`${r} rows of ${c}: ${times(r,()=>c).join(' + ')} = ${ans}. So ${r} × ${c} = ${ans}.`});}
-  if(v===2){const k=between(2,5),m=between(2,6),total=k*m,[e,thing,box]=pick([['🌱','seeds','pots'],['🥚','eggs','nests'],['🌰','acorns','squirrels'],['🐚','shells','buckets']]);
-    const r=mkChoice('mt:grp',`${total} ${thing} are shared equally into ${k} ${box}. How many ${thing} in each?`,`<div class="emoline">${e.repeat(total)}</div><div class="eq sm">${total} ÷ ${k} = <span class="blank">?</span></div><div class="dealt"></div>`,m,[total-k,total+k,k,m+1],
-      {hint:`Deal them out one at a time, like cards, into ${k} ${box}. Or ask: ${k} × what = ${total}?`,explain:`${total} ÷ ${k} = ${m}. Check: ${k} × ${m} = ${total}.`});
-    r.onDone=st=>{const d=st.querySelector('.dealt');if(d)d.innerHTML=groupsHTML(k,m,e)};return r;}
-  const each=between(2,6),n=between(3,5),add=times(n,()=>each).join(' + ');
-  return mkChoice('mt:grp',`Which is the same as ${add}?`,`<div class="eq sm">${add}</div>`,`${n} × ${each}`,[[`${n} + ${each}`,`That adds just two numbers. We have ${n} groups of ${each}.`],[`${each} × ${each}`,`Count the groups: there are ${n}, not ${each}.`],[`${n+1} × ${each}`,`Count the ${each}s again: there are ${n}.`]],
-    {hint:`Count how many times ${each} is added. That is the number of groups.`,explain:`${each} is added ${n} times, so it is ${n} groups of ${each}: ${n} × ${each} = ${n*each}.`});
-}
 function genStoryRound(i){return{type:'story',key:'mt:story',idx:i==null?rnd(STORIES.length):i}}
 
 /* ---------------- story picture ---------------- */
@@ -214,7 +138,7 @@ function rBalance(r,st){
 }
 // Word problem detective: 1) circle the numbers, 2) what is happening, 3) number sentence, 4) answer.
 function rStory(r,st){
-  const s=STORIES[r.idx];let revealed=false;
+  const s=r.s||STORIES[r.idx];let revealed=false;
   const txt=el('div','story');
   txt.innerHTML=s.t.split(/(\d+)/).map(p=>/^\d+$/.test(p)?`<button class="num">${p}</button>`:esc(p)).join('');
   st.appendChild(txt);
