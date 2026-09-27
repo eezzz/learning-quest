@@ -39,7 +39,7 @@ const SOCIAL=[
  {m:2,e:'🎲',s:'You lost a game at recess.',sz:0,why:'Small problem. Losing feels bad for a moment, but you can play again tomorrow.'},
  {m:2,e:'🤢',s:'You feel sick at school and your tummy hurts a lot.',sz:1,why:'Medium problem. Tell your teacher so a grown-up can help you.'},
  {m:2,e:'🎒',s:'You left your homework at home.',sz:1,why:'Medium problem. Tell your teacher. Together you can make a plan.'},
- {m:2,e:'🩸',s:'A classmate fell off the slide and is bleeding.',sz:2,why:'Big problem. Get a grown-up right away.'},
+ {m:2,e:'🤕',s:'A classmate fell off the slide and is hurt.',sz:2,why:'Big problem. Get a grown-up right away.'},
  {m:2,e:'🚨',s:'The fire alarm is ringing.',sz:2,why:'Big problem. Stay calm and follow your teacher right away.'},
  {m:2,e:'💧',s:'You spilled a little water on your desk.',sz:0,why:'Small problem. Get a paper towel and wipe it up.'},
  {m:2,e:'✏️😤',s:'Your pencil broke during a test.',q:'Which reaction matches the size of the problem?',o:[
@@ -72,7 +72,7 @@ const SOCIAL=[
   ['Feel disappointed, take a breath, and ask about the new plan','Yes! It is OK to feel disappointed. Then find out Plan B.'],
   ['Refuse to do anything all day','That makes the whole day hard. Plan B can still be fun.'],
   ['Scream until they change it back','Screaming cannot stop the rain. Calm down, then ask about Plan B.']]},
- {m:3,e:'🌡️🔥',s:'Your feelings are at 5 out of 5. You are very, very upset.',q:'What should you do FIRST?',o:[
+ {m:3,e:'🌡️🔥',s:'On your feelings thermometer, you are at 5 out of 5. You are very, very upset.',q:'What should you do FIRST?',o:[
   ['Calm your body first, then solve the problem','Yes! When feelings are at 5, the thinking brain needs a break first. Breathe, then solve.'],
   ['Solve the problem right now while yelling','It is very hard to think when you are that upset. Calm first, then solve.'],
   ['Tell everyone they are wrong','That can make the problem bigger. Calm your body first.']]},
@@ -84,7 +84,7 @@ const SOCIAL=[
   ['Say nothing and walk away','She might feel ignored. Try asking a question back.']]},
  {m:4,e:'🐙😐',s:'You are telling a friend about octopuses. She looks away and says "uh-huh" in a flat voice.',q:'What might that mean?',o:[
   ['She might want a turn or a new topic','Yes! Looking away and a flat voice are clues. You can ask what she wants to talk about.'],
-  ['She wants 10 more octopus facts','Clues like looking away usually mean a person wants a change. Check with her!'],
+  ['She wants 10 more octopus facts','Looking away can mean she wants a change, but not always. The best way to know is to ask her!'],
   ['She is angry at octopuses','It is probably not about octopuses. She might just want a turn to talk.']]},
  {m:4,e:'🦈❓',s:'You love sharks. You have told your friend 5 shark facts already.',q:'What is a good thing to say next?',o:[
   ['"Do you want to hear more, or talk about something else?"','Yes! Checking is kind. Your friend gets to choose, too.'],
@@ -98,7 +98,7 @@ const SOCIAL=[
   ['Your friend','Yes! You hit the ball over. Now it is your friend\'s turn.'],
   ['You again','If you keep talking, your friend does not get a turn to answer.'],
   ['Nobody','Your friend should get a turn to answer.']]},
- {m:4,e:'👋🙂',s:'A classmate says, "Hi Stella!"',q:'What is a good thing to do?',o:[
+ {m:4,e:'👋🙂',s:'A classmate says "Hi!" to you.',q:'What is a good thing to do?',o:[
   ['Say "Hi!" back (you can wave, too)','Yes! Saying hi back shows you heard them. It is a small, friendly thing.'],
   ['Walk away without saying anything','They might think you do not like them. A quick "Hi" is enough.'],
   ['Start telling them about fossils right away','Say hi first. Then you can ask if they want to hear about fossils!']]},
@@ -112,7 +112,7 @@ const SOCIAL=[
   ['"Thank you for making this for me!"','Yes! You can thank her for her work and kindness. That is true and kind.'],
   ['"This is ugly."','That might be what you think, but it would hurt her feelings. Thank her for trying.'],
   ['Throw it away while she watches','That would make her feel very sad. You can say thank you.']]},
- {m:5,e:'🐟😭',s:"Your friend's goldfish died. She is crying.",q:'What could you say?',o:[
+ {m:5,g:[3,5],e:'🐟😭',s:"Your friend's goldfish died. She is crying.",q:'What could you say?',o:[
   ['"I\'m sorry. Do you want to talk or sit together?"','Yes! This shows you care. Right now she needs kindness more than facts.'],
   ['"Goldfish only live a few years anyway."','It may be true, but it can sound like you do not care. Show kindness first.'],
   ['Laugh','Laughing when someone is sad can hurt them a lot.']]},
@@ -150,7 +150,7 @@ const SOCIAL=[
   ['The teacher notices a lot','Yes! It means she sees what is going on, even when she is facing the board.'],
   ['The teacher has extra eyes','People only have two eyes. It is an idiom.'],
   ['The teacher wears glasses on her head','It is an idiom that means she notices a lot.']]},
- {m:6,e:'⭕✏️',s:'Your worksheet says: "Circle the -ly adverb."',q:'What should you circle?',o:[
+ {m:6,g:[3,5],e:'⭕✏️',s:'Your worksheet says: "Circle the -ly adverb."',q:'What should you circle?',o:[
   ['The whole word, like "quietly"','Yes! The adverb is the whole word. "-ly" just tells you how to spot it.'],
   ['Only the letters "ly"','"ly" is how to find it, but the adverb is the whole word, like "quietly".'],
   ['Every word in the sentence','Only circle the adverb, the whole -ly word.']]},
@@ -187,7 +187,7 @@ const SOCIAL=[
  {m:7,e:'🏃🏃‍♀️',s:'Some kids are playing tag. You want to join.',q:'What could you say?',o:[
   ['"Can I play too?"','Yes! Asking is the clearest way to join.'],
   ['Grab someone and yell "You\'re it!"','They might not know you are playing. Ask first.'],
-  ['Watch from far away and feel sad','They may not know you want to play. Ask them!']]},
+  ['Wait and hope they ask you','They may not know you want to play. Asking is clearer!']]},
  {m:7,e:'🌧️⛏️',s:'Recess is inside because of rain. You wanted to dig for rocks.',q:'What is a good Plan B?',o:[
   ['Draw a rock or read a rock book','Yes! Plan B keeps the fun going. Flexible thinking is a superpower.'],
   ['Refuse to do anything','That makes recess boring for you. Plan B can still be fun.'],
@@ -224,6 +224,6 @@ const SOCIAL=[
   ['Walk around the room','That can distract others. Ask the teacher what to do.']]},
  {m:8,e:'🎧😣',s:'The noise in the lunchroom is too much for you.',q:'What could you do?',o:[
   ['Ask a grown-up if you can eat somewhere quieter','Yes! Knowing what your body needs and asking for it is a great skill.'],
-  ['Cover your ears and yell','Yelling adds more noise. Ask a grown-up for help.'],
+  ['Cover your ears and yell','Covering your ears is OK. Yelling adds more noise, so ask a grown-up for a quieter spot.'],
   ['Stop eating','Your body needs lunch. Ask for a quieter spot.']]}
 ];

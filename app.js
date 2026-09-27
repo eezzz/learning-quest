@@ -136,19 +136,30 @@ MATH_CURRICULUM.forEach(m=>{m.world='m';MISS[m.id]=m});
 const BREAKS=['Hop like a frog 10 times! 🐸','Stretch up tall like a giraffe. Count to 10. 🦒','Waddle like a penguin across the room! 🐧','Flap your wings like a bird 10 times! 🐦','Curl up like a pill bug, then pop open! 🐛','Stomp like a dinosaur 10 times! 🦕','Slither like a snake to the door and back! 🐍','Spin slowly like a planet 3 times! 🪐','Hop like a kangaroo 10 times! 🦘','Swim like a fish with your arms for 10 seconds! 🐟','Sway like a tree in the wind. Count to 10. 🌳','Crawl like a crab sideways! 🦀','Take 5 slow breaths, like a sleeping bear. 🐻'];
 
 /* ================= SAVED PROGRESS ================= */
-const KEY='stella-science-quest-v2';
-function fresh(){return{v:2,stars:0,best:{},done:{},bonus:{},days:[],sound:true,calm:false,log:[],today:null,adapt:{},
-  profile:{name:'Stella',age:8,grade:3,math:3,interests:Object.keys(INTERESTS)},vocab:{learned:[]},dayCount:0,fullDays:[],
-  // Seeded from her worksheets: nouns circled as adjectives, "hair" missed, and circling only "ly".
-  mistakes:{'w:tree':1,'w:butterfly':1,'w:flower':1,'w:bus':1,'w:hair':1,'q:0':1}}}
+const KEY='stella-science-quest-v2',ROOTKEY='learning-quest-v3';
+const AVATARS=['🦊','🐼','🐙','🦄','🐢','🦉','🐬','🦖','🐝','🚀','🦋','🐧','⭐','🐱'];
+// Support settings follow the grade by default: Kindergarten gets full voice mode, K–1 get read-aloud and breaks.
+function defaultSupport(grade){return{voice:grade===0,autoRead:grade<=1,breaks:grade<=1,surprise:true,bigText:false,perPart:0}}
+function fresh(p){p=p||{};const grade=p.grade??2;
+  return{v:2,stars:0,best:{},done:{},bonus:{},days:[],sound:true,calm:false,log:[],today:null,adapt:{},checkins:[],calmUses:[],
+    vocab:{learned:[]},dayCount:0,fullDays:[],mistakes:{},
+    profile:Object.assign({name:'Explorer',age:grade+5,grade,math:grade,lang:Math.min(grade,3),avatar:AVATARS[0],interests:Object.keys(INTERESTS)},p,{support:Object.assign(defaultSupport(grade),p.support||{})})}}
 function migrate(s){
   // The first profile default was age 7 / Grade 2. She is 8 and in Grade 3.
   const P=s.profile;if(P&&P.age===7&&P.grade===2&&P.math===2&&!s.profileSet){P.age=8;P.grade=3;P.math=3;s.adapt={}}
   // version 1 of this app stored Word Lab missions as numbers 1..10
   ['done','best','bonus'].forEach(k=>{const o=s[k]||{};Object.keys(o).forEach(id=>{if(/^\d+$/.test(id)){o['w'+id]=o[id];delete o[id]}})});
-  (s.log||[]).forEach(l=>{if(typeof l.m==='number')l.m='w'+l.m});return s}
-let S=(()=>{try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.v===2)return migrate(Object.assign(fresh(),s))}catch(e){}return fresh()})();
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+  (s.log||[]).forEach(l=>{if(typeof l.m==='number')l.m='w'+l.m});
+  if(P){if(P.lang==null)P.lang=Math.min(P.grade,3);if(!P.avatar)P.avatar='⭐';P.support=Object.assign(defaultSupport(P.grade),P.support||{})}
+  s.checkins=s.checkins||[];s.calmUses=s.calmUses||[];
+  return s}
+// ROOT holds every child. The old single-child save (v2) becomes the first child.
+let ROOT=(()=>{
+  try{const r=JSON.parse(localStorage.getItem(ROOTKEY));if(r&&r.v===3&&r.children){Object.values(r.children).forEach(migrate);return r}}catch(e){}
+  try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.v===2){const c=migrate(Object.assign(fresh({name:'Stella',grade:3,age:8,avatar:'⭐'}),s));c.legacyStella=true;return{v:3,children:{c1:c},order:['c1'],active:'c1'}}}catch(e){}
+  return{v:3,children:{},order:[],active:null}})();
+let S=ROOT.active&&ROOT.children[ROOT.active]||null;
+function save(){try{localStorage.setItem(ROOTKEY,JSON.stringify(ROOT))}catch(e){}}
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist().catch(()=>{})}catch(e){}
 function addMistake(k){if(k)S.mistakes[k]=(S.mistakes[k]||0)+1}
 function clearMistake(k){if(k&&S.mistakes[k]){S.mistakes[k]--;if(S.mistakes[k]<=0)delete S.mistakes[k]}}
@@ -214,12 +225,12 @@ const CHEERS=['Correct!','Great science brain!','You got it!','Nailed it!','Exac
 const OOPS=['Not this time. Here is why:','Good try. Here is the rule:','Tricky one. Let\'s look:'];
 
 /* ================= VIEWS ================= */
-const VIEWS=['home','world','play','result','stk','par'];
+const VIEWS=['who','home','world','play','result','stk','par'];
 let curWorld='w';
 function show(v){VIEWS.forEach(n=>{$('#v-'+n).hidden=n!==v});
   document.querySelectorAll('[data-nav]').forEach(b=>b.classList.toggle('on',b.dataset.nav===v));
-  if(v==='home')renderHome();if(v==='world')renderWorld(curWorld);if(v==='stk')renderCards();if(v==='par')renderParent();scrollTo(0,0)}
-function refreshChips(bump){$('.logo span').innerHTML=`${esc(kidName())}'s <b>Science</b> Quest`;$('#starN').textContent=S.stars;$('#dayN').textContent=streak();$('#soundBtn').textContent=S.sound?'🔊':'🔇';$('#calmBtn').classList.toggle('on',S.calm);document.body.classList.toggle('calm',S.calm);
+  if(v==='who')renderWho();if(v==='home')renderHome();if(v==='world')renderWorld(curWorld);if(v==='stk')renderCards();if(v==='par')renderParent();scrollTo(0,0)}
+function refreshChips(bump){document.body.classList.toggle('nochild',!S);$('.logo span').innerHTML=S?`${esc(kidName())}'s <b>${STR.appWord}</b>`:`<b>${STR.appName}</b>`;if(!S)return;$('#whoBtn').textContent=S.profile.avatar+' '+S.profile.name;$('#starN').textContent=S.stars;$('#dayN').textContent=streak();$('#soundBtn').textContent=S.sound?'🔊':'🔇';$('#calmBtn').classList.toggle('on',S.calm);document.body.classList.toggle('calm',S.calm);
   if(bump&&!S.calm){const c=$('#starChip');c.classList.remove('bump');void c.offsetWidth;c.classList.add('bump')}}
 
 function greeting(){const h=new Date().getHours();return h<12?'Good morning':h<18?'Good afternoon':'Good evening'}
@@ -242,12 +253,12 @@ function renderHome(){
      ${allDone?'<p class="fact" style="margin-top:10px">Today\'s plan is done. Great work! You can still explore any lab below.</p>':''}</section>
    <div class="homegrid"><div class="wtiles">${tiles}</div>
    <div class="side"><div class="rank"><div class="row"><span>🏅 ${rk.name}</span><span>${rk.next?`${S.stars} / ${rk.next[0]} ⭐`:S.stars+' ⭐'}</span></div><div class="bar"><i style="width:${Math.min(100,rk.pct)}%"></i></div>${rk.next?`<p class="fact">Next rank: <b>${rk.next[1]}</b></p>`:''}</div>
-   <p class="fact">Did you know? <b>Stella</b> means <b>"star"</b> in Latin. A star is a giant ball of hot gas, like our Sun.</p>
+   <p class="fact">${homeFact()}</p>
    <button class="ghost" id="calmHome">🫧 Calm Corner</button></div></div>`;
   $('#v-home').querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>startMission(b.dataset.go));
   $('#v-home').querySelectorAll('[data-world]').forEach(b=>b.onclick=()=>{curWorld=b.dataset.world;show('world')});
   $('#calmHome').onclick=openCalm;
-  refreshChips();
+  refreshChips();afterHome();
 }
 const PTS=[[270,70],[175,48],[92,92],[78,178],[160,225],[255,272],[290,352],[235,432],[145,452],[68,400]];
 function renderWorld(w){
@@ -289,7 +300,7 @@ function runBreath(circle,label,cycles,onDone){
   clearInterval(breathTimer);step();breathTimer=setInterval(step,4000);
 }
 function openCalm(){
-  const ov=$('#overlay');
+  logCalm();const ov=$('#overlay');
   ov.innerHTML=`<div class="sheet calmsheet" role="dialog" aria-modal="true" aria-label="Calm Corner"><h2>🫧 Calm Corner</h2>
    <p>Watch the bubble. Breathe in while it grows. Breathe out while it shrinks.</p>
    <div class="breathwrap"><div class="breath" id="cb"></div></div><p class="blabel" id="cbl"></p>
@@ -308,9 +319,9 @@ function setProgress(){const p=R.i/R.rounds.length*100,left=R.rounds.length-R.i;
 function renderRound(){
   const r=R.rounds[R.i];R.cur={r,err:false,done:false};setProgress();clearInterval(breathTimer);
   const st=$('#stage');st.innerHTML='';st.className='stage';$('#hint').textContent='';$('#actions').innerHTML='';$('#fb').hidden=true;$('#fb').innerHTML='';
-  ({select:rSelect,sort:rSort,punct:rPunct,proof:rProof,pair:rPair,choice:rChoice,breathe:rBreathe,learn:rLearn,balance:rBalance,story:rStory})[r.type](r,st);
+  ({select:rSelect,sort:rSort,punct:rPunct,proof:rProof,pair:rPair,choice:rChoice,breathe:rBreathe,learn:rLearn,rule:rRule,balance:rBalance,story:rStory})[r.type](r,st);
 }
-function setPrompt(html,say){$('#prompt').innerHTML=html;$('#sayBtn').onclick=()=>speak(say||html)}
+function setPrompt(html,say){$('#prompt').innerHTML=html;$('#sayBtn').onclick=()=>speak(say||html);if(autoRead())setTimeout(()=>speak(say||html),200)}
 function shake(b){b.classList.remove('shake');void b.offsetWidth;b.classList.add('shake')}
 
 function rSelect(r,st){
@@ -406,7 +417,7 @@ function rChoice(r,st){
   setPrompt(r.prompt,r.say||r.prompt);
   if(r.visual)st.appendChild(el('div','visual',r.visual));if(r.onShow)r.onShow(st);
   const box=el('div','choices'+(r.wide?' wide':'')),opts=r.fixed?r.opts:shuffle(r.opts);let tries=0;
-  opts.forEach(o=>{const b=el('button','choice',o.t+(o.label?`<small>${o.label}</small>`:''));o.btn=b;
+  opts.forEach(o=>{const b=el('button','choice'+(isPic(o.t)?' pic':''),o.t+(o.label?`<small>${o.label}</small>`:''));o.btn=b;b.dataset.say=o.say||strip(o.t)+(o.label?', '+o.label:'');
     b.onclick=()=>{
       if(R.cur.done||b.disabled)return;
       if(o.ok){R.cur.done=true;b.classList.add('right');st.classList.add('locked');if(r.onDone)r.onDone(st);R.cur.err?addMistake(r.key):clearMistake(r.key);
@@ -435,7 +446,7 @@ function finish(ok,lines,fact,fixed){
   const last=R.i===R.rounds.length-1,fb=$('#fb'),good=ok||fixed;
   fb.className='fb '+(good?'good':'bad');fb.hidden=false;
   fb.innerHTML=`${novaSVG(good?'':'oops')}<div class="body"><h3>${good?'✓ ':''}${msg}${ok?' <span style="color:var(--gold2)">+1 ⭐</span>':''}</h3>${lines.length?'<ul>'+lines.map(l=>'<li>'+l+'</li>').join('')+'</ul>':''}${fact?`<div class="sci">🔬 Science fact: ${esc(fact)}</div>`:''}</div><button class="big go" id="nextBtn">${last?'Finish 🏁':'Next ➜'}</button>`;
-  $('#hint').textContent='';$('#actions').innerHTML='';
+  $('#hint').textContent='';$('#actions').innerHTML='';if(autoRead())speak(strip(msg)+'. '+strip(lines[0]||''));
   $('#nextBtn').onclick=()=>{R.i++;R.i>=R.rounds.length?endMission():renderRound()};
   fb.scrollIntoView({behavior:S.calm?'auto':'smooth',block:'nearest'});
 }
@@ -450,28 +461,29 @@ function endMission(){
   if(m.id==='dw'){S.vocab.learned=[...new Set(S.vocab.learned.concat(t.words))];dailyNote=`<p class="fact">📖 Your word collection now has <b>${S.vocab.learned.length}</b> words.</p>`}
   else if(daily&&stars<2)dailyNote=`<p class="fact">We will practice ${m.name} again next time. That is how brains grow!</p>`;
   let gift='';
-  if(t.done.length===t.plan.length&&!t.rewarded){t.rewarded=true;S.fullDays=[...new Set((S.fullDays||[]).concat(dayStr()))];t.fact=MYSTERY();S.stars+=10;gift=`<div class="spec gift"><span class="e">🎁</span><div><div class="eyebrow">Today's plan complete! +10 ⭐</div><div class="disp" style="font-size:1.2rem">Mystery fact</div><div>${esc(t.fact)}</div></div></div>`}
+  if(t.done.length===t.plan.length&&!t.rewarded){t.rewarded=true;S.fullDays=[...new Set((S.fullDays||[]).concat(dayStr()))];t.fact=S.profile.support.surprise===false?'':MYSTERY();S.stars+=10;gift=`<div class="spec gift"><span class="e">🎁</span><div><div class="eyebrow">Today's plan complete! +10 ⭐</div>${t.fact?`<div class="disp" style="font-size:1.2rem">Mystery fact</div><div>${esc(t.fact)}</div>`:''}</div></div>`}
   let lvNote='';
   if(m.world==='m'&&id){const cur=S.adapt[id]||0,base=S.profile.math|0;
-    if(R.errs===0&&cur<1&&base+cur<4){S.adapt[id]=cur+1;lvNote=`<p class="fact">⬆️ Level up! Next time, ${m.name} gets a little harder.</p>`}
+    if(R.errs===0&&cur<1&&base+cur<5){S.adapt[id]=cur+1;lvNote=`<p class="fact">⬆️ Level up! Next time, ${m.name} gets a little harder.</p>`}
     else if(stars===1&&cur>-1&&base+cur>0){S.adapt[id]=cur-1;lvNote=`<p class="fact">Next time, ${m.name} uses smaller numbers so you can practice the steps.</p>`}}
   S.log.push({d:dayStr(),m:id||m.id,daily,good:R.good,total,stars,lv:R.lv});if(S.log.length>300)S.log.shift();
   save();refreshChips(true);
   const starSvg=(on,k)=>`<svg viewBox="0 0 100 100" class="${on?'on':''}" style="animation-delay:${k*.25}s"><path d="${starPath(50,54,46,20)}" fill="${on?'#ffc94d':'#1b4254'}" stroke="${on?'#e0a21c':'#3a7389'}" stroke-width="4" stroke-linejoin="round"/></svg>`;
   const np=nextPlanStep(),npm=np&&MISS[np];
   const planLine=t.plan.includes(id)?`<div class="miniplan">${t.plan.map(p=>`<span class="${t.done.includes(p)?'d':''}">${t.done.includes(p)?'✓':'○'} ${WORLDS[MISS[p].world].icon} ${MISS[p].name}</span>`).join('')}</div>`:'';
-  $('#v-result').innerHTML=`<div class="card result"><div class="eyebrow">${WORLDS[m.world].name} · ${m.name}</div><h2 style="font-size:2.2rem">${stars===3?'Perfect!':stars===2?'Great job, Stella!':'Mission complete!'}</h2>
+  $('#v-result').innerHTML=`<div class="card result"><div class="eyebrow">${WORLDS[m.world].name} · ${m.name}</div><h2 style="font-size:2.2rem">${stars===3?'Perfect!':stars===2?`Great job, ${esc(kidName())}!`:'Mission complete!'}</h2>
    <div class="bigstars">${[1,2,3].map(k=>starSvg(k<=stars,k)).join('')}</div>
    <p style="margin:0;font-size:1.2rem">You got <b>${R.good} of ${total}</b> right on the first try · <b style="color:var(--gold2)">+${R.good+bonus} ⭐</b></p>
    ${first&&m.spec?`<div class="spec"><span class="e">${m.spec[0]}</span><div><div class="eyebrow">New Field Guide card!</div><div class="disp" style="font-size:1.35rem">${m.spec[1]}</div><div>${m.spec[2]}</div></div></div>`:''}
-   ${gift}${lvNote}${dailyNote}${planLine}
+   ${gift}${gift?checkoutHTML():''}${lvNote}${dailyNote}${planLine}
    <div class="extra"><div class="eyebrow">Brain break (optional)</div><div style="font-size:1.15rem">${pick(BREAKS)}</div><div><button class="ghost" id="brkBtn">Start 20 seconds</button></div></div>
    ${m.bonus&&!S.bonus[id||m.id]?`<div class="extra bonus" id="bonusBox"><div class="eyebrow">Bonus mission · with a grown-up</div><div>${m.bonus}</div><div><button class="ghost" id="bonusBtn">We did it! +3 ⭐</button></div></div>`:''}
    <div class="btnrow" style="justify-content:center">${npm?`<button class="big" id="rsNext">Next: ${npm.icon} ${npm.name} ▶</button><button class="ghost" id="rsHome">Home</button>`:`<button class="big" id="rsHome">Home 🏠</button>`}<button class="ghost" id="rsAgain">Play again</button></div></div>`;
-  show('result');SFX.win();confetti(stars===3?140:80);
+  show('result');SFX.win();confetti(stars===3?140:80);if(gift)wireCheckout();
   $('#rsHome').onclick=()=>show('home');$('#rsAgain').onclick=()=>startMission(id);
   if(npm)$('#rsNext').onclick=()=>startMission(np);
   $('#brkBtn').onclick=e=>{const b=e.currentTarget;let n=20;b.disabled=true;b.textContent='20...';const iv=setInterval(()=>{n--;b.textContent=n>0?n+'...':'Done! 🎉';if(n<=0){clearInterval(iv);SFX.win()}},1000)};
+  if(S.profile.support.breaks)$('#brkBtn').click();
   const bb=$('#bonusBtn');if(bb)bb.onclick=()=>{S.bonus[id||m.id]=dayStr();S.stars+=3;save();refreshChips(true);SFX.win();$('#bonusBox').innerHTML='<div class="disp" style="font-size:1.2rem">Bonus done! +3 ⭐</div>'};
 }
 
@@ -490,10 +502,10 @@ const PLAN_EN={
  s:[['Reading feelings','Find clues in the face, body and situation, like a detective'],['Size of the problem','Small, medium or big, and a reaction that matches'],['Calm-down tools','Bubble breathing, plus noise, anger, worry and changed plans'],['Conversation turn-taking','Like ping-pong; check before sharing more about a favorite topic'],['Understanding other minds','False-belief (Sally-Anne style) questions, gifts for the other person\'s taste, kind replies'],['Idioms and literal meaning','"Raining cats and dogs" and more, including her "circle only the ly" worksheet'],['Playing together','Turns, joining in, "good game", Plan B, personal space'],['Asking for help','When and how to ask an adult, plus review']]
 };
 function backupCode(){try{return btoa(unescape(encodeURIComponent(JSON.stringify(S))))}catch(e){return''}}
-function mistakeLabel(k){const p=k.split(':'),MT={skip:'skip counting',pv:'place value',cmp:'comparing',add:'adding',sub:'subtracting',time:'clock',len:'measuring',eo:'odd and even',bond:'number bonds',ten:'making ten',cbar:'comparison bars',brk:'brackets and expressions',fact:'times tables',frac:'fractions',pat:'patterns',logic:'logic puzzles',tf:'is it balanced (=)',miss:'balance the scale',bal:'mystery bag equations',bar:'bar models',grp:'equal groups (× ÷)',story:'word problems'};
+function mistakeLabel(k){const p=k.split(':'),MT={skip:'skip counting',pv:'place value',cmp:'comparing',add:'adding',sub:'subtracting',time:'clock',len:'measuring',eo:'odd and even',bond:'number bonds',ten:'making ten',cbar:'comparison bars',brk:'brackets and expressions',fact:'times tables',frac:'fractions',pat:'patterns',logic:'logic puzzles',tf:'is it balanced (=)',shape:'shapes',money:'money',graph:'graphs',round:'rounding',area:'area and perimeter',mdig:'multi-digit × and ÷',times:'"times as many"',angle:'angles',dec:'decimals',fop:'fraction operations',vol:'volume',coord:'coordinates',expr:'expressions',miss:'balance the scale',bal:'mystery bag equations',bar:'bar models',grp:'equal groups (× ÷)',story:'word problems'};
   if(p[0]==='w')return p[1];if(p[0]==='s')return`Find the ${TAGNAME[p[2]]}: "${plain(SENTS[+p[1]])}"`;if(p[0]==='p')return`Punctuation: ${PUNCT[+p[1]][0]}`;
   if(p[0]==='f')return`Proofreading: ${plain(PROOF[+p[1]][0])}`;if(p[0]==='q')return`Adverb: ${plain(ADV_SENTS[+p[1]])}`;if(p[0]==='mt')return`Math: ${MT[p[1]]||p[1]}`;
-  if(p[0]==='so'&&SOCIAL[+p[1]])return`Social: ${SOCIAL[+p[1]].s}`;if(p[0]==='v')return`Word: ${p[1]}`;if(p[0]==='af'&&AFFIXES[+p[1]])return`Prefix/suffix: ${AFFIXES[+p[1]][0]}`;return k}
+  if(p[0]==='so'&&SOCIAL[+p[1]])return`Social: ${SOCIAL[+p[1]].s}`;if(p[0]==='v')return`Word: ${p[1]}`;if(p[0]==='lg'){const it=LANG_BY_ID[p[1]];const sk=it&&MISS['L-'+it.skill];return`Language: ${sk?sk.name:p[1]}`}if(p[0]==='af'&&AFFIXES[+p[1]])return`Prefix/suffix: ${AFFIXES[+p[1]][0]}`;return k}
 function profileHTML(){
   const P=S.profile,opt=(n,v)=>`<option value="${v}" ${String(P[n])===String(v)?'selected':''}>`;
   const gradeOpts=n=>GRADE_NAMES.map((g,i)=>`${opt(n,i)}${g}</option>`).join('');
@@ -608,13 +620,4 @@ function renderParent(){
     $('#rsYes').onclick=()=>{S=fresh();applyProfile();save();refreshChips();renderParent()};$('#rsNo').onclick=renderParent};
 }
 
-/* ================= START ================= */
-(function sky(){const s=$('#sky');for(let i=0;i<60;i++){const d=document.createElement('i');const z=Math.random()*2.2+.8;d.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;width:${z}px;height:${z}px;animation-delay:${(Math.random()*3).toFixed(2)}s`;s.appendChild(d)}})();
-document.querySelectorAll('[data-nav]').forEach(b=>b.onclick=()=>show(b.dataset.nav));
-$('#soundBtn').onclick=()=>{S.sound=!S.sound;save();refreshChips()};
-$('#calmBtn').onclick=()=>{S.calm=!S.calm;save();refreshChips()};
-$('#calmTop').onclick=openCalm;
-$('#quit').onclick=()=>show('home');
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#overlay').hidden)closeSheet()});
-if(window.speechSynthesis)try{speechSynthesis.getVoices()}catch(e){}
-applyProfile();save();show('home');
+/* Start-up lives in family.js, which loads after this file. */
