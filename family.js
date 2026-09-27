@@ -18,9 +18,11 @@ LANG_MISSIONS.forEach(m=>MISS[m.id]=m);
 WORD_MISSIONS.forEach(m=>{m.what=m.what||m.short+' (grammar)';m.why=m.why||m.learn});
 const langItems=key=>LITEMS.filter(i=>i.skill===key);
 function isPic(t){const s=strip(t).trim();return s.length>0&&s.length<=4&&/\p{Extended_Pictographic}/u.test(s)}
-function langR(it){const long=it.choices.some(c=>strip(c.t).length>14);
+// In reading and spelling skills the child must read the word choices, so voice mode does not read them out.
+const READ_SKILL=/cvc|sight|capital|silent|digraph|blend|vowel|compound|homophone|multisyllable|plural|past-tense|proof/;
+function langR(it){const long=it.choices.some(c=>strip(c.t).length>14),quiet=READ_SKILL.test(it.skill);
   return{type:'choice',key:'lg:'+it.id,prompt:it.prompt,say:it.say||it.prompt,visual:it.visual||'',wide:long,explain:it.explain,hint:it.hint,
-    opts:it.choices.map(c=>({t:c.t,say:c.say||strip(c.t),ok:!!c.ok,why:c.why}))}}
+    opts:it.choices.map(c=>({t:c.t,say:quiet&&!isPic(c.t)?'This one':(c.say||strip(c.t)),ok:!!c.ok,why:c.why}))}}
 function ruleR(m){return{type:'rule',m}}
 function langBuild(key,n){return[ruleR(MISS['L-'+key])].concat(take(langItems(key),n).map(langR))}
 // A teaching card before the questions (explicit instruction).
