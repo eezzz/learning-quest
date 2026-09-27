@@ -407,7 +407,7 @@ body.bigtext{font-size:21px}
 .ptab.on{background:var(--gold2);color:var(--dark);border-color:var(--gold)}
 .parent table.kidtbl td{vertical-align:middle}
 .kav{font-size:2rem;width:48px}
-.acts{display:flex;gap:6px;flex-wrap:wrap}
+.acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
 .ghost.sm{min-height:36px;padding:4px 12px;font-size:14px}
 .pint.col{flex-direction:column;align-items:flex-start}
 .chk{display:flex;gap:8px;align-items:flex-start;cursor:pointer}

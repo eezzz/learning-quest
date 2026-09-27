@@ -249,8 +249,8 @@ function renderParent(){
   let body='';
   if(parTab==='kids'||!S){
     const rows=ROOT.order.map(id=>{const c=ROOT.children[id];if(!c)return'';const P=c.profile;
-      return`<tr><td class="kav">${P.avatar}</td><td><b>${esc(P.name)}</b>${id===ROOT.active?' <span class="tag good">active</span>':''}<br><small>Age ${P.age} · ${GRADE_NAMES[P.grade]}</small></td><td>Math: ${GRADE_NAMES[P.math]}<br>Language: ${GRADE_NAMES[P.lang]}</td><td>${c.stars} ⭐<br><small>${(c.days||[]).length} days</small></td>
-        <td class="acts"><button class="ghost sm" data-edit="${id}">Edit</button>${id!==ROOT.active?`<button class="ghost sm" data-use="${id}">Switch to</button>`:''}<button class="ghost sm" data-del="${id}">Remove</button></td></tr>`}).join('');
+      return`<tr><td class="kav">${P.avatar}</td><td><b>${esc(P.name)}</b>${id===ROOT.active?' <span class="tag good">active</span>':''}<br><small>Age ${P.age} · ${GRADE_NAMES[P.grade]}</small></td><td>Math: ${GRADE_NAMES[P.math]}<br>Language: ${GRADE_NAMES[P.lang]}</td><td>${c.stars} ⭐<br><small>${(c.days||[]).length} day${(c.days||[]).length===1?'':'s'}</small></td>
+        <td><div class="acts"><button class="ghost sm" data-edit="${id}">Edit</button>${id!==ROOT.active?`<button class="ghost sm" data-use="${id}">Switch to</button>`:''}<button class="ghost sm" data-del="${id}">Remove</button></div></td></tr>`}).join('');
     body=parEdit?childForm(parEdit==='new'?null:ROOT.children[parEdit]):`<section><h2>Children</h2>${ROOT.order.length?`<div class="tbl"><table class="kidtbl">${rows}</table></div>`:`<p>${STR.noKids}</p>`}
       <div class="btnrow" style="margin-top:12px"><button class="big" id="kNew">➕ ${STR.addChild}</button></div><p class="fact" id="kMsg"></p></section>`;
   }
