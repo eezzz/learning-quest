@@ -324,7 +324,8 @@ function renderRound(){
   ({select:rSelect,sort:rSort,punct:rPunct,proof:rProof,pair:rPair,choice:rChoice,breathe:rBreathe,learn:rLearn,rule:rRule,order:rOrder,memory:rMemory,balance:rBalance,story:rStory})[r.type](r,st);
 }
 function setPrompt(html,say){$('#prompt').innerHTML=html;$('#sayBtn').onclick=()=>speak(say||html);if(autoRead())setTimeout(()=>speak(say||html),200)}
-function shake(b){b.classList.remove('shake');void b.offsetWidth;b.classList.add('shake')}
+// A wrong tap shakes and flashes red.
+function shake(b){b.classList.remove('shake','flashwrong');void b.offsetWidth;b.classList.add('shake','flashwrong');setTimeout(()=>b.classList.remove('flashwrong'),900)}
 
 function rSelect(r,st){
   const n=r.tokens.filter(t=>t.tag===r.target).length,sentence=r.layout==='sentence';
@@ -369,7 +370,7 @@ function rPunct(r,st){
   const bl=el('span','blank',' ');line.appendChild(bl);st.appendChild(line);
   const pms=el('div','pms');
   [['.','tells'],['?','asks'],['!','wow!']].forEach(([m,l])=>{const b=el('button','pm',`<b>${m}</b><small>${l}</small>`);b.setAttribute('aria-label',{'.':'period','?':'question mark','!':'exclamation mark'}[m]);
-    b.onclick=()=>{st.classList.add('locked');bl.textContent=m;const ok=m===ans;bl.style.borderColor=ok?'var(--mint)':'var(--coral)';ok?clearMistake('p:'+r.idx):addMistake('p:'+r.idx);
+    b.onclick=()=>{st.classList.add('locked');bl.textContent=m;const ok=m===ans;bl.classList.add(ok?'isright':'iswrong');ok?clearMistake('p:'+r.idx):addMistake('p:'+r.idx);
       finish(ok,ok?[]:[`The answer is <b>${ans}</b>. ${PWHY[ans]}`])};pms.appendChild(b)});
   st.appendChild(pms);
 }
@@ -389,7 +390,7 @@ function rProof(r,st){
       shuffle(opts).forEach(o=>{const ob=el('button','opt');ob.textContent=o;
         ob.onclick=()=>{if(o===fix){R.cur.done=true;b.textContent=fix;b.className='tok fixed';optBox.innerHTML='';st.classList.add('locked');
             R.cur.err?addMistake('f:'+r.idx):clearMistake('f:'+r.idx);finish(!R.cur.err,R.cur.err?['💡 '+hint]:[],null,R.cur.err)}
-          else{R.cur.err=true;ob.disabled=true;ob.style.opacity=.35;SFX.bad();$('#hint').textContent='💡 '+hint}};
+          else{R.cur.err=true;ob.disabled=true;ob.classList.add('wrong');SFX.bad();$('#hint').textContent='💡 '+hint}};
         optBox.appendChild(ob)})};
     line.appendChild(b)});
 }

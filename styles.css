@@ -449,3 +449,17 @@ body.bigtext{font-size:21px}
 .dgh{margin:12px 0 8px;font-size:1.15rem}
 .dgh small{color:var(--muted);font-weight:400}
 .tmr{margin:0}
+
+/* ---------- One color for right, one for wrong, everywhere ---------- */
+:root{--right:#34c46e;--rightink:#05301a;--rightbg:#1b6a42;--wrong:#ff5c5c;--wrongink:#3d0707;--wrongbg:#7a2230}
+.choice.right,.tok.ok,.tok.fixed,.opt.right{background:var(--right);color:var(--rightink);border-color:var(--right)}
+.choice.right small{color:var(--rightink)}
+.choice.wrong,.tok.no,.opt.wrong{background:var(--wrong);color:var(--wrongink);border-color:var(--wrong);opacity:1}
+.tok.miss{border-color:var(--right)}
+.bin.picked-ok{outline:5px solid var(--right);outline-offset:3px;opacity:1}
+.bin.picked-no{outline:5px solid var(--wrong);outline-offset:3px;opacity:1}
+.blank.isright{border-color:var(--right);border-style:solid;color:var(--right)}
+.blank.iswrong{border-color:var(--wrong);border-style:solid;color:var(--wrong)}
+.fb.good{background:var(--rightbg);border:3px solid var(--right)}
+.fb.bad{background:var(--wrongbg);border:3px solid var(--wrong)}
+.flashwrong{background:var(--wrong)!important;color:var(--wrongink)!important;border-color:var(--wrong)!important;transition:background .3s}
