@@ -183,7 +183,15 @@ function nextPlanStep(){const t=today();return t.plan.find(id=>!t.done.includes(
 let AC;
 function tone(fs,dur=.13,type='sine',gap=.09){if(!S.sound)return;try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();const t0=AC.currentTime+.01;fs.forEach((f,i)=>{const o=AC.createOscillator(),g=AC.createGain();o.type=type;o.frequency.value=f;const s=t0+i*gap;g.gain.setValueAtTime(.0001,s);g.gain.exponentialRampToValueAtTime(S.calm?.08:.18,s+.02);g.gain.exponentialRampToValueAtTime(.0001,s+dur);o.connect(g);g.connect(AC.destination);o.start(s);o.stop(s+dur+.05)})}catch(e){}}
 const SFX={good:()=>tone([660,990]),bad:()=>tone([330,262],.18,'sine',.12),win:()=>tone([523,659,784,1047],.22,'sine',.11),tap:()=>tone([540],.05)};
-function speak(t){if(!S.sound||!window.speechSynthesis)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(strip(t));u.lang='en-US';u.rate=.85;const v=speechSynthesis.getVoices().find(v=>/en[-_]US/i.test(v.lang));if(v)u.voice=v;speechSynthesis.speak(u)}catch(e){}}
+// Female English voice: iPad/Mac voices first (Samantha is the iOS default), then Chrome/Windows ones.
+const FEMALE=['Samantha','Ava','Allison','Susan','Zoe','Nicky','Karen','Moira','Tessa','Serena','Kate','Victoria','Fiona','Google US English','Microsoft Aria','Microsoft Jenny','Microsoft Zira'];
+const MALE=/Aaron|Alex|Arthur|Daniel|Fred|Gordon|Oliver|Rishi|Tom|Evan|Nathan|Reed|Rocko|Eddy|Grandpa|Ralph|Albert|Junior|Guy|David|Mark|Male/i;
+let VOICE=null;
+function pickVoice(){const vs=(window.speechSynthesis&&speechSynthesis.getVoices())||[],en=vs.filter(v=>/^en/i.test(v.lang));
+  for(const n of FEMALE){const v=en.find(v=>v.name.includes(n));if(v)return v}
+  return en.find(v=>/en[-_]US/i.test(v.lang)&&!MALE.test(v.name))||en.find(v=>!MALE.test(v.name))||null}
+if(window.speechSynthesis){try{VOICE=pickVoice();speechSynthesis.onvoiceschanged=()=>{VOICE=pickVoice()}}catch(e){}}
+function speak(t){if(!S.sound||!window.speechSynthesis)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(strip(t));VOICE=VOICE||pickVoice();if(VOICE){u.voice=VOICE;u.lang=VOICE.lang}else u.lang='en-US';u.rate=.85;u.pitch=1.1;speechSynthesis.speak(u)}catch(e){}}
 function confetti(n=80){
   if(S.calm||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
   const c=$('#confetti'),x=c.getContext('2d');c.width=innerWidth;c.height=innerHeight;
