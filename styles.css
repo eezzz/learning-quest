@@ -414,3 +414,21 @@ body.bigtext{font-size:21px}
 .chk input{width:20px;height:20px;margin-top:2px;flex:none}
 .mgroup{margin:10px 0}
 .mgroup h4{margin:0 0 6px}
+
+/* ---------- Phase 2: Brain Skills rounds, mastery bars, weekly report ---------- */
+.orderdone{margin:0;padding-left:1.6em;display:flex;flex-direction:column;gap:6px;font-size:1.2rem}
+.orderdone:empty{display:none}
+.orderdone li{background:var(--deep);border-radius:12px;padding:6px 12px}
+.memseq{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;min-height:80px}
+.memseq span{font-size:3rem;width:80px;height:80px;display:grid;place-items:center;background:var(--deep);border:2px solid var(--line);border-radius:18px}
+.memseq span.hid{color:var(--muted);font-size:2rem}
+.mastery{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+.mastery>div{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) 48px;gap:10px;align-items:center}
+.mastery span{font-size:14px}
+.mbar{height:12px;background:var(--deep);border-radius:99px;overflow:hidden}
+.mbar b{display:block;height:100%;border-radius:99px}
+.mastery small{text-align:right;font-variant-numeric:tabular-nums}
+.wk{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:10px 0}
+.wk>div{background:var(--deep);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column}
+.wk small{color:var(--muted)}
+.wk b{font-size:1.4rem}
