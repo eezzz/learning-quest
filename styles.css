@@ -373,3 +373,44 @@ body .breath,body.calm .breath{transition:transform 4s ease-in-out!important}
 .wlist span{grid-row:span 2;font-size:1.8rem}
 .wlist b{font-family:var(--display);font-size:1.15rem;color:var(--gold2)}
 .wlist small{color:var(--muted)}
+
+/* ---------- Phase 1: families, check-in, voice mode, parent dashboard ---------- */
+body.nochild .chips>*:not([data-nav="par"]){display:none}
+body.bigtext{font-size:21px}
+.kidchip{max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.who{text-align:center;display:flex;flex-direction:column;gap:18px;align-items:center;padding-block:24px}
+.who h1{font-size:2.2rem}
+.kids{display:flex;flex-wrap:wrap;gap:16px;justify-content:center}
+.kid{width:170px;background:var(--panel);border:3px solid var(--line);border-radius:24px;padding:18px 10px;display:flex;flex-direction:column;align-items:center;gap:4px}
+.kid:hover{border-color:var(--gold)}
+.kid .ka{font-size:3.4rem;line-height:1.1}
+.kid b{font-family:var(--display);font-size:1.3rem}
+.kid small{color:var(--muted)}
+.kid.add{border-style:dashed}
+.feel{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:8px 0}
+.feelb{width:108px;border-radius:20px;padding:10px 4px;background:var(--deep);border:3px solid var(--line);display:flex;flex-direction:column;align-items:center;gap:2px}
+.feelb span{font-size:2.6rem;line-height:1.1}
+.feelb small{font-family:var(--display);font-weight:700;color:var(--muted);font-size:.85rem}
+.feelb.f1{border-color:#5ee3b1}.feelb.f2{border-color:#a6e36b}.feelb.f3{border-color:#ffe39a}.feelb.f4{border-color:#ffa25c}.feelb.f5{border-color:#ff8f8f}
+.feelb.on{background:var(--panel2);box-shadow:0 0 0 4px rgba(255,227,154,.35)}
+.armed{outline:4px solid var(--gold2)!important;outline-offset:3px}
+.choice.pic{font-size:3.2rem;min-height:96px;line-height:1.1}
+.rulecard{background:var(--deep);border:2px solid var(--gold);border-radius:22px;padding:18px 20px;display:flex;flex-direction:column;gap:10px;align-items:center;text-align:center}
+.rulecard .ri{font-size:3rem;line-height:1}
+.rulecard p{margin:0;font-size:1.35rem;max-width:40ch}
+.rex{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.rex span{background:var(--panel);border-radius:14px;padding:6px 14px;font-size:1.25rem}
+.bigletter{font-size:5rem;font-weight:700;text-align:center;line-height:1.1}
+.passage{background:var(--deep);border-radius:16px;padding:12px 16px;font-size:1.3rem;line-height:1.7;max-width:60ch}
+.ptabs{display:flex;gap:8px;flex-wrap:wrap}
+.ptab{font-weight:700;border:2px solid var(--line);border-radius:999px;padding:8px 16px;background:var(--panel);min-height:44px}
+.ptab.on{background:var(--gold2);color:var(--dark);border-color:var(--gold)}
+.parent table.kidtbl td{vertical-align:middle}
+.kav{font-size:2rem;width:48px}
+.acts{display:flex;gap:6px;flex-wrap:wrap}
+.ghost.sm{min-height:36px;padding:4px 12px;font-size:14px}
+.pint.col{flex-direction:column;align-items:flex-start}
+.chk{display:flex;gap:8px;align-items:flex-start;cursor:pointer}
+.chk input{width:20px;height:20px;margin-top:2px;flex:none}
+.mgroup{margin:10px 0}
+.mgroup h4{margin:0 0 6px}
