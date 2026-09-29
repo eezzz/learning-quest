@@ -161,7 +161,7 @@ function wireCheckout(){
 /* ================= VOICE MODE: first tap reads, second tap chooses ================= */
 document.addEventListener('click',e=>{
   if(!voiceOn())return;
-  const b=e.target.closest('#stage .choice,#stage .bin,#stage .pm,#stage .opt,#v-home .step,#v-who .kid,.feelb');
+  const b=e.target.closest('#stage .choice,#stage .bin,#stage .pm,#stage .opt,#v-home .step,#v-who .kid,.feelb,.xopt');
   if(!b||b.disabled||b.classList.contains('armed'))return;
   e.stopPropagation();e.preventDefault();
   document.querySelectorAll('.armed').forEach(x=>x.classList.remove('armed'));b.classList.add('armed');
