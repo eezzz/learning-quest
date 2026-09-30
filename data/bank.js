@@ -4,8 +4,8 @@
    - Items saved by position (People Lab situations, Discovery cards, expert words, punctuation,
      proofreading and sentence lists) are only ever appended at the end. People Lab items from packs
      are added after the Kindergarten–Grade 2 set (see family.js), so no position moves.
-   New content comes in packs (packs/v2-*.js) that call pack(). tools/bank-check.js compares the bank
-   with bank-lock.json and fails if any saved key would move or disappear; run it before every release.
+   New content comes in packs (data/packs/v2-*.js) that call pack(). tools/bank-check.js compares the bank
+   with data/bank-lock.json and fails if any saved key would move or disappear; run it before every release.
    Loaded after the data files and before the packs. */
 
 const BANK={version:2,log:[
