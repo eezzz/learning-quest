@@ -244,11 +244,16 @@ function renderHome(){
     return`<button class="step ${done?'done':''} ${now?'now':''}" data-go="${id}" style="--acc:${W.color}">
       <span class="stepn">${done?'✓':i+1}</span><span class="stepw">${W.icon} ${W.name}</span>
       <span class="stepm">${m.icon} ${m.name}</span><span class="steps2">${m.short} · about 5 minutes</span>
-      <span class="stepst">${done?'Done!':now?'Now ▶':'Next'}</span></button>`}).join('<span class="arrow" aria-hidden="true">→</span>');
+      <span class="stepst">${done?'✓ Done':now?'<span class="gobtn">▶ Start</span>':'Later'}</span></button>`}).join('<span class="arrow" aria-hidden="true">→</span>');
+  // One big, unmistakable start button for the next part of today's plan.
+  const nm=nxt&&MISS[nxt],NW=nm&&WORLDS[nm.world];
+  const start=nm?`<button class="startbig" data-go="${nxt}" style="--acc:${NW.color}" data-say="Start ${esc(NW.name)}. ${esc(nm.name)}"><span class="sbplay" aria-hidden="true">▶</span><span class="sbtext"><small>Part ${t.plan.indexOf(nxt)+1} of ${t.plan.length} · about 5 minutes</small><b>Start ${NW.icon} ${NW.name}</b><span>${nm.icon} ${nm.name}</span></span></button>`
+    :`<div class="startdone">✓ All three parts are done today. Great work!</div>`;
   const tiles=Object.values(WORLDS).map(W=>{const d=doneCount(W.key),n=W.missions.length;
     return`<button class="wtile" data-world="${W.key}" style="--acc:${W.color}"><span class="wi">${W.icon}</span><span class="wn">${W.name}</span><span class="wd">${W.desc}</span><span class="bar"><i style="width:${d/n*100}%"></i></span><span class="wc">${d} of ${n} places explored</span></button>`}).join('');
   $('#v-home').innerHTML=`
    <div class="hello">${novaSVG()}<div><h1>${greeting()}, ${esc(kidName())}!</h1><p class="fact">Day ${t.n}. Every day: words, math and people. Three short parts, in this order.</p></div></div>
+   ${start}
    <div class="week" aria-label="This week">${week}</div>
    <section class="plan" aria-label="Today's plan"><div class="planrow">${steps}<span class="arrow" aria-hidden="true">→</span>
      <div class="step gift ${t.rewarded?'done':''}"><span class="stepn">🎁</span><span class="stepw">Surprise</span><span class="stepm">${t.rewarded?'Opened!':'+10 ⭐ and a mystery fact'}</span><span class="steps2">${t.rewarded?esc(t.fact||''):'Finish all 3 to open it'}</span></div></div>
