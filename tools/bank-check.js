@@ -1,19 +1,19 @@
 #!/usr/bin/env node
 /* Question bank guard. Run before every release:
-     node tools/bank-check.js            check the bank against bank-lock.json
-     node tools/bank-check.js --update   check, then record the current bank as the new lock
+     node tools/bank-check.js            check the bank against data/bank-lock.json
+     node tools/bank-check.js --update   check, then record the current bank as the new lock (data/bank-lock.json)
    Children's progress points at items by key: an id, a word, or a position in a list. This check fails
    when a locked key disappears or a position-keyed item moves, which would attach saved progress to the
    wrong question. Adding items is always fine. Editing the text of a position-keyed item is reported;
    add --accept-edits when it is only a wording fix of the same question. */
 const fs=require('fs'),path=require('path'),vm=require('vm'),crypto=require('crypto');
-const ROOT=path.join(__dirname,'..'),LOCK=path.join(ROOT,'bank-lock.json');
+const ROOT=path.join(__dirname,'..'),LOCK=path.join(ROOT,'data','bank-lock.json');
 const args=process.argv.slice(2),UPDATE=args.includes('--update'),ACCEPT=args.includes('--accept-edits');
 
 // Load the data scripts in the order index.html loads them, up to the first program file.
 const html=fs.readFileSync(path.join(ROOT,'index.html'),'utf8');
 const scripts=[...html.matchAll(/<script src="([^"?]+)/g)].map(m=>m[1]);
-const data=scripts.slice(0,scripts.indexOf('en.js'));
+const data=scripts.slice(0,scripts.findIndex(f=>path.basename(f)==='en.js'));
 const src=data.map(f=>fs.readFileSync(path.join(ROOT,f),'utf8')).join('\n;\n')+`
 ;SOCIAL.push(...SOCIAL_K2,...PACK_SOCIAL);// same order as family.js
 __out={BANK,SOCIAL,LANG:LANG_ITEMS.concat(LANG_ITEMS_45),EF:EF_ITEMS,VOCAB,AFFIXES,PUNCT,PROOF,SENTS,ADV_SENTS,WORDTAG,DISCOVERIES,EXPERT};`;
