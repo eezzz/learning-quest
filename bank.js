@@ -8,8 +8,9 @@
    with bank-lock.json and fails if any saved key would move or disappear; run it before every release.
    Loaded after the data files and before the packs. */
 
-const BANK={version:1,log:[
-  {v:1,d:'2026-09-27',notes:'First release: K–5 language, math, People Lab, Brain Skills, 48 vocabulary words, Discovery cards and expert words.'}
+const BANK={version:2,log:[
+  {v:1,d:'2026-09-27',notes:'First release: K–5 language, math, People Lab, Brain Skills, 48 vocabulary words, Discovery cards and expert words.'},
+  {v:2,d:'2026-09-29',notes:'More of everything: 8 more questions for every language skill (432), 112 more People Lab situations, 50 more Brain Skills items and 102 more vocabulary words for Grades 3–5.'}
 ]};
 // One migration per version, run once for each child whose progress is older. They must only rename
 // or move saved keys, never reset progress. Versions that only add items need none.

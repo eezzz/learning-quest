@@ -81,6 +81,8 @@ function rLearn(r,st){
   const go=el('button','big',"I'm ready ✓");$('#actions').appendChild(go);
   go.onclick=()=>{$('#actions').innerHTML='';st.classList.add('locked');finish(true,['You met '+r.words.length+' new words. Now let\'s use them!'])};
 }
+// Wrong choices: each word once, never the right answer or the word's own synonym/antonym.
+const uniqWords=(list,not)=>[...new Set(list.filter(x=>x&&!not.includes(x)))];
 function vocabQ(w,kind){
   const v=VW(w),others=VOCAB.filter(x=>x[0]!==w);
   if(kind==='syn'&&!v[3])kind='context';if(kind==='ant'&&!v[4])kind='meaning';
@@ -89,9 +91,9 @@ function vocabQ(w,kind){
     {wide:true,explain:`<b>${w}</b> means ${esc(v[1])}. ${esc(v[2]).replace('___',`<b>${w}</b>`)}`,hint:`Try each meaning in the sentence: "${esc(v[2]).replace('___',w)}"`});
   if(kind==='reverse')return mkChoice(key,`Which word means <b>${esc(v[1])}</b>?`,card,w,take(others,3).map(o=>[o[0],`"${o[0]}" means ${esc(o[1])}.`]),
     {explain:`<b>${w}</b> means ${esc(v[1])}.`});
-  if(kind==='syn')return mkChoice(key,`Which word means almost the <b>same</b> as <b>${w}</b>?`,card,v[3],take(others.filter(o=>o[3]&&o[3]!==v[3]),2).map(o=>o[3]).concat(v[4]?[[v[4],`"${v[4]}" is the opposite of ${w}.`]]:take(others.filter(o=>o[3]),1).map(o=>o[3])),
+  if(kind==='syn')return mkChoice(key,`Which word means almost the <b>same</b> as <b>${w}</b>?`,card,v[3],take(uniqWords(others.map(o=>o[3]),[v[3],v[4]]),v[4]?2:3).concat(v[4]?[[v[4],`"${v[4]}" is the opposite of ${w}.`]]:[]),
     {explain:`<b>${w}</b> and <b>${v[3]}</b> mean almost the same thing: ${esc(v[1])}.`,hint:`${w} means ${esc(v[1])}. Which word is closest?`});
-  if(kind==='ant')return mkChoice(key,`Which word means the <b>opposite</b> of <b>${w}</b>?`,card,v[4],(v[3]?[[v[3],`"${v[3]}" means almost the SAME as ${w}. We want the opposite.`]]:[]).concat(take(others.filter(o=>o[4]&&o[4]!==v[4]),3).map(o=>o[4])),
+  if(kind==='ant')return mkChoice(key,`Which word means the <b>opposite</b> of <b>${w}</b>?`,card,v[4],(v[3]?[[v[3],`"${v[3]}" means almost the SAME as ${w}. We want the opposite.`]]:[]).concat(take(uniqWords(others.map(o=>o[4]),[v[4],v[3]]),v[3]?2:3)),
     {explain:`<b>${w}</b> means ${esc(v[1])}. The opposite is <b>${v[4]}</b>.`,hint:`${w} means ${esc(v[1])}. Which word means the other way around?`});
   return mkChoice(key,'Which word fits in the sentence?',`<div class="wsent">${esc(v[2]).replace('___','<span class="blank">?</span>')}</div>`,w,take(others,3).map(o=>[o[0],`"${o[0]}" means ${esc(o[1])}. Does that fit here?`]),
     {explain:`${esc(v[2]).replace('___',`<b>${w}</b>`)} (${w} = ${esc(v[1])})`,hint:'Read the sentence with each word. Which one makes sense? Look for clues around the blank.'});
