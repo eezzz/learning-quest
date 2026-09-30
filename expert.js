@@ -4,7 +4,7 @@
    - Getting the check right (first or second try) earns an Expert stamp on that card.
    - Stamps in an interest earn real job titles: 3 stamps, 6 stamps and all 12.
    It is part of the reward, not extra practice: one word per finished day, and checks for cards
-   the child already owns can be retried from the Field Guide. Loaded after rewards.js; calls boot(). */
+   the child already owns can be retried from the Field Guide. Loaded after rewards.js; main.js loads next and calls boot(). */
 
 const XBAND={m:'Middle school word',h:'High school word',c:'College word'};
 const XBANDLONG={m:'Most kids learn this word in middle school.',h:'Most people learn this word in high school.',c:'Most people learn this word in college.'};
@@ -111,4 +111,3 @@ window.renderParent=function(){
   $('#v-par .parent').insertAdjacentHTML('beforeend',sec);
 };
 
-boot();

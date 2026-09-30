@@ -3,7 +3,9 @@
    Loaded last. Function declarations here replace older ones with the same name. */
 
 /* ================= CONTENT HOOK-UP ================= */
+// People Lab items are saved by position: the K–2 set and then pack items are always added at the end (see bank.js).
 if(typeof SOCIAL_K2!=='undefined')SOCIAL.push(...SOCIAL_K2);
+if(typeof PACK_SOCIAL!=='undefined')SOCIAL.push(...PACK_SOCIAL);
 if(GRADE_NAMES.length<6)GRADE_NAMES.push('Grade 5');
 // The first math generators handle levels 0–4 (K–4); Grade 5 uses their top level.
 ['bond','ten','pv','cmp','add','sub','skip','time','len','eo','tf','miss','bal','bar','cbar','brk','grp','fact','frac','pat','logic','story'].forEach(k=>{const f=GEN[k];if(f)GEN[k]=lv=>f(Math.min(lv??0,4))});
