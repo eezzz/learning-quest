@@ -53,7 +53,11 @@ js/
     main.js               brings each child up to the current bank version, then boot()
 
 tools/bank-check.js     release check for the question bank (run with Node)
+docs/                   DEVELOPMENT.md (architecture, saved state, testing), CONTENT.md (bank formats, packs)
+CHANGELOG.md            what changed, by date
 ```
+
+More detail: [Development guide](docs/DEVELOPMENT.md) · [Content guide](docs/CONTENT.md) · [Changelog](CHANGELOG.md)
 
 ## Adding questions
 
