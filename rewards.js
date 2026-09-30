@@ -4,7 +4,7 @@
    - Each finished day unlocks a new Discovery card from one of the child's interests (interests take
      turns). The 5th finished day in a week (Mon–Sun) makes it a gold card. Tomorrow's interest is
      previewed; with "surprise" off, the exact card is shown in advance.
-   Loaded last; calls boot(). */
+   expert.js loads after this file and calls boot(). */
 
 const DISC=typeof DISCOVERIES!=='undefined'?DISCOVERIES:{animals:Object.values(FACTS).slice(0,12).map((f,i)=>['⭐','Fact '+(i+1),f])};
 const extraOn=()=>!!(S&&S.profile.support.extra);
@@ -79,8 +79,7 @@ window.renderCards=function(){
   const ks=[...new Set(cardInterests().concat(Object.keys(byK)))];
   const sec=`<h2 class="gh" style="--acc:var(--gold)">🎴 My Discoveries (${got.length} card${got.length===1?'':'s'}, ${got.filter(c=>c.gold).length} gold)</h2><p class="fact">One new card for every finished day.</p>
     ${ks.map(k=>{const I=INTERESTS[k]||['⭐',k],mine=byK[k]||[],n=DISC[k].length;
-      return`<h3 class="dgh">${I[0]} ${I[1]} <small>${new Set(mine.map(c=>c.i)).size} of ${n}</small></h3><div class="cards">${mine.map(c=>{const ci=cardInfo(c);return`<div class="stk ${c.gold?'goldc':''}"><div class="e">${ci.e}</div><div class="nm">${esc(ci.title)}${c.gold?' ⭐':''}</div><p>${esc(ci.fact)}</p><small class="fact">${c.d}</small></div>`}).join('')}${mine.length<n?`<div class="stk lock"><div class="e">🎴</div><div class="nm">${n-new Set(mine.map(c=>c.i)).size} more to discover</div></div>`:''}</div>`}).join('')}`;
+      return`<h3 class="dgh" data-k="${k}">${I[0]} ${I[1]} <small>${new Set(mine.map(c=>c.i)).size} of ${n}</small></h3><div class="cards">${mine.map(c=>{const ci=cardInfo(c);return`<div class="stk ${c.gold?'goldc':''}"><div class="e">${ci.e}</div><div class="nm">${esc(ci.title)}${c.gold?' ⭐':''}</div><p>${esc(ci.fact)}</p><small class="fact">${c.d}</small></div>`}).join('')}${mine.length<n?`<div class="stk lock"><div class="e">🎴</div><div class="nm">${n-new Set(mine.map(c=>c.i)).size} more to discover</div></div>`:''}</div>`}).join('')}`;
   $('#v-stk').querySelector('p.fact').insertAdjacentHTML('afterend',sec);
 };
 
-boot();
