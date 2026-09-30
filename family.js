@@ -299,7 +299,7 @@ function renderParent(){
       <section class="csec"><h2>Language (K–5)</h2><p>Aligned to Common Core Foundational Skills, Language and Reading. Highlighted rows are on the current path (${GRADE_NAMES[P.lang]}).</p><div class="tbl"><table class="curr"><tr><th>Level</th><th>What it practices</th><th class="c">Grade</th></tr>${lrows||'<tr><td colspan="3">Language skills are loading.</td></tr>'}</table></div></section>
       <section class="csec"><h2>Social and emotional (CASEL) and Brain Skills</h2><p>Situations are chosen for the child's grade: a simpler K–2 set and a Grades 2–5 set. Brain Skills items are split into K–2 and Grades 3–5.</p><div class="tbl"><table class="curr"><tr><th>Topic</th><th>What it practices</th><th class="c">K–2 situations</th><th class="c">Grades 2–5</th></tr>${srows}</table></div></section>`;
   }
-  else{
+  else if(parTab==='data'){
     body=`<section><h2>Saving and backup</h2><p>Progress for every child saves automatically on this device. On an iPad, tap Share → Add to Home Screen and open the app from the icon. To move to another device, copy the backup code and keep it somewhere safe.</p>
       <textarea id="bkOut" readonly>${familyBackup()}</textarea><div class="btnrow" style="margin-top:8px"><button class="ghost" id="bkCopy">Copy backup code</button></div>
       <p style="margin-top:12px">To restore, paste a backup code and tap Restore. This replaces the children on this device.</p>

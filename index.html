@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Learning Quest</title>
 <meta name="theme-color" content="#0d1f2d">
+<script>/* Appearance is set before the page draws, so there is no flash. Parent → Children → Appearance. */
+function applyTheme(){var t='dark';try{t=localStorage.getItem('learning-quest-theme')||'dark'}catch(e){}
+ if(t==='auto')t=window.matchMedia&&matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';
+ document.documentElement.dataset.theme=t;var m=document.querySelector('meta[name=theme-color]');if(m)m.content=t==='light'?'#f5f9fc':'#0d1f2d'}
+applyTheme();</script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -15,7 +20,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Baloo+2:wght@500;700;800&display=swap">
-<link rel="stylesheet" href="styles.css?v=14">
+<link rel="stylesheet" href="styles.css?v=15">
 </head>
 <body>
 <div id="sky" aria-hidden="true"></div>
@@ -77,10 +82,11 @@
 <script src="packs/v2-words.js?v=2"></script>
 <script src="en.js?v=12"></script>
 <script src="app.js?v=13"></script>
-<script src="family.js?v=14"></script>
+<script src="family.js?v=15"></script>
 <script src="phase2.js?v=12"></script>
 <script src="rewards.js?v=13"></script>
 <script src="expert.js?v=2"></script>
-<script src="main.js?v=2"></script>
+<script src="report.js?v=1"></script>
+<script src="main.js?v=3"></script>
 </body>
 </html>
