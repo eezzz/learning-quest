@@ -1,0 +1,5 @@
+/* Fonts ship with the app, so it works offline and makes no third-party requests.
+   Andika and Baloo 2 are under the SIL Open Font License 1.1. */
+@font-face{font-family:'Andika';font-weight:400;font-style:normal;font-display:swap;src:url(../assets/fonts/andika-400.woff2) format('woff2')}
+@font-face{font-family:'Andika';font-weight:700;font-style:normal;font-display:swap;src:url(../assets/fonts/andika-700.woff2) format('woff2')}
+@font-face{font-family:'Baloo 2';font-weight:400 800;font-style:normal;font-display:swap;src:url(../assets/fonts/baloo2-variable.woff2) format('woff2')}

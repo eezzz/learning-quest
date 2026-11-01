@@ -21,6 +21,7 @@ index.html              the page; loads every script in a fixed order (see below
 manifest.webmanifest    "Add to Home Screen" settings
 assets/icons/           app icons
 css/styles.css          all styles (dark theme first, then the light theme)
+css/fonts.css           bundled fonts (assets/fonts)
 
 data/                   content only: question banks and their versions
   content/              the base banks
@@ -50,14 +51,17 @@ js/
     rewards.js            one-step-a-day lock, Discovery cards, gold cards
     expert.js             expert words, stamps and titles
     report.js             Feedback report, adaptive practice, light/dark appearance
+    native.js             in the iOS app, mirrors progress to native storage
     main.js               brings each child up to the current bank version, then boot()
 
 tools/bank-check.js     release check for the question bank (run with Node)
-docs/                   DEVELOPMENT.md (architecture, saved state, testing), CONTENT.md (bank formats, packs)
+docs/                   DEVELOPMENT.md (architecture, saved state, testing), CONTENT.md (bank formats, packs), IOS.md (the Apple app)
+ios/                    the iOS and iPadOS app (Capacitor shell around the web app)
+tools/build-web.js      copies the web app into www/ for the iOS app
 CHANGELOG.md            what changed, by date
 ```
 
-More detail: [Development guide](docs/DEVELOPMENT.md) · [Content guide](docs/CONTENT.md) · [Changelog](CHANGELOG.md)
+More detail: [Development guide](docs/DEVELOPMENT.md) · [Content guide](docs/CONTENT.md) · [iOS app](docs/IOS.md) · [Changelog](CHANGELOG.md)
 
 ## Adding questions
 
