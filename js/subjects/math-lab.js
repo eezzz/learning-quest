@@ -39,8 +39,14 @@ function drawScale(svg,L,R,xv,o={}){
   place(svg.querySelector('.pr'),260+190*c,160+190*s,R,'R');
   return diff;
 }
+// A question's drawing as data: {scale:[L,R,xv,options]} or {dealt:html}. Also runs in the native visual view.
+function applyVisual(root,v){if(!v)return;
+  if(v.scale){const svg=root.querySelector('.scale');if(svg)drawScale(svg,...v.scale)}
+  if(v.dealt){const d=root.querySelector('.dealt');if(d)d.innerHTML=v.dealt}}
 const sideStr=a=>a.map(v=>v==='x'?'<b class="xv">x</b>':v==='?'?'<span class="blank sm">?</span>':v).join(' + ');
 
+// Different stories can produce the same wrong sentence twice, or one equal to the right sentence.
+const storyWrongs=s=>[...new Set(s.wrong)].filter(w=>w!==s.eq);
 function genStoryRound(i){return{type:'story',key:'mt:story',idx:i==null?rnd(STORIES.length):i}}
 
 /* ---------------- story picture ---------------- */
@@ -137,7 +143,7 @@ function rStory(r,st){
   }
   function stepEq(){
     ask('Step 3 of 4: Which number sentence matches the picture?','Which number sentence matches the picture?',
-      shuffle([{t:s.eq+' = ?',ok:true}].concat(s.wrong.map(w=>({t:w+' = ?',why:`That does not match the picture. This story is "${STORY_TYPES[s.type][1]}".`})))),
+      shuffle([{t:s.eq+' = ?',ok:true}].concat(storyWrongs(s).map(w=>({t:w+' = ?',why:`That does not match the picture. This story is "${STORY_TYPES[s.type][1]}".`})))),
       ()=>{log.appendChild(el('div','eqline',`<span>${s.eq} = ?</span>`));stepAns()});
   }
   function stepAns(){

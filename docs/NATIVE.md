@@ -4,6 +4,8 @@
 
 - `apple/LearningCore`: a Swift package with no UI. It decodes packs, updates them, parses pack text, and builds the daily plan. Its tests run against the real `content/bundle.json`, so a pack that would break the app fails CI.
 - `apple/App`: the SwiftUI screens.
+- `js/subjects/*.js`: math rules, shared with the web. The app runs them in JavaScriptCore through `MathEngine`, and `js/subjects/engine.js` turns each question into plain data. Multi-step questions become scripts of screens, so one SwiftUI view plays all of them. The code ships in the app; packs only carry data.
+- Math drawings use the web app's SVG and CSS in a small web view (`MathVisual`), so a new drawing only has to be written once.
 - `apple/project.yml`: the XcodeGen project. Generate the `.xcodeproj` with `xcodegen generate`.
 
 ## What is ported
@@ -16,7 +18,7 @@
 | Right-green, wrong-red, two-try hint ladder | Yes |
 | Read-aloud button | Yes |
 | Discovery cards and expert word display | Yes |
-| Math | Not yet |
+| Math: every generator, K–5, word problems and the balance scale | Yes |
 | Vocabulary days and Word Lab grammar | Not yet |
 | Brain Skills | Not yet |
 | Several children, grown-up gate, voice mode | Not yet |

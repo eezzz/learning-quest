@@ -50,20 +50,29 @@ public final class ContentStore {
 
     /// The stored pack if it is intact, readable and newer than the shipped one; otherwise the shipped one.
     public func load() throws -> Content {
-        let shipped = try Content(data: Data(contentsOf: bundled))
-        guard let stored = storedPack(), stored.meta.version > shipped.meta.version else { return shipped }
+        try loadPack().content
+    }
+
+    /// The pack and its raw bytes, which the math engine reads.
+    public func loadPack() throws -> (content: Content, data: Data) {
+        let data = try Data(contentsOf: bundled)
+        let shipped = try Content(data: data)
+        guard let stored = storedPack(), stored.content.meta.version > shipped.meta.version else {
+            return (shipped, data)
+        }
         return stored
     }
 
-    private func storedPack() -> Content? {
+    private func storedPack() -> (content: Content, data: Data)? {
         guard
             let raw = try? Data(contentsOf: manifestURL),
             let manifest = try? JSONDecoder().decode(PackManifest.self, from: raw),
             manifest.schema <= supportedSchema,
             let data = try? Data(contentsOf: packURL),
-            ContentStore.sha256(data) == manifest.sha256
+            ContentStore.sha256(data) == manifest.sha256,
+            let content = try? Content(data: data)
         else { return nil }
-        return try? Content(data: data)
+        return (content, data)
     }
 
     /// Downloads a newer pack if there is one. Returns its version, or nil if there was nothing to do.

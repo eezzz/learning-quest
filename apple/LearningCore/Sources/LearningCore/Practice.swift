@@ -1,20 +1,80 @@
 import Foundation
 
-/// One question on screen, whatever bank it came from.
-/// `key` uses the same saved-key format as the web app (`lg:<id>`, `so:<position>`, `ef:<id>`).
-public struct Question: Identifiable {
-    public let key: String
+/// One step of a question. Most questions have one screen; word problems and the balance scale have several.
+public struct Screen {
     public let prompt: String
     public let say: String
     public let visual: String?
+    /// True when `visual` is a math drawing (HTML and SVG) rather than pack text.
+    public let isDrawing: Bool
+    public let show: String?
+    public let done: String?
     public let choices: [Choice]
+    /// A story whose numbers the child taps, instead of choices.
+    public let tapNumbers: String?
+    public let log: String?
+    public let note: String?
+
+    public init(
+        prompt: String, say: String, visual: String? = nil, isDrawing: Bool = false,
+        show: String? = nil, done: String? = nil, choices: [Choice] = [],
+        tapNumbers: String? = nil, log: String? = nil, note: String? = nil
+    ) {
+        self.prompt = prompt
+        self.say = say
+        self.visual = visual
+        self.isDrawing = isDrawing
+        self.show = show
+        self.done = done
+        self.choices = choices
+        self.tapNumbers = tapNumbers
+        self.log = log
+        self.note = note
+    }
+}
+
+/// One question, whatever bank it came from.
+/// `key` uses the same saved-key format as the web app (`lg:<id>`, `so:<position>`, `mt:<generator>`).
+public struct Question: Identifiable {
+    public let key: String
+    public let screens: [Screen]
+    public let hint: String?
     public let explain: String?
 
+    public init(key: String, screens: [Screen], hint: String? = nil, explain: String? = nil) {
+        self.key = key
+        self.screens = screens
+        self.hint = hint
+        self.explain = explain
+    }
+
     public var id: String { key }
+    public var choices: [Choice] { screens.first?.choices ?? [] }
+
+    public init(_ math: MathQuestion) {
+        let screens: [Screen]
+        if let steps = math.steps {
+            screens = steps.map { step in
+                Screen(
+                    prompt: step.prompt, say: step.say ?? RichText.plain(step.prompt), visual: step.visual,
+                    isDrawing: true, show: step.show, choices: step.opts ?? [],
+                    tapNumbers: step.tapNumbers, log: step.log, note: step.note
+                )
+            }
+        } else {
+            let prompt = math.prompt ?? ""
+            screens = [Screen(
+                prompt: prompt, say: math.say ?? RichText.plain(prompt),
+                visual: (math.visual ?? "").isEmpty ? nil : math.visual, isDrawing: true,
+                show: math.show, done: math.done, choices: math.opts ?? []
+            )]
+        }
+        self.init(key: math.key, screens: screens, hint: math.hint, explain: math.explain)
+    }
 }
 
 public enum Part: String, Codable, CaseIterable {
-    case words, people
+    case words, math, people
 }
 
 public struct Profile: Codable, Equatable {
@@ -45,6 +105,7 @@ public struct ChildProgress: Codable, Equatable {
     public var mistakes: [String: Int] = [:]
     public var seen: [String] = []
     public var cards: [EarnedCard] = []
+    public var doneTopics: [String] = []
 
     public init(profile: Profile) {
         self.profile = profile
@@ -76,7 +137,22 @@ public struct Planner {
         switch part {
         case .words: return wordQuestions(progress: progress, count: count)
         case .people: return peopleQuestions(progress: progress, count: count)
+        case .math: return []
         }
+    }
+
+    /// The math part comes from the engine, with the same review rule as the web: missed generators first.
+    public func mathDay(engine: MathEngine, progress: ChildProgress) throws -> MathDay {
+        let due = progress.mistakes.keys.filter { $0.hasPrefix("mt:") }.sorted().map { String($0.dropFirst(3)) }
+        return try engine.day(MathRequest(
+            math: progress.profile.grade,
+            interests: progress.profile.interests,
+            done: progress.doneTopics,
+            due: due,
+            mistakes: progress.mistakes,
+            count: Planner.questionCount(grade: progress.profile.grade),
+            day: progress.dayCount
+        ))
     }
 
     /// Missed items first, then items not seen yet, in pack order, so new packs simply flow in.
@@ -95,14 +171,11 @@ public struct Planner {
         let skill = skills[progress.dayCount % skills.count].key
         let pool = content.language.items.filter { $0.skill == skill }.map { (key: "lg:\($0.id)", item: $0) }
         return pick(pool, progress: progress, count: count).map { key, item in
-            Question(
-                key: key,
-                prompt: item.prompt,
-                say: item.say ?? RichText.plain(item.prompt),
-                visual: item.visual,
-                choices: item.choices,
-                explain: item.explain
+            let screen = Screen(
+                prompt: item.prompt, say: item.say ?? RichText.plain(item.prompt),
+                visual: item.visual, choices: item.choices
             )
+            return Question(key: key, screens: [screen], hint: item.hint, explain: item.explain)
         }
     }
 
@@ -118,37 +191,29 @@ public struct Planner {
     }
 
     static func question(key: String, situation s: Situation) -> Question {
+        let visual = "<div class=\"wx big\">\(s.e)</div>\(s.s)"
         if let size = s.sz {
             let other = "Ask yourself: Can I fix it myself? Do I need a grown-up? Is someone hurt or in danger?"
-            let names = ["Small problem", "Medium problem", "Big problem"]
+            let names = ["🐜 Small problem", "🐕 Medium problem", "🐘 Big problem"]
             let choices = names.enumerated().map { index, name in
                 Choice(t: name, ok: index == size ? true : nil, why: index == size ? s.why : other)
             }
-            return Question(
-                key: key,
-                prompt: "How big is this problem?",
-                say: "\(s.s) How big is this problem?",
-                visual: "<div class=\"wx big\">\(s.e)</div>\(s.s)",
-                choices: choices,
-                explain: nil
-            )
+            let prompt = "How big is this problem?"
+            return Question(key: key, screens: [
+                Screen(prompt: prompt, say: "\(s.s) \(prompt)", visual: visual, choices: choices),
+            ])
         }
-        // The first option in the pack is the best one.
+        // The first option in the pack is the best one. Options are shuffled on screen.
         let choices = (s.o ?? []).enumerated().map { index, option in
             Choice(t: option[0], ok: index == 0 ? true : nil, why: option.count > 1 ? option[1] : nil)
         }
         let prompt = s.q ?? ""
-        return Question(
-            key: key,
-            prompt: prompt,
-            say: "\(s.s) \(prompt)",
-            visual: "<div class=\"wx big\">\(s.e)</div>\(s.s)",
-            choices: choices,
-            explain: nil
-        )
+        return Question(key: key, screens: [
+            Screen(prompt: prompt, say: "\(s.s) \(prompt)", visual: visual, choices: choices.shuffled()),
+        ])
     }
 
-    /// Records one answered question: `firstTry` is right on the first attempt.
+    /// Records one answered question: `firstTry` means no mistake anywhere in it.
     public func record(_ question: Question, firstTry: Bool, progress: inout ChildProgress) {
         if !progress.seen.contains(question.key) { progress.seen.append(question.key) }
         if firstTry {
@@ -156,6 +221,14 @@ public struct Planner {
             progress.mistakes[question.key] = nil
         } else {
             progress.mistakes[question.key, default: 0] += 1
+        }
+    }
+
+    /// A math topic counts as learned with about 70% right the first time, as on the web.
+    public func finishTopic(_ id: String, right: Int, total: Int, progress: inout ChildProgress) {
+        if total > 0, Double(right) / Double(total) >= 0.7, !progress.doneTopics.contains(id) {
+            progress.doneTopics.append(id)
+            progress.stars += 5
         }
     }
 

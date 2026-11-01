@@ -6,15 +6,6 @@
 
 /* ================= HELPERS ================= */
 const $=s=>document.querySelector(s);
-const rnd=n=>Math.floor(Math.random()*n);
-const between=(a,b)=>a+rnd(b-a+1);
-const pick=a=>a[rnd(a.length)];
-const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]]}return a};
-const take=(arr,n,not=[])=>shuffle(arr.filter(x=>!not.includes(x))).slice(0,n);
-const times=(n,f)=>Array.from({length:n},(_,k)=>f(k));
-const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const strip=s=>String(s).replace(/<[^>]+>/g,'');
-const pad2=n=>String(n).padStart(2,'0');
 const tagSpan=t=>`<span class="${t}">${TAGNAME[t]}</span>`;
 const parseS=s=>s.split(' ').map(x=>{const [w,t]=x.split('/');return{w,tag:t||''}});
 const plain=s=>s.replace(/\/\w/g,'').replace(/\|/g,'').replace(/ _$/,'').replace(/ ([.?!,])/g,'$1');
@@ -62,12 +53,6 @@ function buildWordFinal(){return shuffle([cloud('n'),cloud('a'),sentR(sentIdx('v
 
 /* ================= NUMBER LAB: shared choice-round builder (generators live in curriculum.js) ================= */
 // Every generator returns a "choice" round with a concrete picture, a step-by-step "show me how", and a worked answer.
-function mkChoice(key,prompt,visual,right,wrongs,o={}){
-  const seen=new Set([String(right)]);
-  const opts=[{t:String(right),ok:true,why:o.why}];
-  wrongs.forEach(w=>{const[t,why]=Array.isArray(w)?w:[w,null];if(t==null||seen.has(String(t))||(typeof t==='number'&&t<0))return;seen.add(String(t));if(opts.length<4)opts.push({t:String(t),ok:false,why})});
-  return Object.assign({type:'choice',key,prompt,visual,opts},o);
-}
 /* ================= PEOPLE LAB builders ================= */
 const SIZE_OPTS=['🐜 Small problem','🐕 Medium problem','🐘 Big problem'];
 function scene(it){return`<div class="scene"><div class="se">${it.e}</div><p>${esc(it.s)}</p></div>`}
@@ -423,16 +408,16 @@ function rPair(r,st){
 // Number Lab and People Lab: pick an answer. First miss = hint and a second try. Second miss = show the answer and why.
 function rChoice(r,st){
   setPrompt(r.prompt,r.say||r.prompt);
-  if(r.visual)st.appendChild(el('div','visual',r.visual));if(r.onShow)r.onShow(st);
+  if(r.visual)st.appendChild(el('div','visual',r.visual));applyVisual(st,r.show);
   const box=el('div','choices'+(r.wide?' wide':'')),opts=r.fixed?r.opts:shuffle(r.opts);let tries=0;
   opts.forEach(o=>{const b=el('button','choice'+(isPic(o.t)?' pic':''),o.t+(o.label?`<small>${o.label}</small>`:''));o.btn=b;b.dataset.say=o.say||strip(o.t)+(o.label?', '+o.label:'');
     b.onclick=()=>{
       if(R.cur.done||b.disabled)return;
-      if(o.ok){R.cur.done=true;b.classList.add('right');st.classList.add('locked');if(r.onDone)r.onDone(st);R.cur.err?addMistake(r.key):clearMistake(r.key);
+      if(o.ok){R.cur.done=true;b.classList.add('right');st.classList.add('locked');applyVisual(st,r.done);R.cur.err?addMistake(r.key):clearMistake(r.key);
         finish(!R.cur.err,[o.why||r.explain].filter(Boolean),r.fact,R.cur.err);return}
       R.cur.err=true;tries++;b.classList.add('wrong');b.disabled=true;shake(b);SFX.bad();
       const left=opts.filter(x=>!x.btn.disabled);
-      if(tries>=2||left.length<=1){R.cur.done=true;st.classList.add('locked');if(r.onDone)r.onDone(st);opts.find(x=>x.ok).btn.classList.add('right');addMistake(r.key);
+      if(tries>=2||left.length<=1){R.cur.done=true;st.classList.add('locked');applyVisual(st,r.done);opts.find(x=>x.ok).btn.classList.add('right');addMistake(r.key);
         finish(false,[o.why,`The answer is <b>${strip(opts.find(x=>x.ok).t)}</b>. ${r.explain||opts.find(x=>x.ok).why||''}`].filter(Boolean),r.fact);return}
       $('#hint').innerHTML='🤔 '+(o.why||'Not this one.')+(r.hint&&!o.why?' Tap 💡 Show me how for help.':' Try again!');
     };box.appendChild(b)});

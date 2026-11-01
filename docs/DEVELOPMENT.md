@@ -75,7 +75,7 @@ The appearance choice is stored per device under `learning-quest-theme`. It is a
 
 There is no test runner. Before a release:
 
-1. Run `node tools/bank-check.js`. It must print OK.
+1. Run `node tools/bank-check.js` and `node tools/engine-test.js`. Both must print OK.
 2. Open the app and watch the console for errors.
 3. In the console, render every item and check that each has exactly one right answer. Use `langR`, `soR`, `efR` and `vocabQ`, then check `opts.filter(o => o.ok).length === 1`.
 4. Build the daily plan for each grade (K–5) and check the parts are the right size and fit the grade.

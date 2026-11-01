@@ -82,9 +82,53 @@ final class LearningCoreTests: XCTestCase {
         var progress = ChildProgress(profile: Profile(name: "T", grade: 3, interests: ["space", "bugs"]))
         planner.startDay(&progress, on: "d1")
         XCTAssertNil(planner.finish(.words, progress: &progress))
+        XCTAssertNil(planner.finish(.math, progress: &progress))
         XCTAssertNotNil(planner.finish(.people, progress: &progress))
         XCTAssertNil(planner.finish(.people, progress: &progress))
         XCTAssertEqual(progress.cards.count, 1)
+    }
+
+    // MARK: Math engine
+
+    private func engine() throws -> MathEngine {
+        let scripts = MathEngine.scriptNames.map { repo.appendingPathComponent("js/subjects/\($0).js") }
+        return try MathEngine(scripts: scripts, pack: Data(contentsOf: packURL))
+    }
+
+    func testMathDaysForEveryGrade() throws {
+        let content = try pack()
+        let planner = Planner(content: content)
+        let math = try engine()
+        for grade in 0...5 {
+            var progress = ChildProgress(profile: Profile(name: "T", grade: grade, interests: ["space", "cars"]))
+            for day in 1...30 {
+                progress.dayCount = day
+                let result = try planner.mathDay(engine: math, progress: progress)
+                XCTAssertFalse(result.questions.isEmpty, "grade \(grade)")
+                for question in result.questions.map(Question.init) {
+                    XCTAssertFalse(question.screens.isEmpty, question.key)
+                    for screen in question.screens where screen.tapNumbers == nil {
+                        XCTAssertEqual(screen.choices.filter(\.isRight).count, 1, question.key)
+                    }
+                }
+                progress.doneTopics.append(result.topic.id)
+            }
+        }
+    }
+
+    func testEngineThemesFollowInterests() throws {
+        let planner = Planner(content: try pack())
+        let progress = ChildProgress(profile: Profile(name: "T", grade: 3, interests: ["space"]))
+        XCTAssertNoThrow(try planner.mathDay(engine: engine(), progress: progress))
+    }
+
+    func testFinishingATopicNeedsSeventyPercent() throws {
+        let planner = Planner(content: try pack())
+        var progress = ChildProgress(profile: Profile(name: "T", grade: 3, interests: []))
+        planner.finishTopic("m1", right: 2, total: 6, progress: &progress)
+        XCTAssertTrue(progress.doneTopics.isEmpty)
+        planner.finishTopic("m1", right: 5, total: 6, progress: &progress)
+        XCTAssertEqual(progress.doneTopics, ["m1"])
     }
 
     // MARK: Pack updates
