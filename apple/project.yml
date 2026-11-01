@@ -1,0 +1,34 @@
+# XcodeGen project. The .xcodeproj is generated from this file, so it isn't committed:
+#   brew install xcodegen && cd apple && xcodegen generate
+name: LearningQuestNative
+options:
+  bundleIdPrefix: com.eezzz
+  deploymentTarget:
+    iOS: "16.0"
+packages:
+  LearningCore:
+    path: LearningCore
+targets:
+  LearningQuest:
+    type: application
+    platform: iOS
+    sources:
+      - App
+      - path: ../content/bundle.json
+        buildPhase: resources
+    dependencies:
+      - package: LearningCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.eezzz.learningquest
+        PRODUCT_NAME: Learning Quest
+        MARKETING_VERSION: "1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        TARGETED_DEVICE_FAMILY: "1,2"
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: Learning Quest
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: UIInterfaceOrientationPortrait
+        INFOPLIST_KEY_ITSAppUsesNonExemptEncryption: NO
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon

@@ -6,6 +6,7 @@
   "scripts": {
     "build:web": "node tools/build-web.js",
     "sync:ios": "node tools/build-web.js && npx cap sync ios",
+    "build:content": "node tools/build-content.js",
     "check:bank": "node tools/bank-check.js"
   },
   "dependencies": {

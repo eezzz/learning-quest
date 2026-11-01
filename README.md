@@ -23,18 +23,9 @@ assets/icons/           app icons
 css/styles.css          all styles (dark theme first, then the light theme)
 css/fonts.css           bundled fonts (assets/fonts)
 
-data/                   content only: question banks and their versions
-  content/              the base banks
-    words-data.js         word lists, sentences, punctuation and proofreading (Word Lab)
-    lang-data.js          language questions K–3
-    lang-data-45.js       language questions Grades 4–5
-    social-data.js        People Lab situations, Grades 2–5
-    social-k2.js          People Lab situations, K–2
-    ef-data.js            Brain Skills (executive function) items
-    discover-data.js      Discovery cards: 17 interests × 12
-    expert-data.js        one expert word per Discovery card
-  bank.js               question bank version, changelog, and pack()
-  packs/                content added in later versions (v2-*.js)
+content/                content only: one pack for every platform
+  src/                  the source: edit these JSON files
+  bundle.js, bundle.json, manifest.json   the built pack (tools/build-content.js)
   bank-lock.json        every saved key of the released bank (written by tools/bank-check.js)
 
 js/
@@ -54,20 +45,20 @@ js/
     native.js             in the iOS app, mirrors progress to native storage
     main.js               brings each child up to the current bank version, then boot()
 
+tools/build-content.js  builds the content pack from content/src
 tools/bank-check.js     release check for the question bank (run with Node)
 docs/                   DEVELOPMENT.md (architecture, saved state, testing), CONTENT.md (bank formats, packs), IOS.md (the Apple app)
-ios/                    the iOS and iPadOS app (Capacitor shell around the web app)
+ios/                    hybrid iOS app (Capacitor shell around the web app)
+apple/                  native iOS app (SwiftUI, reads the same content pack)
 tools/build-web.js      copies the web app into www/ for the iOS app
 CHANGELOG.md            what changed, by date
 ```
 
-More detail: [Development guide](docs/DEVELOPMENT.md) · [Content guide](docs/CONTENT.md) · [iOS app](docs/IOS.md) · [Changelog](CHANGELOG.md)
+More detail: [Development guide](docs/DEVELOPMENT.md) · [Content guide](docs/CONTENT.md) · [Native iOS](docs/NATIVE.md) · [Hybrid iOS](docs/IOS.md) · [Changelog](CHANGELOG.md)
 
 ## Adding questions
 
-1. Put new items in a new pack under `data/packs/` that calls `pack({...})`, and add it to `index.html` after the other packs. Never insert, reorder or remove existing People Lab items: they are saved by position.
-2. Raise `BANK.version` in `data/bank.js` and add a changelog line.
-3. Run `node tools/bank-check.js`. It must print OK. Then run `node tools/bank-check.js --update` to record the release.
+Edit `content/src/`, build the pack, run the check, and merge. Web and native apps all pick it up, with no app update. The steps are in the [content guide](docs/CONTENT.md).
 
 ## Releasing
 

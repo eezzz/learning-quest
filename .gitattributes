@@ -1,0 +1,3 @@
+content/bundle.json -text
+content/bundle.js -text
+content/manifest.json -text
