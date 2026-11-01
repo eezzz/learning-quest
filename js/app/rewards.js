@@ -53,7 +53,7 @@ window.renderHome=function(){
     if(t.rewarded&&t.cardGot){const ci=cardInfo(t.cardGot);gift.innerHTML=`<span class="stepn">${ci.e}</span><span class="stepw">${t.cardGot.gold?'Gold card!':'Today\'s card'}</span><span class="stepm">${esc(ci.title)}</span><span class="steps2">${esc(ci.fact)}</span>`;gift.classList.toggle('goldc',!!t.cardGot.gold)}
     else{const exact=S.profile.support.surprise===false?cardInfo(t.card):null;
       gift.innerHTML=`<span class="stepn">🎁</span><span class="stepw">Today's card</span><span class="stepm">${exact?`${exact.e} ${esc(exact.title)}`:`A new ${I[0]} ${I[1]} card`}</span><span class="steps2">Finish all 3 parts to open it</span>`}}
-  const wk=$('#v-home .week');if(wk)wk.insertAdjacentHTML('afterend',`<p class="fact goldgoal">⭐ ${fw} of 5 days this week · 5 days = a <b>gold card</b></p>`);
+  const wk=$('#v-home .week');if(wk)wk.insertAdjacentHTML('afterend',`<p class="fact goldgoal">⭐ ${fw>=5?`${fw} days this week · <b>gold card</b> earned`:`${fw} of 5 days this week · 5 days = a <b>gold card</b>`}</p>`);
   if(!nextPlanStep()){const plan=$('#v-home .plan .fact');const html=`All done for today! See you tomorrow. ${tomorrowText()}.`;if(plan)plan.innerHTML=html;else $('#v-home .plan').insertAdjacentHTML('beforeend',`<p class="fact" style="margin-top:10px">${html}</p>`)}
 };
 

@@ -22,9 +22,6 @@ npx cap open ios
 
 In Xcode: select the App target → Signing & Capabilities → choose your team, pick the iPad or iPhone, and press Run. A free Apple ID works, but the app stops opening after 7 days until it is installed again.
 
-## Release (needs the Apple Developer Program, $99 a year)
+## Release
 
-1. Create the app in App Store Connect with the bundle ID above.
-2. Set the version in Xcode, then Product → Archive → Distribute App. Use TestFlight first.
-3. App Store listing: a privacy policy URL, the privacy answers (no data collected), screenshots for iPhone and iPad, and the age rating.
-4. If the app goes in the Kids Category: keep the grown-up gate in front of the parent dashboard, and don't add ads, analytics or links out of the app.
+See [APP_STORE.md](APP_STORE.md). No Mac is needed.
