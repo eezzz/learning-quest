@@ -656,3 +656,6 @@ MATH_CURRICULUM.push(
 // Missions that keep going in Grade 5 (review and harder numbers).
 ['m2','m9','m10','m11','m13','m16','m17','m18','m19','m20','m21','m8'].forEach(id=>{const m=MATH_CURRICULUM.find(x=>x.id===id);if(m&&!m.grades.includes(5))m.grades.push(5)});
 if(GRADE_NAMES.length<6)GRADE_NAMES.push('Grade 5');
+// The first math generators handle levels 0–4 (K–4); Grade 5 uses their top level.
+['bond','ten','pv','cmp','add','sub','skip','time','len','eo','tf','miss','bal','bar','cbar','brk','grp','fact','frac','pat','logic','story'].forEach(k=>{const f=GEN[k];if(f)GEN[k]=lv=>f(Math.min(lv??0,4))});
+MATH_CURRICULUM.forEach(m=>{if(+m.id.slice(1)<=21){const b=m.build;m.build=lv=>b(Math.min(lv??0,4))}});

@@ -56,7 +56,7 @@ public enum RichText {
                 flush()
                 style = .plain
             default:
-                if tag.hasPrefix("span") {
+                if tag.hasPrefix("span"), tag.contains("blank") {
                     blank = true
                 } else if tag.hasPrefix("div"), let name = tag.split(separator: "\"").dropFirst().first {
                     flush()

@@ -36,6 +36,7 @@ final class AppModel: ObservableObject {
     private let store: ContentStore
     private let saveURL: URL
     private let speaker = AVSpeechSynthesizer()
+    private(set) var engine: MathEngine?
 
     var planner: Planner? { content.map(Planner.init(content:)) }
 
@@ -47,7 +48,10 @@ final class AppModel: ObservableObject {
             directory: support.appendingPathComponent("content")
         )
         do {
-            content = try store.load()
+            let pack = try store.loadPack()
+            content = pack.content
+            let scripts = MathEngine.scriptNames.compactMap { Bundle.main.url(forResource: $0, withExtension: "js") }
+            engine = try MathEngine(scripts: scripts, pack: pack.data)
         } catch {
             loadFailed = true
         }

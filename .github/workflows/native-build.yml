@@ -11,6 +11,7 @@ jobs:
       - name: The built pack matches content/src
         run: node tools/build-content.js && git diff --exit-code content/
       - run: node tools/bank-check.js
+      - run: node tools/engine-test.js
       - name: Test the core against the real content pack
         run: swift test
         working-directory: apple/LearningCore

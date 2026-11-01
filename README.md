@@ -30,10 +30,12 @@ content/                content only: one pack for every platform
 
 js/
   subjects/             subject logic
-    math-lab.js           word-problem stories and bar models
+    util.js               helpers shared by the math code and the app (no DOM)
+    math-lab.js           word problems, bar models and the balance scale
     curriculum.js         math generators, the math path, interests and themes
     math-more.js          more math generators (Grades 3–5)
     daily.js              daily vocabulary and word review
+    engine.js             math as plain data for the native app (JavaScriptCore)
   i18n/en.js            interface text (English)
   app/                  the app, in load order; later files wrap earlier functions
     app.js                core: screens, question types, missions, saving
@@ -47,6 +49,7 @@ js/
 
 tools/build-content.js  builds the content pack from content/src
 tools/bank-check.js     release check for the question bank (run with Node)
+tools/engine-test.js    runs the math engine across every grade with no browser
 docs/                   DEVELOPMENT.md (architecture, saved state, testing), CONTENT.md (bank formats, packs), IOS.md (the Apple app)
 ios/                    hybrid iOS app (Capacitor shell around the web app)
 apple/                  native iOS app (SwiftUI, reads the same content pack)

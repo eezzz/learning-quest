@@ -187,7 +187,7 @@ function genTF(lv){
     {fixed:true,explain:`Left side: ${L.join(' + ')}${L.length>1?' = '+lv2:''}. Right side: ${R.join(' + ')}${R.length>1?' = '+rv:''}. ${ok?'The same, so it balances.':'Not the same, so it tips.'} ${note}`,
      hint:'1. Work out the left side.<br>2. Work out the right side.<br>3. Are they the same number? Then it balances.'});
   r.opts=[{t:'✓ True: it balances',ok},{t:'✗ False: it tips',ok:!ok}];
-  r.onShow=st=>drawScale(st.querySelector('.scale'),L,R,0,{level:true});r.onDone=st=>drawScale(st.querySelector('.scale'),L,R,0);
+  r.show={scale:[L,R,0,{level:true}]};r.done={scale:[L,R,0]};
   return r;
 }
 function genMissing(lv){
@@ -196,7 +196,7 @@ function genMissing(lv){
   const r=mkChoice('mt:miss','What number makes the scale balance?',`<div class="tfbox">${sideStr(L)} <b>=</b> ${sideStr(R)}</div>${scaleSVG()}`,ans,
     [[a+b,`${a+b} is the total of ${a} + ${b}. But the other side already has ${c}, so the blank must be smaller.`],[a+b+c,'Adding every number makes that side too heavy.'],ans+1],
     {hint:`1. The full side weighs ${a} + ${b} = ${a+b}.<br>2. The other side already has ${c}.<br>3. What goes with ${c} to make ${a+b}? Count up from ${c}.`,explain:`${a} + ${b} = ${a+b}, and ${ans} + ${c} = ${a+b}. Both sides weigh ${a+b}.`});
-  r.onShow=st=>drawScale(st.querySelector('.scale'),L,R,0,{level:true});r.onDone=st=>drawScale(st.querySelector('.scale'),L,R,0,{fillv:ans,fill:ans});
+  r.show={scale:[L,R,0,{level:true}]};r.done={scale:[L,R,0,{fillv:ans,fill:ans}]};
   return r;
 }
 // RSM: unknowns on a balance scale (interactive).
@@ -265,7 +265,7 @@ function genGroups(lv){
   if(v===2){const k=between(2,lv===2?5:9),m=pick(eachSet),total=k*m,[,plural,single,things,e]=tBox();
     const r=mkChoice('mt:grp',`${total} ${things} are shared equally among ${k} ${plural}. How many ${things} does each ${single} get?`,`${total<=40?`<div class="emoline">${e.repeat(total)}</div>`:''}<div class="eq sm">${total} ÷ ${k} = <span class="blank">?</span></div><div class="dealt"></div>`,m,[total-k,total+k,k,m+1].filter(x=>x!==m),
       {hint:`Deal them out one at a time, like cards, into ${k} ${plural}. Or ask: ${k} × what = ${total}?`,explain:`${total} ÷ ${k} = ${m}. Check: ${k} × ${m} = ${total}.`});
-    r.onDone=st=>{const d=st.querySelector('.dealt');if(d&&total<=40)d.innerHTML=groupsHTML(k,m,e)};return r;}
+    if(total<=40)r.done={dealt:groupsHTML(k,m,e)};return r;}
   const each=pick(eachSet),n=between(3,5),add=times(n,()=>each).join(' + ');
   return mkChoice('mt:grp',`Which is the same as ${add}?`,`<div class="eq sm">${add}</div>`,`${n} × ${each}`,[[`${n} + ${each}`,`That adds just two numbers. We have ${n} groups of ${each}.`],[`${each} × ${each}`,`Count the groups: there are ${n}, not ${each}.`],[`${n+1} × ${each}`,`Count the ${each}s again: there are ${n}.`]].filter(w=>w[0]!==`${n} × ${each}`),
     {hint:`Count how many times ${each} is added. That is the number of groups.`,explain:`${each} is added ${n} times: ${n} × ${each} = ${n*each}.`});
@@ -288,7 +288,7 @@ function genFrac(lv){
   if(v===1){const n=pick([2,3,4,5]),m=between(2,lv>=4?6:4),total=n*m,k=lv>=4?between(1,n-1):1,ans=k*m,[e,name]=tItem();
     const r=mkChoice('mt:frac',`What is ${k}/${n} of ${total} ${name}?`,`<div class="emoline">${e.repeat(total)}</div><div class="dealt"></div>`,ans,[[total/k|0,'First split into equal groups.'],m+1,total-ans].filter(w=>(Array.isArray(w)?w[0]:w)!==ans),
       {hint:`1. Split ${total} into ${n} equal groups: ${total} ÷ ${n} = ${m} in each.<br>2. Take ${k} group${k>1?'s':''}: ${k} × ${m} = ?`,explain:`${total} ÷ ${n} = ${m}, and ${k} × ${m} = ${ans}.`});
-    r.onDone=st=>{const d=st.querySelector('.dealt');if(d)d.innerHTML=groupsHTML(n,m,e)};return r;}
+    r.done={dealt:groupsHTML(n,m,e)};return r;}
   const a=pick([2,3,4,5,6,8]);let b;do{b=pick([2,3,4,5,6,8])}while(b===a);const s=a<b?'>':'<';
   const r=mkChoice('mt:frac',`Which is bigger: 1/${a} or 1/${b}?`,`<div class="fcmp"><div><small>1/${a}</small>${fracBar(a,1)}</div><div><small>1/${b}</small>${fracBar(b,1,'#6cc6ff')}</div></div><div class="cmp"><b class="ex">1/${a}</b><span class="blank">?</span><b class="ex">1/${b}</b></div>`,s,[],
     {fixed:true,hint:'Look at the bars. More parts means each part is <b>smaller</b>.',explain:`1/${a} ${s} 1/${b}. Cutting into ${Math.max(a,b)} parts makes smaller pieces than cutting into ${Math.min(a,b)}.`});

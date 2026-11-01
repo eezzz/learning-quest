@@ -118,6 +118,7 @@ struct HomeView: View {
     private func title(_ part: Part) -> String {
         switch part {
         case .words: return "📚 Word Lab"
+        case .math: return "🔢 Number Lab"
         case .people: return "🤝 People Lab"
         }
     }
@@ -197,36 +198,56 @@ struct PracticeView: View {
     let part: Part
 
     @State private var questions: [Question] = []
+    @State private var topic: MathTopic?
     @State private var index = 0
+    @State private var screenIndex = 0
     @State private var wrongPicks: Set<String> = []
     @State private var rightPick = false
+    @State private var missed = false
+    @State private var tapped: Set<Int> = []
+    @State private var log: [String] = []
     @State private var note: String?
+    @State private var firstTryRight = 0
     @State private var earned: EarnedCard?
     @State private var finished = false
+    @State private var failed = false
 
     private var question: Question? { questions.indices.contains(index) ? questions[index] : nil }
+    private var screen: Screen? { question.flatMap { $0.screens.indices.contains(screenIndex) ? $0.screens[screenIndex] : nil } }
+    private var lastScreen: Bool { question.map { screenIndex + 1 == $0.screens.count } ?? true }
     private var over: Bool { rightPick || wrongPicks.count >= 2 }
 
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
-                if finished {
+                if failed {
+                    Text("This part could not be loaded.")
+                    Button("Home") { dismiss() }.buttonStyle(.borderedProminent)
+                } else if finished {
                     Text("Part done!").font(.largeTitle.bold())
                     if let earned { CardView(card: earned) }
                     Button("Home") { dismiss() }.buttonStyle(.borderedProminent)
-                } else if let question {
+                } else if let question, let screen {
                     ProgressView(value: Double(index), total: Double(questions.count))
+                    if index == 0, let topic { Text("\(topic.icon) \(topic.name)").font(.headline) }
                     HStack(alignment: .top) {
-                        RichTextView(source: question.prompt).font(.title2.bold())
+                        RichTextView(source: screen.prompt).font(.title2.bold())
                         Spacer()
-                        Button { model.speak(question.say) } label: {
+                        Button { model.speak(screen.say) } label: {
                             Image(systemName: "speaker.wave.2.fill")
                         }
                         .accessibilityLabel("Read aloud")
                     }
-                    if let visual = question.visual { RichTextView(source: visual) }
-                    ForEach(question.choices, id: \.self) { choice in
-                        Button { pick(choice, in: question) } label: {
+                    if let visual = screen.visual {
+                        if screen.isDrawing {
+                            MathVisual(html: visual, show: screen.show, done: screen.done, finished: over)
+                        } else {
+                            RichTextView(source: visual)
+                        }
+                    }
+                    if let story = screen.tapNumbers { numbersView(story) }
+                    ForEach(screen.choices, id: \.self) { choice in
+                        Button { pick(choice, on: screen, in: question) } label: {
                             RichTextView(source: choice.t)
                                 .frame(maxWidth: .infinity, minHeight: 56)
                                 .padding(.horizontal, 8)
@@ -236,9 +257,12 @@ struct PracticeView: View {
                         .buttonStyle(.plain)
                         .disabled(over || wrongPicks.contains(choice.t))
                     }
+                    ForEach(log, id: \.self) { line in
+                        Text(RichText.plain(line)).font(.footnote).foregroundStyle(Palette.muted)
+                    }
                     if let note { Text(RichText.plain(note)).foregroundStyle(Palette.muted) }
                     if over {
-                        Button(index + 1 == questions.count ? "Finish" : "Next", action: advance)
+                        Button(nextTitle, action: advance)
                             .buttonStyle(.borderedProminent)
                             .controlSize(.large)
                     }
@@ -252,9 +276,40 @@ struct PracticeView: View {
         .onAppear(perform: begin)
     }
 
+    private var nextTitle: String {
+        lastScreen && index + 1 == questions.count ? "Finish" : "Next"
+    }
+
+    /// The story with its numbers as buttons. Tapping them all moves on.
+    @ViewBuilder
+    private func numbersView(_ story: String) -> some View {
+        let numbers = story.split(whereSeparator: { !$0.isNumber }).map(String.init)
+        Text(story).font(.title3).frame(maxWidth: .infinity, alignment: .leading)
+        HStack {
+            ForEach(numbers.indices, id: \.self) { position in
+                Button(numbers[position]) {
+                    tapped.insert(position)
+                    if tapped.count == numbers.count { rightPick = true }
+                }
+                .buttonStyle(.bordered)
+                .tint(tapped.contains(position) ? Palette.right : Palette.gold)
+            }
+        }
+    }
+
     private func begin() {
         guard questions.isEmpty, let progress = model.progress, let planner = model.planner else { return }
-        questions = planner.questions(for: part, progress: progress)
+        if part == .math {
+            guard let engine = model.engine, let day = try? planner.mathDay(engine: engine, progress: progress) else {
+                failed = true
+                return
+            }
+            topic = day.topic
+            questions = day.questions.map(Question.init)
+        } else {
+            questions = planner.questions(for: part, progress: progress)
+        }
+        failed = questions.isEmpty
     }
 
     /// Right is always green and wrong is always red, as on the web.
@@ -264,34 +319,43 @@ struct PracticeView: View {
         return Palette.panel
     }
 
-    private func pick(_ choice: Choice, in question: Question) {
-        guard let planner = model.planner, var progress = model.progress else { return }
+    private func pick(_ choice: Choice, on screen: Screen, in question: Question) {
         if choice.isRight {
             rightPick = true
-            note = choice.why ?? question.explain
-            planner.record(question, firstTry: wrongPicks.isEmpty, progress: &progress)
-        } else {
-            wrongPicks.insert(choice.t)
-            note = choice.why
-            if wrongPicks.count >= 2 {
-                planner.record(question, firstTry: false, progress: &progress)
-            }
+            note = choice.why ?? (lastScreen ? question.explain : nil)
+            return
         }
-        model.progress = progress
-        model.save()
+        missed = true
+        wrongPicks.insert(choice.t)
+        note = choice.why ?? question.hint
     }
 
     private func advance() {
+        if let line = screen?.log { log.append(line) }
         wrongPicks = []
         rightPick = false
+        tapped = []
         note = nil
+        if !lastScreen {
+            screenIndex += 1
+            return
+        }
+        guard let planner = model.planner, var progress = model.progress, let question else { return }
+        planner.record(question, firstTry: !missed, progress: &progress)
+        if !missed { firstTryRight += 1 }
+        missed = false
+        screenIndex = 0
+        log = []
         if index + 1 < questions.count {
             index += 1
-        } else if let planner = model.planner, var progress = model.progress {
+        } else {
+            if let topic {
+                planner.finishTopic(topic.id, right: firstTryRight, total: questions.count, progress: &progress)
+            }
             earned = planner.finish(part, progress: &progress)
-            model.progress = progress
-            model.save()
             finished = true
         }
+        model.progress = progress
+        model.save()
     }
 }

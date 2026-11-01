@@ -4,9 +4,6 @@
 
 /* ================= CONTENT HOOK-UP ================= */
 if(GRADE_NAMES.length<6)GRADE_NAMES.push('Grade 5');
-// The first math generators handle levels 0–4 (K–4); Grade 5 uses their top level.
-['bond','ten','pv','cmp','add','sub','skip','time','len','eo','tf','miss','bal','bar','cbar','brk','grp','fact','frac','pat','logic','story'].forEach(k=>{const f=GEN[k];if(f)GEN[k]=lv=>f(Math.min(lv??0,4))});
-MATH_CURRICULUM.forEach(m=>{if(+m.id.slice(1)<=21){const b=m.build;m.build=lv=>b(Math.min(lv??0,4))}});
 
 // Language skills (K–3) from lang-data.js become Word Lab levels; the grammar levels serve Grades 2–3.
 const LSK=(typeof LANG_SKILLS!=='undefined'?LANG_SKILLS:[]).concat(typeof LANG_SKILLS_45!=='undefined'?LANG_SKILLS_45:[]),LITEMS=(typeof LANG_ITEMS!=='undefined'?LANG_ITEMS:[]).concat(typeof LANG_ITEMS_45!=='undefined'?LANG_ITEMS_45:[]);

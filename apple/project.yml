@@ -16,6 +16,18 @@ targets:
       - App
       - path: ../content/bundle.json
         buildPhase: resources
+      - path: ../css/styles.css
+        buildPhase: resources
+      - path: ../js/subjects/util.js
+        buildPhase: resources
+      - path: ../js/subjects/math-lab.js
+        buildPhase: resources
+      - path: ../js/subjects/curriculum.js
+        buildPhase: resources
+      - path: ../js/subjects/math-more.js
+        buildPhase: resources
+      - path: ../js/subjects/engine.js
+        buildPhase: resources
     dependencies:
       - package: LearningCore
     settings:
