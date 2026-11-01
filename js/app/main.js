@@ -41,7 +41,7 @@ window.renderParent=function(){
   const sec=`<section><h2>Question bank</h2><p>Version <b>${BANK.version}</b> · ${n.language} language questions · ${n.peopleLab} People Lab situations · ${n.brainSkills} Brain Skills items · ${n.vocabulary} vocabulary words · ${n.discoveryCards} Discovery cards.</p>
     <p class="fact">New versions only add questions. Stars, levels, cards, review items and mistakes are kept; nothing is reset.</p>
     ${kids.length?`<ul>${kids.map(c=>`<li>${esc(c.profile.name)}: version ${c.bankV||1}${c.bankNew?` (updated from version ${c.bankNew.from} on ${c.bankNew.d})`:''}</li>`).join('')}</ul>`:''}
-    <h3>What's new</h3><ul>${log.map(l=>`<li><b>Version ${l.v}</b> (${l.d}): ${esc(l.notes)}</li>`).join('')}</ul></section>`;
+    <h3>What's new</h3><ul>${log.map(l=>`<li><b>Version ${l.v}</b> (${l.d}): ${esc(l.notes)}</li>`).join('')}</ul></section><section><h2>Privacy</h2><p>Everything stays on this device. <a href="privacy.html">Read the privacy policy</a></p></section>`;
   $('#v-par .parent').insertAdjacentHTML('beforeend',sec);
 };
 

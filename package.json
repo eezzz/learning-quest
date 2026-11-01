@@ -1,0 +1,19 @@
+{
+  "name": "learning-quest",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A daily learning game for K-5 kids. Native iOS and iPadOS shell around the static web app.",
+  "scripts": {
+    "build:web": "node tools/build-web.js",
+    "sync:ios": "node tools/build-web.js && npx cap sync ios",
+    "check:bank": "node tools/bank-check.js"
+  },
+  "dependencies": {
+    "@capacitor/core": "^8.6.0",
+    "@capacitor/ios": "^8.6.0",
+    "@capacitor/preferences": "^8.0.1"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.6.0"
+  }
+}

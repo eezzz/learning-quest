@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-11-01
+- iOS and iPadOS app project (Capacitor), with progress mirrored to native storage and a simulator build on every pull request.
+- Fonts now ship with the app instead of loading from Google Fonts.
+
 ## 2026-09-30
 - Organized the repository into folders (`assets`, `css`, `data`, `js`, `tools`, `docs`), with a README, a development guide and a content guide.
 

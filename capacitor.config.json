@@ -1,0 +1,7 @@
+{
+  "appId": "com.eezzz.learningquest",
+  "appName": "Learning Quest",
+  "webDir": "www",
+  "backgroundColor": "#0d1f2d",
+  "ios": { "contentInset": "never", "backgroundColor": "#0d1f2d", "scrollEnabled": true }
+}
