@@ -65,7 +65,7 @@ final class LearningCoreTests: XCTestCase {
     func testEveryGradeGetsAFullDay() throws {
         let planner = Planner(content: try pack())
         for grade in 0...5 {
-            var progress = Progress(profile: Profile(name: "T", grade: grade, interests: ["space"]))
+            var progress = ChildProgress(profile: Profile(name: "T", grade: grade, interests: ["space"]))
             for day in 1...12 {
                 planner.startDay(&progress, on: "day-\(day)")
                 let words = planner.questions(for: .words, progress: progress)
@@ -79,7 +79,7 @@ final class LearningCoreTests: XCTestCase {
 
     func testFinishingTheDayEarnsOneCard() throws {
         let planner = Planner(content: try pack())
-        var progress = Progress(profile: Profile(name: "T", grade: 3, interests: ["space", "bugs"]))
+        var progress = ChildProgress(profile: Profile(name: "T", grade: 3, interests: ["space", "bugs"]))
         planner.startDay(&progress, on: "d1")
         XCTAssertNil(planner.finish(.words, progress: &progress))
         XCTAssertNotNil(planner.finish(.people, progress: &progress))

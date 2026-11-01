@@ -30,7 +30,7 @@ enum Palette {
 @MainActor
 final class AppModel: ObservableObject {
     @Published private(set) var content: Content?
-    @Published var progress: Progress?
+    @Published var progress: ChildProgress?
     @Published private(set) var loadFailed = false
 
     private let store: ContentStore
@@ -52,7 +52,7 @@ final class AppModel: ObservableObject {
             loadFailed = true
         }
         if let data = try? Data(contentsOf: saveURL) {
-            progress = try? JSONDecoder().decode(Progress.self, from: data)
+            progress = try? JSONDecoder().decode(ChildProgress.self, from: data)
         }
         startDay()
         // A new pack is stored now and used from the next launch.
@@ -61,7 +61,7 @@ final class AppModel: ObservableObject {
     }
 
     func create(_ profile: Profile) {
-        progress = Progress(profile: profile)
+        progress = ChildProgress(profile: profile)
         startDay()
     }
 

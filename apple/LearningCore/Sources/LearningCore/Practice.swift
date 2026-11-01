@@ -36,7 +36,7 @@ public struct EarnedCard: Codable, Equatable {
 }
 
 /// Everything saved for one child.
-public struct Progress: Codable, Equatable {
+public struct ChildProgress: Codable, Equatable {
     public var profile: Profile
     public var stars = 0
     public var dayCount = 0
@@ -64,14 +64,14 @@ public struct Planner {
         return counts[min(max(grade, 0), counts.count - 1)]
     }
 
-    public func startDay(_ progress: inout Progress, on day: String) {
+    public func startDay(_ progress: inout ChildProgress, on day: String) {
         guard progress.today != day else { return }
         progress.today = day
         progress.dayCount += 1
         progress.doneToday = []
     }
 
-    public func questions(for part: Part, progress: Progress) -> [Question] {
+    public func questions(for part: Part, progress: ChildProgress) -> [Question] {
         let count = Planner.questionCount(grade: progress.profile.grade)
         switch part {
         case .words: return wordQuestions(progress: progress, count: count)
@@ -80,7 +80,7 @@ public struct Planner {
     }
 
     /// Missed items first, then items not seen yet, in pack order, so new packs simply flow in.
-    private func pick<T>(_ pool: [(key: String, item: T)], progress: Progress, count: Int) -> [(key: String, item: T)] {
+    private func pick<T>(_ pool: [(key: String, item: T)], progress: ChildProgress, count: Int) -> [(key: String, item: T)] {
         let seen = Set(progress.seen)
         let missed = pool.filter { progress.mistakes[$0.key] != nil }
         let fresh = pool.filter { !seen.contains($0.key) && progress.mistakes[$0.key] == nil }
@@ -88,7 +88,7 @@ public struct Planner {
         return Array((missed.prefix(2) + fresh + again).prefix(count))
     }
 
-    private func wordQuestions(progress: Progress, count: Int) -> [Question] {
+    private func wordQuestions(progress: ChildProgress, count: Int) -> [Question] {
         let grade = progress.profile.grade
         let skills = content.language.skills.filter { $0.grade == grade }
         guard !skills.isEmpty else { return [] }
@@ -106,7 +106,7 @@ public struct Planner {
         }
     }
 
-    private func peopleQuestions(progress: Progress, count: Int) -> [Question] {
+    private func peopleQuestions(progress: ChildProgress, count: Int) -> [Question] {
         let grade = progress.profile.grade
         let mission = progress.dayCount % 8 + 1
         let pool = content.people.situations.enumerated()
@@ -149,7 +149,7 @@ public struct Planner {
     }
 
     /// Records one answered question: `firstTry` is right on the first attempt.
-    public func record(_ question: Question, firstTry: Bool, progress: inout Progress) {
+    public func record(_ question: Question, firstTry: Bool, progress: inout ChildProgress) {
         if !progress.seen.contains(question.key) { progress.seen.append(question.key) }
         if firstTry {
             progress.stars += 1
@@ -161,7 +161,7 @@ public struct Planner {
 
     /// Marks a part done. When the whole day is done, earns the next Discovery card.
     @discardableResult
-    public func finish(_ part: Part, progress: inout Progress) -> EarnedCard? {
+    public func finish(_ part: Part, progress: inout ChildProgress) -> EarnedCard? {
         guard !progress.doneToday.contains(part) else { return nil }
         progress.doneToday.append(part)
         guard Part.allCases.allSatisfy(progress.doneToday.contains) else { return nil }
@@ -171,7 +171,7 @@ public struct Planner {
         return card
     }
 
-    private func nextCard(progress: Progress) -> EarnedCard? {
+    private func nextCard(progress: ChildProgress) -> EarnedCard? {
         let chosen = progress.profile.interests.filter { content.discovery[$0] != nil }
         let interests = chosen.isEmpty ? content.discovery.keys.sorted() : chosen
         guard !interests.isEmpty else { return nil }
