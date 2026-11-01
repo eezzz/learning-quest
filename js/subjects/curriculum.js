@@ -9,9 +9,6 @@
 
 /* ================= PROFILE ================= */
 const GRADE_NAMES=['Kindergarten','Grade 1','Grade 2','Grade 3','Grade 4'];
-const INTERESTS={animals:['🐾','Animals'],pets:['🐶','Pets'],farm:['🐄','Farm animals'],ocean:['🌊','Ocean'],dinos:['🦕','Dinosaurs'],bugs:['🐞','Bugs & insects'],plants:['🌻','Plants & gardens'],
- space:['🚀','Space & astronomy'],weather:['⛅','Weather'],rocks:['💎','Rocks & crystals'],cars:['🚗','Cars & trucks'],trains:['🚂','Trains, planes & boats'],robots:['🤖','Robots & machines'],
- sports:['⚽','Sports'],music:['🎵','Music'],art:['🎨','Art & drawing'],food:['🍪','Cooking & food']};
 const kidName=()=>(S.profile&&S.profile.name)||'Stella';
 // Level for one mission: the profile's math level, nudged by how she did last time (±1 at most).
 function lvFor(m){return Math.max(0,Math.min(4,(S.profile.math|0)+((S.adapt||{})[m.id]||0)))}
@@ -20,59 +17,6 @@ function lvFor(m){return Math.max(0,Math.min(4,(S.profile.math|0)+((S.adapt||{})
    items: [emoji, plural, where they are, what "going away" looks like, what "more arriving" looks like]
    parts: [emoji, plural, part, how many each one has]  (real counts)
    boxes: [emoji, plural container, singular container, things inside, emoji of thing] */
-const THEMES={
- animals:{items:[['🐸','frogs','on the log','hopped away','hop over'],['🐦','birds','in the tree','flew away','fly in'],['🐧','penguins','on the ice','dove into the sea','waddle over'],['🐜','ants','on the anthill','marched away','march over'],['🦆','ducks','on the pond','flew away','land'],['🐿️','squirrels','in the park','ran up a tree','run over']],
-  parts:[['🕷️','spiders','legs',8],['🐦','birds','wings',2],['🐞','ladybugs','legs',6],['🦒','giraffes','legs',4],['🐕','dogs','legs',4]],
-  boxes:[['🪺','nests','nest','eggs','🥚'],['🌳','trees','tree','birds','🐦'],['🕳️','burrows','burrow','rabbits','🐇']]},
- pets:{items:[['🐶','puppies','at the park','went home','run over'],['🐱','kittens','in the basket','climbed out','climb in'],['🐠','goldfish','in the tank','moved to a new tank','are added'],['🐹','hamsters','at the pet store','went to new homes','arrive'],['🐰','bunnies','in the yard','hopped inside','hop over']],
-  parts:[['🐶','dogs','legs',4],['🐱','cats','legs',4],['🦜','parrots','wings',2],['🐹','hamsters','legs',4]],
-  boxes:[['🥣','bowls','bowl','treats','🦴'],['🏠','dog houses','dog house','puppies','🐶'],['🧺','baskets','basket','kittens','🐱']]},
- farm:{items:[['🐄','cows','in the barn','went out to the field','come in'],['🐔','chickens','in the coop','ran outside','come in'],['🐑','sheep','on the hill','walked away','join them'],['🐖','pigs','in the mud','trotted away','join them'],['🐴','horses','in the stable','went out to run','come in']],
-  parts:[['🐄','cows','legs',4],['🐔','chickens','legs',2],['🐑','sheep','legs',4],['🐴','horses','legs',4]],
-  boxes:[['🧺','baskets','basket','eggs','🥚'],['🏠','barns','barn','cows','🐄'],['🪣','buckets','bucket','apples','🍎']]},
- ocean:{items:[['🐚','shells','on the beach','washed away','wash up'],['🐟','fish','on the reef','swam away','swim in'],['🦀','crabs','on the rocks','scuttled away','scuttle over'],['🐬','dolphins','in the bay','swam away','swim in'],['🪼','jellyfish','in the water','drifted away','drift in']],
-  parts:[['🐙','octopuses','arms',8],['⭐','sea stars','arms',5],['🦀','crabs','legs',10]],
-  boxes:[['🪣','buckets','bucket','shells','🐚'],['🐠','tanks','tank','fish','🐟'],['🪸','tide pools','tide pool','sea stars','⭐']]},
- dinos:{items:[['🦕','dinosaurs','in the valley','stomped away','stomp in'],['🦴','fossil bones','at the dig site','went to the museum','are found'],['🥚','dinosaur eggs','in the nest','hatched','are found'],['🦖','footprints','in the mud','washed away','are found']],
-  parts:[['🦕','dinosaurs','legs',4],['🦖','T. rexes','arms',2]],
-  boxes:[['🪺','nests','nest','dinosaur eggs','🥚'],['📦','crates','crate','fossils','🦴']]},
- bugs:{items:[['🐞','ladybugs','on the leaf','flew away','land'],['🐝','bees','on the flowers','buzzed away','buzz in'],['🐛','caterpillars','on the plant','crawled away','crawl over'],['🐜','ants','on the anthill','marched away','march over'],['🦋','butterflies','in the garden','flew away','flutter in']],
-  parts:[['🐝','bees','wings',4],['🐞','ladybugs','legs',6],['🦋','butterflies','wings',4],['🐜','ants','legs',6]],
-  boxes:[['🌸','flowers','flower','bees','🐝'],['🍃','leaves','leaf','ladybugs','🐞'],['🫙','bug jars','bug jar','caterpillars','🐛']]},
- plants:{items:[['🌷','tulips','in the garden','were picked','bloom'],['🌻','sunflowers','in the field','were cut','bloom'],['🌱','seeds','in the pot','were eaten by birds','are planted'],['🍂','leaves','on the branch','blew away','grow'],['🍎','apples','on the tree','were picked','grow']],
-  parts:[['🌸','flowers','petals',5],['🍀','four-leaf clovers','leaves',4],['☘️','shamrocks','leaves',3]],
-  boxes:[['🪴','pots','pot','seeds','🌱'],['💐','vases','vase','flowers','🌷'],['🧺','baskets','basket','apples','🍎']]},
- space:{items:[['🚀','rockets','on the launch pad','blasted off','roll out'],['☄️','comets','in the sky','zoomed away','appear'],['🌟','stars','in the sky','hid behind clouds','come out'],['👩‍🚀','astronauts','on the space station','flew home','arrive'],['🪨','moon rocks','in the lab','went to museums','arrive'],['🛰️','satellites','in orbit','were switched off','are launched']],
-  parts:[['🚀','rockets','engines',3],['👩‍🚀','astronauts','boots',2],['⭐','star stickers','points',5]],
-  boxes:[['🚀','rockets','rocket','astronauts','👩‍🚀'],['📦','boxes','box','moon rocks','🪨'],['🪐','planets','planet','moons','🌙']]},
- weather:{items:[['☁️','clouds','in the sky','floated away','float in'],['❄️','snowflakes','on the window','melted','land'],['💧','raindrops','on the window','dried up','land']],
-  parts:[['❄️','snowflakes','points',6],['⛄','snowmen','buttons',3]],
-  boxes:[['☁️','clouds','cloud','raindrops','💧'],['🪣','buckets','bucket','snowballs','⚪']]},
- rocks:{items:[['💎','crystals','in the cave','were packed in boxes','are found'],['🪨','rocks','in the collection','were given away','are added'],['🐚','fossils','on the shelf','went to school','are added']],
-  parts:[['💎','quartz crystals','sides',6],['🎲','cubes','faces',6]],
-  boxes:[['📦','boxes','box','crystals','💎'],['🧺','baskets','basket','rocks','🪨']]},
- cars:{items:[['🚗','cars','in the parking lot','drove away','drive in'],['🚚','trucks','at the gas station','drove off','pull in'],['🚌','buses','at the bus stop','left','pull in'],['🏎️','race cars','on the track','finished the race','join the race'],['🚲','bikes','at the bike rack','rode away','are parked']],
-  parts:[['🚗','cars','wheels',4],['🚲','bikes','wheels',2],['🛺','three-wheelers','wheels',3]],
-  boxes:[['🚚','trucks','truck','boxes','📦'],['🚌','buses','bus','kids','🧒'],['🚗','cars','car','passengers','🧑']]},
- trains:{items:[['🚃','train cars','at the station','rolled away','are added'],['✈️','planes','at the airport','took off','land'],['🚁','helicopters','on the helipad','flew away','land'],['⛵','sailboats','in the harbor','sailed away','sail in']],
-  parts:[['✈️','airplanes','wings',2],['🚲','bikes','wheels',2],['🚗','cars','wheels',4]],
-  boxes:[['🚃','train cars','train car','passengers','🧑'],['✈️','planes','plane','suitcases','🧳'],['⛵','boats','boat','sailors','🧑']]},
- robots:{items:[['🤖','robots','in the lab','rolled away','roll in'],['🔋','batteries','in the drawer','were used up','are added'],['⚙️','gears','on the table','went into a machine','are added'],['🛸','drones','in the sky','landed','take off']],
-  parts:[['🤖','robots','arms',2],['🚗','robot cars','wheels',4],['🛸','drones','propellers',4]],
-  boxes:[['📦','kits','kit','gears','⚙️'],['🤖','robots','robot','batteries','🔋'],['🧰','toolboxes','toolbox','screws','🔩']]},
- sports:{items:[['⚽','soccer balls','in the bag','were kicked away','are added'],['🏀','basketballs','in the gym','bounced away','are added'],['🎾','tennis balls','in the basket','rolled away','are added'],['🏃','runners','at the start line','ran ahead','join them']],
-  parts:[['🏀','basketball teams','players on the court',5],['⚽','soccer teams','players on the field',11],['🏐','volleyball teams','players on the court',6]],
-  boxes:[['🧺','baskets','basket','balls','⚽'],['🏟️','teams','team','players','🏃'],['🎒','sports bags','sports bag','water bottles','🧴']]},
- music:{items:[['🥁','drums','on the stage','were carried out','are added'],['🎵','notes','on the page','were erased','are added'],['🎸','guitars','in the music room','went home with students','are added'],['🎤','singers','in the choir','went home','join them']],
-  parts:[['🎸','guitars','strings',6],['🎻','violins','strings',4],['🎺','trumpets','valves',3]],
-  boxes:[['🎵','bands','band','musicians','🎤'],['🎒','music bags','music bag','songbooks','📘'],['🥁','drum sets','drum set','drums','🥁']]},
- art:{items:[['🖍️','crayons','in the box','were used up','are added'],['🎨','paint cups','on the table','were washed','are added'],['🖌️','brushes','in the jar','were put away','are added'],['✏️','pencils','in the cup','were borrowed','are added']],
-  parts:[['✋','hands','fingers',5],['⭐','star drawings','points',5],['🔺','triangles','sides',3]],
-  boxes:[['📦','boxes','box','crayons','🖍️'],['🫙','jars','jar','brushes','🖌️'],['🗂️','folders','folder','drawings','🖼️']]},
- food:{items:[['🍎','apples','in the basket','were eaten','are added'],['🍪','cookies','on the tray','were eaten','are baked'],['🍓','strawberries','in the bowl','were eaten','are added'],['🥕','carrots','in the garden','were picked','grow']],
-  parts:[['🍕','pizzas','slices',8],['🥚','egg cartons','eggs',12],['🧁','cupcake boxes','cupcakes',6]],
-  boxes:[['🧺','baskets','basket','apples','🍎'],['🍽️','plates','plate','cookies','🍪'],['🥣','bowls','bowl','strawberries','🍓']]}
-};
 function themeKeys(){const t=((S.profile&&S.profile.interests)||[]).filter(k=>THEMES[k]);return t.length?t:Object.keys(THEMES)}
 const tItem=()=>pick(THEMES[pick(themeKeys())].items);
 const tParts=()=>pick(THEMES[pick(themeKeys())].parts);

@@ -1,13 +1,14 @@
 #!/usr/bin/env node
 /* Question bank guard. Run before every release:
-     node tools/bank-check.js            check the bank against data/bank-lock.json
-     node tools/bank-check.js --update   check, then record the current bank as the new lock (data/bank-lock.json)
+     node tools/bank-check.js            check the bank against content/bank-lock.json
+     node tools/bank-check.js --update   check, then record the current bank as the new lock (content/bank-lock.json)
    Children's progress points at items by key: an id, a word, or a position in a list. This check fails
    when a locked key disappears or a position-keyed item moves, which would attach saved progress to the
    wrong question. Adding items is always fine. Editing the text of a position-keyed item is reported;
-   add --accept-edits when it is only a wording fix of the same question. */
+   add --accept-edits when it is only a wording fix of the same question.
+   Run tools/build-content.js first: this reads the built pack. */
 const fs=require('fs'),path=require('path'),vm=require('vm'),crypto=require('crypto');
-const ROOT=path.join(__dirname,'..'),LOCK=path.join(ROOT,'data','bank-lock.json');
+const ROOT=path.join(__dirname,'..'),LOCK=path.join(ROOT,'content','bank-lock.json');
 const args=process.argv.slice(2),UPDATE=args.includes('--update'),ACCEPT=args.includes('--accept-edits');
 
 // Load the data scripts in the order index.html loads them, up to the first program file.
@@ -15,8 +16,7 @@ const html=fs.readFileSync(path.join(ROOT,'index.html'),'utf8');
 const scripts=[...html.matchAll(/<script src="([^"?]+)/g)].map(m=>m[1]);
 const data=scripts.slice(0,scripts.findIndex(f=>path.basename(f)==='en.js'));
 const src=data.map(f=>fs.readFileSync(path.join(ROOT,f),'utf8')).join('\n;\n')+`
-;SOCIAL.push(...SOCIAL_K2,...PACK_SOCIAL);// same order as family.js
-__out={BANK,SOCIAL,LANG:LANG_ITEMS.concat(LANG_ITEMS_45),EF:EF_ITEMS,VOCAB,AFFIXES,PUNCT,PROOF,SENTS,ADV_SENTS,WORDTAG,DISCOVERIES,EXPERT};`;
+;__out={BANK,SOCIAL,LANG:LANG_ITEMS,EF:EF_ITEMS,VOCAB,AFFIXES,PUNCT,PROOF,SENTS,ADV_SENTS,WORDTAG,DISCOVERIES,EXPERT};`;
 const ctx={console,Math,Date,JSON};vm.createContext(ctx);vm.runInContext(src,ctx,{filename:'bank'});
 const B=ctx.__out;
 const fp=x=>crypto.createHash('sha1').update(typeof x==='string'?x:JSON.stringify(x)).digest('hex').slice(0,10);

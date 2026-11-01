@@ -4,6 +4,9 @@
      never reset anything) and the child sees a short, calm note that new questions were added.
    - New children start on the current version. */
 
+// One migration per bank version, run once for each child whose progress is older. They must only rename
+// saved keys, never reset progress. Versions that only add items need none.
+const BANK_MIGRATIONS={};
 function bankSync(c){
   if(!c)return false;const from=c.bankV||1;if(from>=BANK.version)return false;
   for(let v=from+1;v<=BANK.version;v++){const f=BANK_MIGRATIONS[v];if(f)f(c)}

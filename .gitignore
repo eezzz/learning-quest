@@ -9,3 +9,5 @@ ios/DerivedData/
 *.xcuserstate
 xcuserdata/
 .DS_Store
+apple/*.xcodeproj/
+apple/LearningCore/.build/

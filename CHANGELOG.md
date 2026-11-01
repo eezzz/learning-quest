@@ -1,6 +1,8 @@
 # Changelog
 
 ## 2026-11-01
+- Content moved out of code into one JSON pack (`content/`) that every platform reads. Native apps update packs without an app release.
+- Native iOS app started in `apple/` (SwiftUI): Word Lab and People Lab.
 - iOS and iPadOS app project (Capacitor), with progress mirrored to native storage and a simulator build on every pull request.
 - Fonts now ship with the app instead of loading from Google Fonts.
 

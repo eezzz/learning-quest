@@ -1,6 +1,12 @@
 # Development guide
 
-Learning Quest is a static web app: plain HTML, CSS and classic `<script>` files, with no build step, framework or server. GitHub Pages serves the `main` branch.
+Learning Quest has one content pack and several front ends:
+
+- **Web:** a static app of plain HTML, CSS and classic `<script>` files, with no framework or server. GitHub Pages serves the `main` branch.
+- **Native iOS:** SwiftUI in `apple/`, with its logic in the `LearningCore` Swift package. See [NATIVE.md](NATIVE.md).
+- **Hybrid iOS:** the web app in a Capacitor shell in `ios/`. See [IOS.md](IOS.md).
+
+Content is data in `content/`. Features are code in each front end.
 
 ## Running it
 
@@ -14,11 +20,10 @@ Open `http://localhost:8791/`. Any static server works. Use an iPad-sized window
 
 `index.html` loads every script in a fixed order. There are no modules; each file adds globals.
 
-1. **Content** (`data/content/*.js`): constants only, such as `LANG_ITEMS`, `SOCIAL`, `EF_ITEMS`, `DISCOVERIES` and `EXPERT`.
+1. **Content** (`content/bundle.js`): generated from `content/src`, it defines constants such as `LANG_ITEMS`, `SOCIAL`, `EF_ITEMS`, `DISCOVERIES` and `EXPERT`. See [CONTENT.md](CONTENT.md).
 2. **Subject logic** (`js/subjects/*.js`): math generators (`GEN`), the math curriculum, interests and themes, and daily vocabulary.
-3. **Bank** (`data/bank.js`, then `data/packs/*.js`): the bank version and `pack()`, which appends newer content to the base banks.
-4. **Text** (`js/i18n/en.js`): the `STR` interface strings.
-5. **App** (`js/app/*.js`), each layer building on the one before:
+3. **Text** (`js/i18n/en.js`): the `STR` interface strings.
+4. **App** (`js/app/*.js`), each layer building on the one before:
 
 | File | Adds |
 | --- | --- |

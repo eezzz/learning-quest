@@ -6,35 +6,6 @@
 /* ---------------- word problems ----------------
    type: join | take | groups | share | compare
    eq: the matching number sentence. wrong: other sentences. pic: what to draw after step 2. */
-const STORIES=[
- {t:'8 grandchildren came to the party. Each child brought 2 gifts. How many gifts did Grandpa get?',type:'groups',eq:'8 × 2',ans:16,unit:'gifts',wrong:['8 + 2','8 − 2','8 ÷ 2'],pic:{n:8,each:2,e:'🎁'}},
- {t:'Grandpa had 80 treats in total. He put the same number in each of 8 goody bags. How many treats are in each bag?',type:'share',eq:'80 ÷ 8',ans:10,unit:'treats',wrong:['80 × 8','80 − 8','80 + 8'],pic:{total:80,n:8}},
- {t:'Michael picked 30 orange flowers and 22 yellow flowers. He shared them equally between his 2 sisters. How many flowers does each sister get?',type:'share',eq:'(30 + 22) ÷ 2',ans:26,unit:'flowers',wrong:['30 + 22','30 + 22 + 2','30 − 22'],pic:{total:52,n:2}},
- {t:'A spider has 8 legs. How many legs do 3 spiders have?',type:'groups',eq:'3 × 8',ans:24,unit:'legs',wrong:['3 + 8','8 − 3','8 ÷ 2'],pic:{n:3,each:8,e:'🦵'}},
- {t:'A beetle has 6 legs. 4 beetles sit on a log. How many legs are there?',type:'groups',eq:'4 × 6',ans:24,unit:'legs',wrong:['4 + 6','6 − 4','6 + 6'],pic:{n:4,each:6,e:'🦵'}},
- {t:'Stella found 45 shells. She gave 12 shells to her friend. How many shells does Stella have now?',type:'take',eq:'45 − 12',ans:33,unit:'shells',wrong:['45 + 12','12 − 45','45 × 12'],pic:{a:45,b:12}},
- {t:'There were 26 ducks on the pond. Then 17 more ducks landed. How many ducks are on the pond now?',type:'join',eq:'26 + 17',ans:43,unit:'ducks',wrong:['26 − 17','26 × 17','17 − 6'],pic:{a:26,b:17}},
- {t:'20 seeds are planted in 4 pots. Each pot gets the same number of seeds. How many seeds go in each pot?',type:'share',eq:'20 ÷ 4',ans:5,unit:'seeds',wrong:['20 × 4','20 − 4','20 + 4'],pic:{total:20,n:4,e:'🌱'}},
- {t:'A giraffe is 5 meters tall. A zebra is 2 meters tall. How much taller is the giraffe?',type:'compare',eq:'5 − 2',ans:3,unit:'meters',wrong:['5 + 2','5 × 2','2 − 5'],pic:{a:5,b:2,na:'giraffe',nb:'zebra'}},
- {t:'5 octopuses swim by. Each octopus has 8 arms. How many arms is that in total?',type:'groups',eq:'5 × 8',ans:40,unit:'arms',wrong:['5 + 8','8 − 5','8 ÷ 5'],pic:{n:5,each:8,e:'🐙'}},
- {t:'The class has 24 magnifying glasses. They are shared equally by 6 tables. How many does each table get?',type:'share',eq:'24 ÷ 6',ans:4,unit:'magnifying glasses',wrong:['24 × 6','24 − 6','24 + 6'],pic:{total:24,n:6,e:'🔍'}},
- {t:'A sea star has 5 arms. How many arms do 6 sea stars have?',type:'groups',eq:'6 × 5',ans:30,unit:'arms',wrong:['6 + 5','6 − 5','5 − 6'],pic:{n:6,each:5,e:'⭐'}},
- {t:'Stella read 18 pages about volcanoes on Monday and 25 pages on Tuesday. How many pages did she read in total?',type:'join',eq:'18 + 25',ans:43,unit:'pages',wrong:['25 − 18','18 × 25','25 ÷ 18'],pic:{a:18,b:25}},
- {t:'The bird feeder had 50 seeds. The birds ate 35 seeds. How many seeds are left?',type:'take',eq:'50 − 35',ans:15,unit:'seeds',wrong:['50 + 35','35 − 50','50 × 35'],pic:{a:50,b:35}},
- {t:'A bird has 2 wings. 9 birds sit on a wire. How many wings are there?',type:'groups',eq:'9 × 2',ans:18,unit:'wings',wrong:['9 + 2','9 − 2','9 ÷ 2'],pic:{n:9,each:2,e:'🪶'}},
- {t:'A hen laid 12 eggs. She put the same number of eggs in 3 nests. How many eggs are in each nest?',type:'share',eq:'12 ÷ 3',ans:4,unit:'eggs',wrong:['12 × 3','12 − 3','12 + 3'],pic:{total:12,n:3,e:'🥚'}},
- {t:'Mia has 34 rocks. Stella has 51 rocks. How many more rocks does Stella have than Mia?',type:'compare',eq:'51 − 34',ans:17,unit:'rocks',wrong:['51 + 34','34 − 51','51 × 34'],pic:{a:51,b:34,na:'Stella',nb:'Mia'}},
- {t:'A scientist had 60 test tubes. She broke 7 of them. How many test tubes does she have now?',type:'take',eq:'60 − 7',ans:53,unit:'test tubes',wrong:['60 + 7','60 × 7','7 − 60'],pic:{a:60,b:7}},
- {t:'There are 3 fish tanks. Each tank has 7 fish. How many fish are there altogether?',type:'groups',eq:'3 × 7',ans:21,unit:'fish',wrong:['3 + 7','7 − 3','7 ÷ 3'],pic:{n:3,each:7,e:'🐟'}},
- {t:'The zoo has 35 penguins and 28 seals. How many animals is that altogether?',type:'join',eq:'35 + 28',ans:63,unit:'animals',wrong:['35 − 28','35 × 28','28 − 5'],pic:{a:35,b:28}}
-];
-const STORY_TYPES={ // [icon, name, what it looks like, question to ask yourself]
- join:['➕','Put together','Two groups join into one bigger group.','Are two groups put together into one?'],
- take:['➖','Take away','Some things go away, get used up or are given away.','Does something go away or get used up?'],
- groups:['✖️','Equal groups','Several groups, and every group has the same number.','Are there groups that each have the same number?'],
- share:['➗','Share equally','A total is split into groups that are all the same size.','Is a total being split into equal parts?'],
- compare:['↔️','Compare','Two amounts side by side. How many more? How much taller?','Are we finding how many more one has than the other?']
-};
 const stName=k=>STORY_TYPES[k][0]+' '+STORY_TYPES[k][1];
 
 /* ---------------- small drawing helpers ---------------- */

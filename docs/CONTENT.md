@@ -2,56 +2,73 @@
 
 All questions live in data files, separate from the code. This guide covers the formats, how to add content without breaking anyone's saved progress, and the quality bar.
 
+## One pack for every platform
+
+All content lives in `content/src/*.json`. Those files are the only place to edit questions. `tools/build-content.js` turns them into one pack:
+
+| File | Read by |
+| --- | --- |
+| `content/bundle.js` | the web app |
+| `content/bundle.json` | the native apps |
+| `content/manifest.json` | apps checking for a new pack: `version`, `schema`, `bytes`, `sha256` |
+
+Code never holds question content. The exceptions are math generators and `AFFIXES`, which contain logic and stay in `js/subjects/`.
+
+**Web** gets a new pack as soon as `main` deploys (browsers may cache it for about 10 minutes).
+
+**Native apps** check the manifest in the background at launch, download a newer pack, verify its size and checksum, and use it from the next launch, so questions never change in the middle of a day's practice. If anything is wrong with a stored pack, the app uses the pack it shipped with.
+
+`schema` is the pack format. Raise it only when a change would break older apps; they then ignore the pack and keep the one they have until they are updated. Adding items never needs a schema change. Apple doesn't allow downloading code, so a pack must only ever hold data.
+
 ## Banks and their keys
 
-A child's progress (mistakes, review boxes, stamps, cards) is saved against item **keys**. How a bank is keyed decides how it may change.
+A child's progress is saved against item **keys**. How a bank is keyed decides how it may change.
 
-| Bank | File | Keyed by | Adding items |
+| Bank | File in `content/src` | Keyed by | Adding items |
 | --- | --- | --- | --- |
-| Language K–5 | `content/lang-data.js`, `content/lang-data-45.js` | `id` | Anywhere, with a new unique id |
-| Brain Skills | `content/ef-data.js` | `id` | Anywhere, with a new unique id |
-| Vocabulary | `js/subjects/daily.js` (`VOCAB`) | the word | Anywhere, with a new word |
-| People Lab | `content/social-data.js`, then `content/social-k2.js`, then packs | **position** | **Only at the end** |
-| Word Lab lists (sentences, punctuation, proofreading, affixes) | `content/words-data.js`, `daily.js` | **position** | **Only at the end** |
-| Discovery cards and expert words | `content/discover-data.js`, `content/expert-data.js` | interest + **position** | **Only at the end**, one expert word per card |
-| Math | generators in `js/subjects/` | generator name | New generators or levels |
+| Language K–5 | `language.json` | `id` | Anywhere, with a new unique id |
+| Brain Skills | `brain.json` | `id` | Anywhere, with a new unique id |
+| Vocabulary | `vocabulary.json` | the word | Anywhere, with a new word |
+| People Lab | `people.json` | **position** | **Only at the end** |
+| Word Lab lists | `words.json` | **position** | **Only at the end** |
+| Discovery cards and expert words | `discovery.json`, `expert.json` | interest + **position** | **Only at the end**, one expert word per card |
 
 Never insert, reorder or remove a position-keyed item: every child's saved progress would point at the wrong question. Fixing the wording of an item in place is fine.
 
+## Text markup
+
+Pack text may only use this markup, so every platform can draw it. `tools/build-content.js` rejects anything else.
+
+| Markup | Meaning |
+| --- | --- |
+| `<b>...</b>` | Bold |
+| `<br>` | Line break |
+| `<div class="bigletter">` | One big letter |
+| `<div class="wx big">` | Big emoji |
+| `<div class="wsent">` | A sentence panel |
+| `<div class="passage">` | A reading passage |
+| `<span class="blank">` | The blank in a sentence |
+
 ## Item formats
 
-- **Language** (`LANG_ITEMS`): `{id, skill, grade, prompt, say?, visual?, choices:[{t, ok:true} | {t, why}], explain, hint}`. Exactly one choice has `ok:true`, and every wrong choice has a kind `why`.
-- **People Lab** (`SOCIAL`): `{m, g?, e, s, q, o:[[best, why], [other, why], …]}`.
+- **Language:** `{id, skill, grade, prompt, say?, visual?, choices:[{t, ok:true} | {t, why}], explain, hint}`. Exactly one choice has `ok:true`, and every wrong choice has a kind `why`.
+- **People Lab:** `{m, g?, e, s, q, o:[[best, why], [other, why], …]}`.
   - The **first** option is the best one; options are shuffled on screen.
   - Problem-size items use `sz` (0 small, 1 medium, 2 big) and `why` instead of `q` and `o`.
   - `g` is `[minGrade, maxGrade]`; the default is `[2,5]`.
-- **Brain Skills** (`EF_ITEMS`): `kind:'choice'` (same shape as language items), `kind:'order'` (steps listed in the correct order) or `kind:'memory'` (`seq`, `names`, `ask`).
-- **Vocabulary** (`VOCAB`): `[word, meaning, example with ___, synonym|null, antonym|null, emoji, grade?]`. Untagged words count as Grade 3.
-- **Expert words** (`EXPERT[interest]`): `{jobs:[3 titles], words:[[word, sayIt, meaning, band m|h|c, question, [3 choices], answerIndex], …]}`, one word per Discovery card, in the same order.
+- **Brain Skills:** `kind:'choice'` (same shape as language items), `kind:'order'` (steps listed in the correct order) or `kind:'memory'` (`seq`, `names`, `ask`).
+- **Vocabulary:** `[word, meaning, example with ___, synonym|null, antonym|null, emoji, grade?]`. Untagged words count as Grade 3.
+- **Expert words:** `{jobs:[3 titles], words:[[word, sayIt, meaning, band m|h|c, question, [3 choices], answerIndex], …]}`, one word per Discovery card, in the same order.
 
-## Adding content: packs and versions
+## Releasing a pack
 
-1. Create `data/packs/v<N>-<name>.js`:
+1. Edit `content/src/*.json`, adding new position-keyed items at the end.
+2. In `content/src/meta.json`, raise `version` and add a `log` line.
+3. Run `node tools/build-content.js`, then `node tools/bank-check.js`. The check fails when a locked key disappeared, position-keyed items moved, items were added without raising the version, or expert words and Discovery cards no longer match.
+4. Run `node tools/bank-check.js --update` to record the release in `content/bank-lock.json`.
+5. Merge to `main`. Every platform picks it up, with no app update.
 
-   ```js
-   pack({
-     lang:   [ /* language items */ ],
-     ef:     [ /* Brain Skills items */ ],
-     vocab:  [ /* vocabulary entries */ ],
-     social: [ /* People Lab items: appended after every earlier set, never reorder */ ]
-   });
-   ```
-
-2. Add it to `index.html` after the existing packs.
-3. In `data/bank.js`, raise `BANK.version` and add a changelog line. Only add a `BANK_MIGRATIONS[N]` if keys must be renamed; a migration must never reset progress.
-4. Run `node tools/bank-check.js`. It fails when:
-   - a locked key disappeared;
-   - position-keyed items moved;
-   - items were added without raising the version;
-   - expert words and Discovery cards no longer match.
-5. When it prints OK, run `node tools/bank-check.js --update` to record the release in `data/bank-lock.json`.
-
-When a child opens the updated app, their progress moves to the new version once and nothing is reset. They see a calm two-day note on Home, and Parent → Backup shows the version and changelog.
+The first launch after a pack, each child's progress moves to the new version once and nothing is reset. They see a calm two-day note on Home on the web. If keys must be renamed, add a migration to `BANK_MIGRATIONS` in `js/app/main.js`; that is code, so it needs an app release.
 
 ## Quality bar
 

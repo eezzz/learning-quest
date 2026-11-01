@@ -1,0 +1,25 @@
+name: Native iOS build
+on:
+  pull_request:
+  push:
+    branches: [main]
+jobs:
+  core-tests:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: The built pack matches content/src
+        run: node tools/build-content.js && git diff --exit-code content/
+      - run: node tools/bank-check.js
+      - name: Test the core against the real content pack
+        run: swift test
+        working-directory: apple/LearningCore
+  app:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: brew install xcodegen
+      - run: xcodegen generate
+        working-directory: apple
+      - name: Build for the iOS simulator (no signing)
+        run: xcodebuild -project apple/LearningQuestNative.xcodeproj -scheme LearningQuest -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build
